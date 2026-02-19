@@ -1,0 +1,181 @@
+{%- comment -%}
+  Sallety Theme — Custom HTML Section
+  Freeform HTML/CSS/JS section.
+{%- endcomment -%}
+
+{%- liquid
+  assign content_width = section.settings.content_width | default: 'full'
+  assign full_width = section.settings.full_width
+  assign bg_color = section.settings.background_color
+  assign text_color = section.settings.text_color
+  assign padding_top = section.settings.padding_top | default: 20
+  assign padding_bottom = section.settings.padding_bottom | default: 20
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="custom-html-{{ section.id }}"
+  class="ch-section"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --ch-pt: {{ padding_top }}px;
+    --ch-pb: {{ padding_bottom }}px;
+    {%- if bg_color != blank %}--ch-bg: {{ bg_color }};{% endif %}
+    {%- if text_color != blank %}--ch-text: {{ text_color }};{% endif %}
+  "
+>
+  <div class="ch-container ch-container--{{ content_width }}{% if full_width %} ch-container--fluid{% endif %}">
+    {%- if section.settings.custom_html != blank -%}
+      {{ section.settings.custom_html }}
+    {%- else -%}
+      <div class="ch-empty">
+        <p>أضف كود HTML مخصص من إعدادات القسم</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .ch-section {
+    padding-block-start: var(--ch-pt);
+    padding-block-end: var(--ch-pb);
+    background: var(--ch-bg, transparent);
+    color: var(--ch-text, inherit);
+  }
+  .ch-container {
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .ch-container--small {
+    max-width: 600px;
+  }
+  .ch-container--medium {
+    max-width: 900px;
+  }
+  .ch-container--large {
+    max-width: 1200px;
+  }
+  .ch-container--full {
+    max-width: 100%;
+  }
+  .ch-container--fluid {
+    padding-inline: 0;
+  }
+  @media (min-width: 768px) {
+    .ch-container {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ch-container:not(.ch-container--fluid) {
+      padding-inline: 4rem;
+    }
+  }
+
+  .ch-empty {
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    color: rgba(0, 0, 0, 0.4);
+    font-size: 0.9375rem;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.custom_html.name",
+  "tag": "section",
+  "class": "section-custom-html",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.custom_html.settings.header.content"
+    },
+    {
+      "type": "liquid",
+      "id": "custom_html",
+      "label": "t:sections.custom_html.settings.custom_html.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.custom_html.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.custom_html.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "t:sections.custom_html.settings.content_width.label",
+      "default": "full",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.custom_html.settings.content_width.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.custom_html.settings.content_width.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.custom_html.settings.content_width.options.large"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.custom_html.settings.content_width.options.full"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.custom_html.settings.header.content"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.custom_html.settings.background_color.label"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.custom_html.settings.text_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.custom_html.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.custom_html.settings.padding_top.label",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.custom_html.settings.padding_bottom.label",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.custom_html.name"
+    }
+  ]
+}
+{% endschema %}

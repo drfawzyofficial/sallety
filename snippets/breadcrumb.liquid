@@ -1,0 +1,50 @@
+{%- comment -%}
+  Sallety Theme - Breadcrumb Snippet
+  Renders breadcrumb navigation.
+
+  Usage:
+  {% render 'breadcrumb' %}
+{%- endcomment -%}
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="{{ routes.root_url }}" class="breadcrumbs__link">
+    {{ 'general.breadcrumbs.home' | t }}
+  </a>
+
+  {%- if request.page_type == 'product' -%}
+    {%- if collection -%}
+      <span class="breadcrumbs__separator">/</span>
+      <a href="{{ collection.url }}" class="breadcrumbs__link">{{ collection.title }}</a>
+    {%- endif -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ product.title }}</span>
+
+  {%- elsif request.page_type == 'collection' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ collection.title }}</span>
+
+  {%- elsif request.page_type == 'blog' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ blog.title }}</span>
+
+  {%- elsif request.page_type == 'article' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <a href="{{ blog.url }}" class="breadcrumbs__link">{{ blog.title }}</a>
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ article.title }}</span>
+
+  {%- elsif request.page_type == 'page' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ page.title }}</span>
+
+  {%- elsif request.page_type == 'search' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ 'general.search.search' | t }}</span>
+
+  {%- elsif request.page_type == 'cart' -%}
+    <span class="breadcrumbs__separator">/</span>
+    <span class="breadcrumbs__current">{{ 'cart.general.title' | t }}</span>
+
+  {%- endif -%}
+</nav>
+

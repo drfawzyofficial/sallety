@@ -1,0 +1,357 @@
+{%- comment -%}
+  Sallety Theme - Featured Blog Section
+  Displays featured articles from a selected blog.
+  Supports RTL and LTR layouts dynamically.
+{%- endcomment -%}
+
+{%- liquid
+  # RTL detection
+  assign is_rtl = false
+  assign rtl_languages = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  for rtl_lang in rtl_languages
+    assign rtl_lang_trimmed = rtl_lang | strip
+    if request.locale.iso_code == rtl_lang_trimmed or localization.language.iso_code == rtl_lang_trimmed
+      assign is_rtl = true
+      break
+    endif
+  endfor
+  if settings.enable_rtl
+    assign is_rtl = true
+  endif
+
+  assign blog = section.settings.blog
+  assign posts_to_show = section.settings.posts_to_show | default: 3
+  assign heading = section.settings.heading
+  assign show_view_all = section.settings.show_view_all | default: true
+
+  # Color settings
+  assign bg_color = section.settings.background_color | default: '#F9FAFC'
+  assign heading_color = section.settings.heading_color | default: '#1a2744'
+  assign view_all_color = section.settings.view_all_color | default: ''
+
+  # Padding
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+
+  # Columns
+  assign columns_desktop = section.settings.columns_desktop | default: '3'
+  assign columns_mobile = section.settings.columns_mobile | default: '1'
+
+  case columns_desktop
+    when '2'
+      assign grid_cols_desktop = 'repeat(2, 1fr)'
+    when '3'
+      assign grid_cols_desktop = 'repeat(3, 1fr)'
+    when '4'
+      assign grid_cols_desktop = 'repeat(4, 1fr)'
+    else
+      assign grid_cols_desktop = 'repeat(3, 1fr)'
+  endcase
+
+  case columns_mobile
+    when '1'
+      assign grid_cols_mobile = '1fr'
+    when '2'
+      assign grid_cols_mobile = 'repeat(2, 1fr)'
+    else
+      assign grid_cols_mobile = '1fr'
+  endcase
+-%}
+
+<style>
+  .featured-blog-section--{{ section.id }} {
+    --fb-bg: {{ bg_color }};
+    --fb-heading-color: {{ heading_color }};
+    --fb-view-all-color: {{ view_all_color | default: 'var(--button-primary-bg, #1a2744)' }};
+    --fb-grid-desktop: {{ grid_cols_desktop }};
+    --fb-grid-mobile: {{ grid_cols_mobile }};
+
+    background-color: var(--fb-bg);
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+  }
+
+  .featured-blog__container {
+    width: 100%;
+    max-width: var(--page-width, 1200px);
+    margin: 0 auto;
+    padding-inline: var(--container-padding, 20px);
+    text-align: start;
+  }
+
+  .featured-blog__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .featured-blog__title {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--font-heading-weight, 700);
+    color: var(--fb-heading-color);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .featured-blog__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fb-view-all-color);
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
+
+  .featured-blog__view-all:hover {
+    gap: 12px;
+  }
+
+  .featured-blog__view-all-icon {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  /* RTL: flip the arrow icon */
+  [dir="rtl"] .featured-blog__view-all-icon {
+    transform: scaleX(-1);
+  }
+
+  .featured-blog__view-all:hover .featured-blog__view-all-icon {
+    transform: translateX(4px);
+  }
+
+  [dir="rtl"] .featured-blog__view-all:hover .featured-blog__view-all-icon {
+    transform: scaleX(-1) translateX(4px);
+  }
+
+  .featured-blog__grid {
+    display: grid;
+    grid-template-columns: var(--fb-grid-desktop);
+    gap: var(--grid-gap, 20px);
+  }
+
+  .featured-blog__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-radius: var(--border-radius-medium, 8px);
+  }
+
+  .featured-blog__empty-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    color: #9ca3af;
+  }
+
+  .featured-blog__empty-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+  }
+
+  .featured-blog__empty-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .featured-blog__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .featured-blog-section--{{ section.id }} {
+      padding-top: {{ padding_top | divided_by: 1.5 | round }}px;
+      padding-bottom: {{ padding_bottom | divided_by: 1.5 | round }}px;
+    }
+
+    .featured-blog__header {
+      flex-direction: column;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .featured-blog__title {
+      font-size: calc(var(--font-heading-size, 32px) * 0.75);
+    }
+
+    .featured-blog__grid {
+      grid-template-columns: var(--fb-grid-mobile);
+      gap: 16px;
+    }
+  }
+</style>
+
+<section
+  class="featured-blog-section featured-blog-section--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-blog"
+  {% if is_rtl %}
+    dir="rtl"
+  {% else %}
+    dir="ltr"
+  {% endif %}
+>
+  <div class="featured-blog__container">
+    {%- if heading != blank or show_view_all -%}
+      <header class="featured-blog__header">
+        {%- if heading != blank -%}
+          <h2 class="featured-blog__title">{{ heading }}</h2>
+        {%- endif -%}
+        {%- if show_view_all and blog != blank -%}
+          <a href="{{ blog.url }}" class="featured-blog__view-all">
+            {{ 'blogs.article.view_all' | t }}
+            <svg
+              class="featured-blog__view-all-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="featured-blog__grid">
+      {%- if blog != blank -%}
+        {%- for article in blog.articles limit: posts_to_show -%}
+          <article class="featured-blog__item">
+            {% render 'card-article', article: article %}
+          </article>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..posts_to_show) -%}
+          <article class="featured-blog__item">
+            {% render 'article-card-placeholder', index: i %}
+          </article>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.featured_blog.name",
+  "class": "section-featured-blog",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.featured_blog.settings.heading.label",
+      "default": "مقالات المدونة"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "t:sections.featured_blog.settings.blog.label"
+    },
+    {
+      "type": "range",
+      "id": "posts_to_show",
+      "label": "t:sections.featured_blog.settings.posts_to_show.label",
+      "default": 3,
+      "min": 2,
+      "max": 6,
+      "step": 1
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "t:sections.featured_blog.settings.columns_desktop.label",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.featured_blog.settings.columns_mobile.label",
+      "default": "1",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "t:sections.featured_blog.settings.show_view_all.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_blog.settings.colors.header"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.featured_blog.settings.background_color.label",
+      "default": "#F9FAFC"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.featured_blog.settings.heading_color.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "color",
+      "id": "view_all_color",
+      "label": "t:sections.featured_blog.settings.view_all_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured_blog.name"
+    }
+  ]
+}
+{% endschema %}

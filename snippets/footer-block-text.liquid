@@ -1,0 +1,22 @@
+    {%- comment -%}
+  Footer Block - Text
+  Displays a text block with heading
+
+  Parameters:
+  - block: The block object from section
+{%- endcomment -%}
+
+<div class="footer-block footer-block--text text-right" {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h3 class="text-base sm:text-lg font-bold mb-4 sm:mb-6">
+      {{ block.settings.heading }}
+    </h3>
+  {%- endif -%}
+  
+  {%- if block.settings.text != blank -%}
+    <div class="text-gray-400 text-xs sm:text-sm leading-relaxed rte">
+      {{ block.settings.text }}
+    </div>
+  {%- endif -%}
+</div>
+

@@ -1,0 +1,110 @@
+{%- comment -%}
+  Sallety Theme - Section Wrapper Snippet
+  
+  A standardized section container with color scheme support and padding controls.
+  
+  Parameters:
+  - section_id: The section ID (required)
+  - color_scheme: Color scheme number 1-5 (default: 1)
+  - padding_top: Top padding in pixels (default: section_spacing setting)
+  - padding_bottom: Bottom padding in pixels (default: section_spacing setting)
+  - container: Container type - 'default', 'fluid', 'narrow', 'none' (default: 'default')
+  - class: Additional CSS classes (optional)
+  - tag: HTML tag to use - 'section', 'div', 'aside', 'article' (default: 'section')
+  - data_attributes: Additional data attributes string (optional)
+  - animate: Animation type - 'fade-in', 'fade-in-up', 'slide-in-left', 'slide-in-right', 'none' (default: 'none')
+  
+  Usage:
+  
+  {% capture section_content %}
+    <div class="my-section-content">
+      ...
+    </div>
+  {% endcapture %}
+  
+  {% render 'section-wrapper',
+    section_id: section.id,
+    color_scheme: section.settings.color_scheme,
+    padding_top: section.settings.padding_top,
+    padding_bottom: section.settings.padding_bottom,
+    content: section_content
+  %}
+  
+  Or use the opening/closing pattern for more control:
+  
+  <section class="{% render 'color-scheme', scheme: section.settings.color_scheme %}" 
+    style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+    <div class="container">
+      ...
+    </div>
+  </section>
+{%- endcomment -%}
+
+{%- liquid
+  assign color_scheme = color_scheme | default: '1'
+  assign padding_top = padding_top | default: settings.section_spacing
+  assign padding_bottom = padding_bottom | default: settings.section_spacing
+  assign container = container | default: 'default'
+  assign tag = tag | default: 'section'
+  assign animate = animate | default: 'none'
+  
+  assign wrapper_classes = ''
+  
+  case color_scheme
+    when '1' or 1
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-1'
+    when '2' or 2
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-2'
+    when '3' or 3
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-3'
+    when '4' or 4
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-4'
+    when '5' or 5
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-5'
+    else
+      assign wrapper_classes = wrapper_classes | append: 'color-scheme-1'
+  endcase
+  
+  case animate
+    when 'fade-in'
+      assign wrapper_classes = wrapper_classes | append: ' animate-fade-in'
+    when 'fade-in-up'
+      assign wrapper_classes = wrapper_classes | append: ' animate-fade-in-up'
+    when 'slide-in-left'
+      assign wrapper_classes = wrapper_classes | append: ' animate-slide-in-left'
+    when 'slide-in-right'
+      assign wrapper_classes = wrapper_classes | append: ' animate-slide-in-right'
+  endcase
+  
+  if class != blank
+    assign wrapper_classes = wrapper_classes | append: ' ' | append: class
+  endif
+  
+  assign container_class = 'container'
+  case container
+    when 'fluid'
+      assign container_class = 'container-fluid'
+    when 'narrow'
+      assign container_class = 'container-narrow'
+    when 'none'
+      assign container_class = ''
+  endcase
+  
+  assign wrapper_style = 'padding-top: ' | append: padding_top | append: 'px; padding-bottom: ' | append: padding_bottom | append: 'px;'
+-%}
+
+<{{ tag }}
+  {%- if section_id != blank %} id="section-{{ section_id }}" data-section-id="{{ section_id }}"{% endif %}
+  class="{{ wrapper_classes }}"
+  style="{{ wrapper_style }}"
+  {%- if data_attributes != blank %} {{ data_attributes }}{% endif %}
+>
+  {%- if container_class != blank -%}
+    <div class="{{ container_class }}">
+      {{ content }}
+    </div>
+  {%- else -%}
+    {{ content }}
+  {%- endif -%}
+</{{ tag }}>
+

@@ -1,0 +1,390 @@
+{%- comment -%}
+  Sallety Theme - Product Gallery Snippet (Premium Carousel)
+  A modern product image carousel with smooth sliding transitions,
+  horizontal thumbnails, navigation arrows, dot indicators, zoom, and lightbox.
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - thumbnail_position: {String} 'right' | 'left' | 'bottom' (default: 'bottom')
+  - enable_zoom: {Boolean} Enable image zoom on hover (default: true)
+  - variant_id: {Number} Selected variant ID for image matching
+
+  Usage:
+  {% render 'product-gallery', product: product, thumbnail_position: 'bottom', enable_zoom: true %}
+{%- endcomment -%}
+
+{%- liquid
+  assign thumb_pos = thumbnail_position | default: 'bottom'
+  assign zoom_enabled = enable_zoom | default: true
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media | default: product.featured_media
+  assign media_count = product.media.size
+-%}
+
+<div
+  class="product-gallery product-gallery--thumbs-{{ thumb_pos }}"
+  data-product-gallery
+  data-zoom-enabled="{{ zoom_enabled }}"
+>
+  {%- comment -%} ===== Main Image Carousel ===== {%- endcomment -%}
+  <div class="product-gallery__main" data-gallery-main>
+    {%- if media_count > 0 -%}
+      {%- comment -%} Carousel Track {%- endcomment -%}
+      <div class="product-gallery__track" data-gallery-track>
+        {%- for media in product.media -%}
+          <div
+            class="product-gallery__slide{% if media.id == featured_media.id %} is-active{% endif %}"
+            data-gallery-slide
+            data-media-id="{{ media.id }}"
+            data-media-type="{{ media.media_type }}"
+            data-index="{{ forloop.index0 }}"
+          >
+            {%- case media.media_type -%}
+              {%- when 'image' -%}
+                <div
+                  class="product-gallery__image-wrapper{% if zoom_enabled %} product-gallery__image-wrapper--zoomable{% endif %}"
+                  {% if zoom_enabled %}
+                    data-zoom-wrapper
+                    data-zoom-src="{{ media | image_url: width: 2048 }}"
+                  {% endif %}
+                >
+                  <img
+                    src="{{ media | image_url: width: 900 }}"
+                    srcset="
+                      {{ media | image_url: width: 600 }} 600w,
+                      {{ media | image_url: width: 900 }} 900w,
+                      {{ media | image_url: width: 1200 }} 1200w,
+                      {{ media | image_url: width: 1800 }} 1800w
+                    "
+                    sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 55vw"
+                    alt="{{ media.alt | escape }}"
+                    width="{{ media.width }}"
+                    height="{{ media.height }}"
+                    loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                    class="product-gallery__image"
+                  >
+                  {%- if zoom_enabled -%}
+                    <div class="product-gallery__zoom-lens" data-zoom-lens></div>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'video' -%}
+                <div class="product-gallery__video">
+                  {{ media | video_tag: autoplay: false, loop: true, controls: true, muted: false }}
+                </div>
+
+              {%- when 'external_video' -%}
+                <div class="product-gallery__video">
+                  {{ media | external_video_tag }}
+                </div>
+
+              {%- when 'model' -%}
+                <div class="product-gallery__model">
+                  {{ media | model_viewer_tag }}
+                </div>
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Sale / New Badges {%- endcomment -%}
+      <div class="product-gallery__badges">
+        {% render 'product-badge', product: product %}
+      </div>
+
+      {%- comment -%} Previous / Next Navigation Arrows {%- endcomment -%}
+      {%- if media_count > 1 -%}
+        <div class="product-gallery__nav-arrows">
+          <button
+            type="button"
+            class="product-gallery__arrow product-gallery__arrow--prev"
+            data-gallery-prev
+            aria-label="{{ 'products.product.media.previous' | t | default: 'السابق' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="product-gallery__arrow product-gallery__arrow--next"
+            data-gallery-next
+            aria-label="{{ 'products.product.media.next' | t | default: 'التالي' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+        {%- comment -%} Dot Indicators (visible on mobile) {%- endcomment -%}
+        <div class="product-gallery__dots" data-gallery-dots>
+          {%- for media in product.media -%}
+            <button
+              type="button"
+              class="product-gallery__dot{% if media.id == featured_media.id %} is-active{% endif %}"
+              data-dot-index="{{ forloop.index0 }}"
+              aria-label="{{ 'products.product.media.open_media' | t: index: forloop.index | default: 'صورة' }} {{ forloop.index }}"
+            ></button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Counter Badge {%- endcomment -%}
+      <div class="product-gallery__counter" data-gallery-counter>
+        <span data-gallery-current>1</span> / <span>{{ media_count }}</span>
+      </div>
+
+      {%- comment -%} Fullscreen Button {%- endcomment -%}
+      <button
+        type="button"
+        class="product-gallery__fullscreen-btn"
+        data-gallery-fullscreen
+        aria-label="{{ 'products.product.media.open_lightbox' | t | default: 'عرض بالحجم الكامل' }}"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 3 21 3 21 9"/>
+          <polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/>
+          <line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      </button>
+
+    {%- else -%}
+      <div class="product-gallery__placeholder">
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} ===== Thumbnails Strip ===== {%- endcomment -%}
+  {%- if media_count > 1 -%}
+    <div class="product-gallery__thumbnails" data-gallery-thumbnails>
+      {%- comment -%} Scroll Previous {%- endcomment -%}
+      <button
+        type="button"
+        class="product-gallery__thumb-scroll product-gallery__thumb-scroll--prev"
+        data-thumb-prev
+        aria-label="{{ 'products.product.media.previous' | t | default: 'السابق' }}"
+        disabled
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+
+      <div class="product-gallery__thumb-track" data-thumb-list>
+        {%- for media in product.media -%}
+          <button
+            type="button"
+            class="product-gallery__thumb{% if media.id == featured_media.id %} is-active{% endif %}"
+            data-thumb-trigger
+            data-media-id="{{ media.id }}"
+            data-index="{{ forloop.index0 }}"
+            aria-label="{{ 'products.product.media.open_media' | t: index: forloop.index | default: 'عرض الصورة' }} {{ forloop.index }}"
+          >
+            {%- if media.media_type == 'image' -%}
+              <img
+                src="{{ media | image_url: width: 120, height: 120, crop: 'center' }}"
+                alt="{{ media.alt | escape }}"
+                width="80"
+                height="80"
+                loading="lazy"
+              >
+            {%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}
+              <div class="product-gallery__thumb-video">
+                <img
+                  src="{{ media.preview_image | image_url: width: 120, height: 120, crop: 'center' }}"
+                  alt="{{ media.alt | escape }}"
+                  width="80"
+                  height="80"
+                  loading="lazy"
+                >
+                <span class="product-gallery__thumb-play-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </span>
+              </div>
+            {%- elsif media.media_type == 'model' -%}
+              <img
+                src="{{ media.preview_image | image_url: width: 120, height: 120, crop: 'center' }}"
+                alt="{{ media.alt | escape }}"
+                width="80"
+                height="80"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </button>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Scroll Next {%- endcomment -%}
+      <button
+        type="button"
+        class="product-gallery__thumb-scroll product-gallery__thumb-scroll--next"
+        data-thumb-next
+        aria-label="{{ 'products.product.media.next' | t | default: 'التالي' }}"
+        {% if media_count <= 5 %}
+          disabled
+        {% endif %}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  {%- endif -%}
+</div>
+
+{%- comment -%} ===== Lightbox Modal ===== {%- endcomment -%}
+{%- if media_count > 0 -%}
+  <div class="product-gallery__lightbox" data-gallery-lightbox aria-hidden="true" role="dialog">
+    <div class="product-gallery__lightbox-overlay" data-lightbox-close></div>
+    <div class="product-gallery__lightbox-content">
+      <button
+        type="button"
+        class="product-gallery__lightbox-close"
+        data-lightbox-close
+        aria-label="{{ 'general.close' | t | default: 'إغلاق' }}"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div class="product-gallery__lightbox-track" data-lightbox-track>
+        {%- for media in product.media -%}
+          {%- if media.media_type == 'image' -%}
+            <div
+              class="product-gallery__lightbox-slide{% if media.id == featured_media.id %} is-active{% endif %}"
+              data-lightbox-slide
+              data-index="{{ forloop.index0 }}"
+            >
+              <img
+                src="{{ media | image_url: width: 1800 }}"
+                alt="{{ media.alt | escape }}"
+                width="{{ media.width }}"
+                height="{{ media.height }}"
+                loading="lazy"
+                class="product-gallery__lightbox-image"
+              >
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if media_count > 1 -%}
+        <button
+          type="button"
+          class="product-gallery__lightbox-arrow product-gallery__lightbox-arrow--prev"
+          data-lightbox-prev
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="product-gallery__lightbox-arrow product-gallery__lightbox-arrow--next"
+          data-lightbox-next
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      {%- endif -%}
+
+      <div class="product-gallery__lightbox-counter" data-lightbox-counter>
+        <span data-lightbox-current>1</span> / <span>{{ media_count }}</span>
+      </div>
+    </div>
+  </div>
+{%- endif -%}

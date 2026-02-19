@@ -1,0 +1,358 @@
+{%- comment -%}
+  Scroll Animations Snippet
+  Pure CSS + Intersection Observer for scroll-triggered animations
+  RTL compatible - Following Sallety Theme Patterns
+{%- endcomment -%}
+
+<style>
+  /* ================================
+     Base Animation Classes
+     ================================ */
+  
+  .animate-on-scroll {
+    opacity: 0;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    will-change: opacity, transform;
+  }
+
+  .animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) !important;
+  }
+
+  /* ================================
+     Fade Animations
+     ================================ */
+  
+  /* Fade Up */
+  .aos-fade-up {
+    transform: translateY(40px);
+  }
+
+  /* Fade Down */
+  .aos-fade-down {
+    transform: translateY(-40px);
+  }
+
+  /* Fade Right (RTL aware) */
+  .aos-fade-right {
+    transform: translateX(-40px);
+  }
+
+  [dir="rtl"] .aos-fade-right {
+    transform: translateX(40px);
+  }
+
+  /* Fade Left (RTL aware) */
+  .aos-fade-left {
+    transform: translateX(40px);
+  }
+
+  [dir="rtl"] .aos-fade-left {
+    transform: translateX(-40px);
+  }
+
+  /* ================================
+     Zoom Animations
+     ================================ */
+  
+  /* Zoom In */
+  .aos-zoom-in {
+    transform: scale(0.9);
+  }
+
+  /* Zoom Out */
+  .aos-zoom-out {
+    transform: scale(1.1);
+  }
+
+  /* ================================
+     Slide Animations
+     ================================ */
+  
+  /* Slide Up */
+  .aos-slide-up {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+
+  /* Slide Down */
+  .aos-slide-down {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+
+  /* ================================
+     Flip Animations
+     ================================ */
+  
+  .aos-flip-up {
+    transform: perspective(1000px) rotateX(10deg);
+    transform-origin: bottom;
+  }
+
+  .aos-flip-down {
+    transform: perspective(1000px) rotateX(-10deg);
+    transform-origin: top;
+  }
+
+  /* ================================
+     Animation Delays (Stagger Support)
+     ================================ */
+  
+  .aos-delay-100 { transition-delay: 100ms; }
+  .aos-delay-200 { transition-delay: 200ms; }
+  .aos-delay-300 { transition-delay: 300ms; }
+  .aos-delay-400 { transition-delay: 400ms; }
+  .aos-delay-500 { transition-delay: 500ms; }
+  .aos-delay-600 { transition-delay: 600ms; }
+  .aos-delay-700 { transition-delay: 700ms; }
+  .aos-delay-800 { transition-delay: 800ms; }
+
+  /* ================================
+     Animation Durations
+     ================================ */
+  
+  .aos-duration-300 { transition-duration: 300ms; }
+  .aos-duration-400 { transition-duration: 400ms; }
+  .aos-duration-500 { transition-duration: 500ms; }
+  .aos-duration-600 { transition-duration: 600ms; }
+  .aos-duration-800 { transition-duration: 800ms; }
+  .aos-duration-1000 { transition-duration: 1000ms; }
+
+  /* ================================
+     Animation Easing
+     ================================ */
+  
+  .aos-ease-in { transition-timing-function: ease-in; }
+  .aos-ease-out { transition-timing-function: ease-out; }
+  .aos-ease-in-out { transition-timing-function: ease-in-out; }
+  .aos-ease-bounce { transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+  .aos-ease-smooth { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* ================================
+     Reduced Motion - Accessibility
+     ================================ */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .animate-on-scroll {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+
+  /* ================================
+     Mobile Optimizations
+     ================================ */
+  
+  @media (max-width: 768px) {
+    .animate-on-scroll {
+      transition-duration: 0.4s;
+    }
+
+    .aos-fade-up,
+    .aos-fade-down {
+      transform: translateY(25px);
+    }
+
+    .aos-fade-left,
+    .aos-fade-right {
+      transform: translateX(25px);
+    }
+
+    [dir="rtl"] .aos-fade-right {
+      transform: translateX(25px);
+    }
+
+    [dir="rtl"] .aos-fade-left {
+      transform: translateX(-25px);
+    }
+  }
+</style>
+
+<script>
+/**
+ * Sallety Theme - Scroll Animations
+ * @fileoverview Scroll-triggered animations using Intersection Observer
+ * @version 2.0.0
+ * @license MIT
+ * 
+ * Features:
+ * - Intersection Observer for performance
+ * - Reduced motion preference support
+ * - Auto-staggered animations
+ * - Dynamic content support (AJAX)
+ * - Configurable delays and repeat behavior
+ */
+(function() {
+  'use strict';
+
+  /**
+   * Configuration constants
+   * @constant {Object}
+   */
+  const CONFIG = {
+    /** CSS class for animated elements */
+    ANIMATED_CLASS: 'animate-on-scroll',
+    /** CSS class when element is visible */
+    VISIBLE_CLASS: 'is-visible',
+    /** Default stagger delay in ms */
+    DEFAULT_STAGGER_DELAY: 100,
+    /** Intersection Observer threshold */
+    THRESHOLD: 0.1,
+    /** Root margin for observer */
+    ROOT_MARGIN: '0px 0px -50px 0px'
+  };
+
+  /**
+   * Check if user prefers reduced motion
+   * @returns {boolean} True if reduced motion is preferred
+   */
+  function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  /**
+   * Initialize scroll animations
+   * @returns {void}
+   */
+  function initScrollAnimations() {
+    // Handle reduced motion preference
+    if (prefersReducedMotion()) {
+      document.querySelectorAll(`.${CONFIG.ANIMATED_CLASS}`).forEach(el => {
+        el.classList.add(CONFIG.VISIBLE_CLASS);
+      });
+      return;
+    }
+
+    // Create Intersection Observer
+    const observer = createScrollObserver();
+    
+    // Observe all animated elements
+    observeElements(observer);
+    
+    // Setup mutation observer for dynamic content
+    setupMutationObserver(observer);
+  }
+
+  /**
+   * Create the Intersection Observer
+   * @returns {IntersectionObserver} The configured observer
+   */
+  function createScrollObserver() {
+    const options = {
+      root: null,
+      rootMargin: CONFIG.ROOT_MARGIN,
+      threshold: CONFIG.THRESHOLD
+    };
+
+    return new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        handleIntersection(entry, observer);
+      });
+    }, options);
+  }
+
+  /**
+   * Handle intersection events
+   * @param {IntersectionObserverEntry} entry - The intersection entry
+   * @param {IntersectionObserver} observer - The observer instance
+   */
+  function handleIntersection(entry, observer) {
+    const element = entry.target;
+    const shouldRepeat = element.dataset.aosRepeat !== undefined;
+
+    if (entry.isIntersecting) {
+      const delay = parseInt(element.dataset.aosDelay, 10) || 0;
+      
+      if (delay > 0) {
+        setTimeout(() => {
+          element.classList.add(CONFIG.VISIBLE_CLASS);
+        }, delay);
+      } else {
+        element.classList.add(CONFIG.VISIBLE_CLASS);
+      }
+      
+      // Unobserve for performance (unless repeat is enabled)
+      if (!shouldRepeat) {
+        observer.unobserve(element);
+      }
+    } else if (shouldRepeat) {
+      element.classList.remove(CONFIG.VISIBLE_CLASS);
+    }
+  }
+
+  /**
+   * Observe all animated elements
+   * @param {IntersectionObserver} observer - The observer instance
+   */
+  function observeElements(observer) {
+    const elements = document.querySelectorAll(`.${CONFIG.ANIMATED_CLASS}`);
+    
+    elements.forEach((element) => {
+      // Handle auto-staggering
+      applyStaggerDelay(element);
+      observer.observe(element);
+    });
+  }
+
+  /**
+   * Apply stagger delay to elements with staggered parents
+   * @param {HTMLElement} element - The element to process
+   */
+  function applyStaggerDelay(element) {
+    const parent = element.closest('[data-aos-stagger]');
+    
+    if (!parent || element.dataset.aosDelay) return;
+    
+    const staggerDelay = parseInt(parent.dataset.aosStagger, 10) || CONFIG.DEFAULT_STAGGER_DELAY;
+    const siblings = Array.from(parent.querySelectorAll(`.${CONFIG.ANIMATED_CLASS}`));
+    const index = siblings.indexOf(element);
+    
+    if (index > 0) {
+      element.dataset.aosDelay = String(index * staggerDelay);
+    }
+  }
+
+  /**
+   * Setup mutation observer for dynamic content
+   * @param {IntersectionObserver} scrollObserver - The scroll observer
+   */
+  function setupMutationObserver(scrollObserver) {
+    const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType !== Node.ELEMENT_NODE) return;
+          
+          // Check if the node itself is animated
+          if (node.classList?.contains(CONFIG.ANIMATED_CLASS)) {
+            applyStaggerDelay(node);
+            scrollObserver.observe(node);
+          }
+          
+          // Check children
+          const children = node.querySelectorAll?.(`.${CONFIG.ANIMATED_CLASS}`) || [];
+          children.forEach((child) => {
+            applyStaggerDelay(child);
+            scrollObserver.observe(child);
+          });
+        });
+      });
+    });
+
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initScrollAnimations);
+  } else {
+    initScrollAnimations();
+  }
+})();
+</script>
+

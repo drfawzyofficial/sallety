@@ -1,0 +1,518 @@
+{%- comment -%}
+  Banner Two Images Section - بانر صورتين
+  Two images side by side with optional overlays and links
+  RTL layout with Arabic labels - Following Sallety Theme Patterns
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme class (uses CSS classes from theme.liquid)
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  
+  # Typography - Responsive sizes
+  assign heading_size_desktop = section.settings.heading_size_desktop | default: 28
+  assign heading_size_tablet = section.settings.heading_size_tablet | default: 24
+  assign heading_size_mobile = section.settings.heading_size_mobile | default: 20
+  
+  # Typography - Weights
+  assign heading_weight = section.settings.heading_weight | default: '600'
+  
+  # Section settings
+  assign image_1 = section.settings.image_1
+  assign image_2 = section.settings.image_2
+  assign heading_1 = section.settings.heading_1
+  assign heading_2 = section.settings.heading_2
+  assign link_1 = section.settings.link_1
+  assign link_2 = section.settings.link_2
+  assign layout_ratio = section.settings.layout_ratio | default: '50-50'
+  assign gap_size = section.settings.gap_size | default: 24
+  assign image_height = section.settings.image_height | default: 400
+  assign overlay_opacity = section.settings.overlay_opacity | default: 30
+  assign text_color_override = section.settings.text_color | default: '#ffffff'
+  assign show_shapes = section.settings.show_shapes
+  assign border_radius = section.settings.border_radius | default: 16
+  assign padding_top = section.settings.padding_top | default: 40
+  assign padding_bottom = section.settings.padding_bottom | default: 40
+  
+  # Calculate overlay
+  assign overlay_decimal = overlay_opacity | divided_by: 100.0
+  
+  # Layout ratios
+  case layout_ratio
+    when '50-50'
+      assign col_1_class = 'lg:col-span-6'
+      assign col_2_class = 'lg:col-span-6'
+    when '60-40'
+      assign col_1_class = 'lg:col-span-7'
+      assign col_2_class = 'lg:col-span-5'
+    when '40-60'
+      assign col_1_class = 'lg:col-span-5'
+      assign col_2_class = 'lg:col-span-7'
+    when '70-30'
+      assign col_1_class = 'lg:col-span-8'
+      assign col_2_class = 'lg:col-span-4'
+    when '30-70'
+      assign col_1_class = 'lg:col-span-4'
+      assign col_2_class = 'lg:col-span-8'
+  endcase
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section 
+  class="banner-two-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
+  dir="{{ section_dir }}" 
+  style="
+    --two-banner-text: {{ text_color_override }};
+    --two-banner-overlay: {{ overlay_decimal }};
+    --two-banner-gap: {{ gap_size }}px;
+    --two-banner-height: {{ image_height }}px;
+    --two-banner-radius: {{ border_radius }}px;
+    --two-banner-heading-desktop: {{ heading_size_desktop }}px;
+    --two-banner-heading-tablet: {{ heading_size_tablet }}px;
+    --two-banner-heading-mobile: {{ heading_size_mobile }}px;
+    --two-banner-heading-weight: {{ heading_weight }};
+    font-family: var(--font-body-family);
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+  "
+>
+  <!-- Decorative Parallax Shapes -->
+  {%- if show_shapes -%}
+    {% render 'decorative-shapes', accent_color: accent_color, text_color: text_color, prefix: 'twobanner' %}
+  {%- endif -%}
+
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-5 lg:gap-6" style="gap: var(--two-banner-gap);">
+      
+      <!-- Image 1 -->
+      <div class="col-span-1 sm:col-span-1 {{ col_1_class }} animate-on-scroll aos-fade-right">
+        <div class="two-banner-item relative rounded-xl overflow-hidden" style="border-radius: var(--two-banner-radius);">
+          {%- if link_1 != blank -%}
+            <a href="{{ link_1 }}" class="two-banner-link block">
+          {%- endif -%}
+
+            <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
+              {%- if image_1 != blank -%}
+                <img 
+                  src="{{ image_1 | image_url: width: 1200 }}"
+                  srcset="
+                    {{ image_1 | image_url: width: 400 }} 400w,
+                    {{ image_1 | image_url: width: 800 }} 800w,
+                    {{ image_1 | image_url: width: 1200 }} 1200w
+                  "
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  alt="{{ image_1.alt | default: heading_1 | default: 'Banner image 1' }}"
+                  class="two-banner-image w-full h-full object-cover"
+                  loading="lazy"
+                  width="{{ image_1.width }}"
+                  height="{{ image_1.height }}"
+                >
+              {%- else -%}
+                <div class="banner-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 200px;">
+                  {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+              {%- endif -%}
+
+              <!-- Overlay -->
+              {%- if overlay_opacity > 0 -%}
+                <div class="two-banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--two-banner-overlay));"></div>
+              {%- endif -%}
+
+              <!-- Heading -->
+              {%- if heading_1 != blank -%}
+                <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
+                  <h3 class="two-banner-heading m-0" style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);">
+                    {{ heading_1 }}
+                  </h3>
+                </div>
+              {%- endif -%}
+            </div>
+
+          {%- if link_1 != blank -%}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <!-- Image 2 -->
+      <div class="col-span-1 sm:col-span-1 {{ col_2_class }} animate-on-scroll aos-fade-left" data-aos-delay="150">
+        <div class="two-banner-item relative rounded-xl overflow-hidden" style="border-radius: var(--two-banner-radius);">
+          {%- if link_2 != blank -%}
+            <a href="{{ link_2 }}" class="two-banner-link block">
+          {%- endif -%}
+
+            <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
+              {%- if image_2 != blank -%}
+                <img 
+                  src="{{ image_2 | image_url: width: 1200 }}"
+                  srcset="
+                    {{ image_2 | image_url: width: 400 }} 400w,
+                    {{ image_2 | image_url: width: 800 }} 800w,
+                    {{ image_2 | image_url: width: 1200 }} 1200w
+                  "
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  alt="{{ image_2.alt | default: heading_2 | default: 'Banner image 2' }}"
+                  class="two-banner-image w-full h-full object-cover"
+                  loading="lazy"
+                  width="{{ image_2.width }}"
+                  height="{{ image_2.height }}"
+                >
+              {%- else -%}
+                <div class="banner-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 200px;">
+                  {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+              {%- endif -%}
+
+              <!-- Overlay -->
+              {%- if overlay_opacity > 0 -%}
+                <div class="two-banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--two-banner-overlay));"></div>
+              {%- endif -%}
+
+              <!-- Heading -->
+              {%- if heading_2 != blank -%}
+                <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
+                  <h3 class="two-banner-heading m-0" style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);">
+                    {{ heading_2 }}
+                  </h3>
+                </div>
+              {%- endif -%}
+            </div>
+
+          {%- if link_2 != blank -%}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Banner Two Images Section Styles */
+  .banner-two-section {
+    position: relative;
+  }
+
+  .two-banner-item {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s ease;
+  }
+
+  .two-banner-item:hover {
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+  }
+
+  .two-banner-link {
+    text-decoration: none;
+    display: block;
+  }
+
+  .two-banner-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .two-banner-image {
+    transition: transform 0.6s ease;
+  }
+
+  .two-banner-link:hover .two-banner-image {
+    transform: scale(1.08);
+  }
+
+  /* Typography - Responsive */
+  .two-banner-heading {
+    font-size: var(--two-banner-heading-desktop);
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.4);
+  }
+
+  @media (max-width: 1024px) {
+    .two-banner-heading {
+      font-size: var(--two-banner-heading-tablet);
+    }
+    .two-banner-wrapper {
+      height: calc(var(--two-banner-height) * 0.85) !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .two-banner-heading {
+      font-size: var(--two-banner-heading-mobile);
+    }
+    .two-banner-wrapper {
+      height: calc(var(--two-banner-height) * 0.7) !important;
+      min-height: 250px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .two-banner-wrapper {
+      height: calc(var(--two-banner-height) * 0.6) !important;
+      min-height: 200px;
+    }
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .two-banner-item:hover {
+      transform: none;
+    }
+    .two-banner-image {
+      transition: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.banner_two_images.name",
+  "tag": "section",
+  "class": "section-banner-two-images",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "t:sections.banner_two_images.settings.image_1.label"
+    },
+    {
+      "type": "text",
+      "id": "heading_1",
+      "label": "t:sections.banner_two_images.settings.heading_1.label",
+      "default": "تصنيف أول"
+    },
+    {
+      "type": "url",
+      "id": "link_1",
+      "label": "t:sections.banner_two_images.settings.link_1.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "t:sections.banner_two_images.settings.image_2.label"
+    },
+    {
+      "type": "text",
+      "id": "heading_2",
+      "label": "t:sections.banner_two_images.settings.heading_2.label",
+      "default": "تصنيف ثاني"
+    },
+    {
+      "type": "url",
+      "id": "link_2",
+      "label": "t:sections.banner_two_images.settings.link_2.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "layout_ratio",
+      "label": "t:sections.banner_two_images.settings.layout_ratio.label",
+      "default": "50-50",
+      "options": [
+        {
+          "value": "50-50",
+          "label": "t:sections.banner_two_images.settings.layout_ratio.options.50-50"
+        },
+        {
+          "value": "60-40",
+          "label": "t:sections.banner_two_images.settings.layout_ratio.options.60-40"
+        },
+        {
+          "value": "40-60",
+          "label": "t:sections.banner_two_images.settings.layout_ratio.options.40-60"
+        },
+        {
+          "value": "70-30",
+          "label": "t:sections.banner_two_images.settings.layout_ratio.options.70-30"
+        },
+        {
+          "value": "30-70",
+          "label": "t:sections.banner_two_images.settings.layout_ratio.options.30-70"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "gap_size",
+      "label": "t:sections.banner_two_images.settings.gap_size.label",
+      "default": 24,
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "t:sections.banner_two_images.settings.image_height.label",
+      "default": 400,
+      "min": 200,
+      "max": 600,
+      "step": 25,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "t:sections.banner_two_images.settings.border_radius.label",
+      "default": 16,
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.banner_two_images.settings.text_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.banner_two_images.settings.overlay_opacity.label",
+      "default": 30,
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.banner_two_images.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.banner_two_images.settings.show_shapes.label",
+      "default": false,
+      "info": "t:sections.banner_two_images.settings.show_shapes.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "t:sections.banner_two_images.settings.heading_size_desktop.label",
+      "default": 28,
+      "min": 18,
+      "max": 42,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_tablet",
+      "label": "t:sections.banner_two_images.settings.heading_size_tablet.label",
+      "default": 24,
+      "min": 16,
+      "max": 36,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "t:sections.banner_two_images.settings.heading_size_mobile.label",
+      "default": 20,
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.banner_two_images.settings.heading_weight.label",
+      "default": "600",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.banner_two_images.settings.heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.banner_two_images.settings.heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.banner_two_images.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.banner_two_images.settings.heading_weight.options.700"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.banner_two_images.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.banner_two_images.settings.padding_top.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.banner_two_images.settings.padding_bottom.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.banner_two_images.name"
+    }
+  ]
+}
+{% endschema %}
+

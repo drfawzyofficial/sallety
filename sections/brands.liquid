@@ -1,0 +1,1040 @@
+{%- comment -%}
+  Sallety Theme — Brands Section (العلامات التجارية)
+  Premium brand logos showcase with multiple display modes.
+  RTL/LTR, responsive, comprehensive settings.
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign show_heading = section.settings.show_heading
+  assign section_heading = section.settings.heading | default: 'العلامات التجارية'
+  assign section_subheading = section.settings.subheading
+  assign text_alignment = section.settings.text_alignment | default: 'center'
+  assign display_mode = section.settings.display_mode | default: 'grid'
+  assign card_style = section.settings.card_style | default: 'bordered'
+  assign show_brand_name = section.settings.show_brand_name
+  assign corner_radius = section.settings.corner_radius | default: 12
+  assign show_shapes = section.settings.show_shapes
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+  assign logo_height = section.settings.logo_height | default: 50
+  assign logo_opacity = section.settings.logo_opacity | default: 80
+  assign grayscale = section.settings.grayscale
+  assign columns_desktop = section.settings.columns_desktop | default: '5'
+  assign columns_mobile = section.settings.columns_mobile | default: '2'
+  assign marquee_speed = section.settings.marquee_speed | default: 30
+  assign bg_color = section.settings.background_color | default: ''
+  assign heading_color = section.settings.heading_color | default: ''
+  assign accent_color = section.settings.accent_color | default: ''
+
+  assign opacity_decimal = logo_opacity | divided_by: 100.0
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="brands-{{ section.id }}"
+  class="br-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="brands"
+  style="
+    --br-pt: {{ padding_top }}px;
+    --br-pb: {{ padding_bottom }}px;
+    --br-radius: {{ corner_radius }}px;
+    --br-logo-height: {{ logo_height }}px;
+    --br-logo-opacity: {{ opacity_decimal }};
+    --br-heading-weight: {{ heading_weight }};
+    --br-columns-desktop: {{ columns_desktop }};
+    --br-columns-mobile: {{ columns_mobile }};
+    --br-marquee-speed: {{ marquee_speed }}s;
+    --br-bg: {{ bg_color | default: 'var(--color-background, #ffffff)' }};
+    --br-heading-color: {{ heading_color | default: 'var(--color-text, #1a2744)' }};
+    --br-accent: {{ accent_color | default: 'var(--color-primary, #1a2744)' }};
+    font-family: var(--font-body-family);
+  "
+>
+  {%- comment -%} ── Decorative shapes ── {%- endcomment -%}
+  {%- if show_shapes -%}
+    <div class="br-shapes" aria-hidden="true">
+      <div class="br-shape br-shape-1"></div>
+      <div class="br-shape br-shape-2"></div>
+      <div class="br-shape br-shape-3"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="br-container">
+    {%- comment -%} ── Header ── {%- endcomment -%}
+    {%- if show_heading -%}
+      <header class="br-header br-align--{{ text_alignment }}">
+        <h2 class="br-section-heading">{{ section_heading }}</h2>
+        {%- if section_subheading != blank -%}
+          <p class="br-section-sub">{{ section_subheading }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- comment -%} ── Brand Logos ── {%- endcomment -%}
+    {%- if section.blocks.size > 0 -%}
+      {%- if display_mode == 'marquee' -%}
+        {%- comment -%} ── Marquee / Infinite Scroll ── {%- endcomment -%}
+        <div class="br-marquee" aria-label="Brands marquee">
+          <div class="br-marquee__track">
+            {%- for i in (1..3) -%}
+              <div class="br-marquee__group" aria-hidden="{% if i > 1 %}true{% else %}false{% endif %}">
+                {%- for block in section.blocks -%}
+                  <div class="br-item br-item--{{ card_style }}" {{ block.shopify_attributes }}>
+                    {%- if block.settings.link != blank -%}
+                      <a
+                        href="{{ block.settings.link }}"
+                        class="br-link"
+                        {% if block.settings.new_tab %}
+                          target="_blank" rel="noopener noreferrer"
+                        {% endif %}
+                      >
+                    {%- endif -%}
+
+                    {%- if block.settings.logo != blank -%}
+                      <img
+                        src="{{ block.settings.logo | image_url: width: 300 }}"
+                        srcset="
+                          {{ block.settings.logo | image_url: width: 150 }} 150w,
+                          {{ block.settings.logo | image_url: width: 300 }} 300w,
+                          {{ block.settings.logo | image_url: width: 450 }} 450w
+                        "
+                        sizes="180px"
+                        alt="{{ block.settings.brand_name | default: 'Brand logo' | escape }}"
+                        class="br-logo {% if grayscale %}br-logo--grayscale{% endif %}"
+                        loading="lazy"
+                        width="{{ block.settings.logo.width }}"
+                        height="{{ block.settings.logo.height }}"
+                      >
+                    {%- else -%}
+                      <div class="br-placeholder">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5"/>
+                          <path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                      </div>
+                    {%- endif -%}
+
+                    {%- if show_brand_name and block.settings.brand_name != blank -%}
+                      <span class="br-name">{{ block.settings.brand_name }}</span>
+                    {%- endif -%}
+
+                    {%- if block.settings.link != blank -%}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+      {%- else -%}
+        {%- comment -%} ── Grid Mode ── {%- endcomment -%}
+        <div class="br-grid">
+          {%- for block in section.blocks -%}
+            <div
+              class="br-item br-item--{{ card_style }}"
+              {{ block.shopify_attributes }}
+              data-br-index="{{ forloop.index }}"
+            >
+              {%- if block.settings.link != blank -%}
+                <a
+                  href="{{ block.settings.link }}"
+                  class="br-link"
+                  {% if block.settings.new_tab %}
+                    target="_blank" rel="noopener noreferrer"
+                  {% endif %}
+                >
+              {%- endif -%}
+
+              {%- if block.settings.logo != blank -%}
+                <img
+                  src="{{ block.settings.logo | image_url: width: 300 }}"
+                  srcset="
+                    {{ block.settings.logo | image_url: width: 150 }} 150w,
+                    {{ block.settings.logo | image_url: width: 300 }} 300w,
+                    {{ block.settings.logo | image_url: width: 450 }} 450w
+                  "
+                  sizes="(max-width: 639px) 120px, 180px"
+                  alt="{{ block.settings.brand_name | default: 'Brand logo' | escape }}"
+                  class="br-logo {% if grayscale %}br-logo--grayscale{% endif %}"
+                  loading="lazy"
+                  width="{{ block.settings.logo.width }}"
+                  height="{{ block.settings.logo.height }}"
+                >
+              {%- else -%}
+                <div class="br-placeholder">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                  </svg>
+                </div>
+              {%- endif -%}
+
+              {%- if show_brand_name and block.settings.brand_name != blank -%}
+                <span class="br-name">{{ block.settings.brand_name }}</span>
+              {%- endif -%}
+
+              {%- if block.settings.link != blank -%}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    {%- else -%}
+      {%- comment -%} Empty state {%- endcomment -%}
+      <div class="br-empty">
+        <svg
+          class="br-empty__icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <p class="br-empty__title">أضف شعارات العلامات التجارية</p>
+        <p class="br-empty__text">أضف شعارات العلامات التجارية من إعدادات القسم</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- comment -%} ── Styles ── {%- endcomment -%}
+<style>
+  /* ===== Base ===== */
+  .br-section {
+    position: relative;
+    overflow: hidden;
+    padding-block-start: var(--br-pt);
+    padding-block-end: var(--br-pb);
+    background: var(--br-bg);
+  }
+
+  /* ===== Decorative Shapes ===== */
+  .br-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .br-shape {
+    position: absolute;
+    opacity: 0.04;
+    border-radius: 50%;
+    background: var(--br-accent);
+  }
+  .br-shape-1 {
+    width: 220px;
+    height: 220px;
+    top: -60px;
+    inset-inline-end: -40px;
+    animation: br-float 18s ease-in-out infinite;
+  }
+  .br-shape-2 {
+    width: 120px;
+    height: 120px;
+    bottom: -30px;
+    inset-inline-start: 10%;
+    animation: br-float 14s ease-in-out infinite reverse;
+  }
+  .br-shape-3 {
+    width: 60px;
+    height: 60px;
+    top: 40%;
+    inset-inline-start: 60%;
+    animation: br-float 20s ease-in-out infinite 2s;
+  }
+  @keyframes br-float {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-12px, 18px) scale(1.05);
+    }
+  }
+
+  /* ===== Container ===== */
+  .br-container {
+    position: relative;
+    z-index: 1;
+    max-width: var(--page-width, 1320px);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 768px) {
+    .br-container {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1200px) {
+    .br-container {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* ===== Header ===== */
+  .br-header {
+    margin-block-end: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .br-align--center {
+    text-align: center;
+    align-items: center;
+  }
+  .br-align--start {
+    text-align: start;
+    align-items: flex-start;
+  }
+  .br-align--end {
+    text-align: end;
+    align-items: flex-end;
+  }
+  .br-section-heading {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--br-heading-weight);
+    color: var(--br-heading-color);
+    margin: 0;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .br-section-sub {
+    font-size: var(--font-body-size, 16px);
+    color: var(--color-secondary-text, #6b7280);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+  .br-align--center .br-section-sub {
+    margin-inline: auto;
+  }
+
+  /* ===== Grid Mode ===== */
+  .br-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--br-columns-desktop), 1fr);
+    gap: 1.25rem;
+  }
+
+  /* ===== Item / Card ===== */
+  .br-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0;
+    border-radius: var(--br-radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    text-align: center;
+  }
+  .br-item:hover {
+    transform: translateY(-4px);
+  }
+
+  /* -- Minimal -- */
+  .br-item--minimal {
+    background: transparent;
+  }
+  .br-item--minimal:hover {
+    box-shadow: none;
+  }
+
+  /* -- Bordered -- */
+  .br-item--bordered {
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .br-item--bordered:hover {
+    border-color: var(--br-accent);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  /* -- Glass -- */
+  .br-item--glass {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .br-item--glass:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* ===== Link ===== */
+  .br-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ===== Logo Image ===== */
+  .br-logo {
+    display: block;
+    height: var(--br-logo-height);
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    opacity: var(--br-logo-opacity);
+    transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+  }
+  .br-item:hover .br-logo {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  .br-logo--grayscale {
+    filter: grayscale(100%);
+  }
+  .br-item:hover .br-logo--grayscale {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+
+  /* ===== Brand Name ===== */
+  .br-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-secondary-text, #6b7280);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .br-item:hover .br-name {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== Placeholder ===== */
+  .br-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--br-logo-height);
+    width: 80px;
+    color: var(--color-secondary-text, #9ca3af);
+    opacity: 0.5;
+  }
+  .br-placeholder svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* ===== Empty State ===== */
+  .br-empty {
+    text-align: center;
+    padding: 3rem 1.25rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: var(--br-radius);
+    border: 1px dashed var(--color-border, rgba(0, 0, 0, 0.1));
+  }
+  .br-empty__icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    color: #9ca3af;
+  }
+  .br-empty__title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text, #1f2937);
+    margin: 0 0 0.5rem 0;
+  }
+  .br-empty__text {
+    font-size: 0.875rem;
+    color: var(--color-secondary-text, #6b7280);
+    margin: 0;
+  }
+
+  /* ===== Marquee Mode ===== */
+  .br-marquee {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+  .br-marquee__track {
+    display: flex;
+    width: max-content;
+    animation: br-scroll var(--br-marquee-speed) linear infinite;
+  }
+  [dir='rtl'] .br-marquee__track {
+    animation-name: br-scroll-rtl;
+  }
+  .br-marquee:hover .br-marquee__track {
+    animation-play-state: paused;
+  }
+  .br-marquee__group {
+    display: flex;
+    gap: 1.5rem;
+    padding-inline-end: 1.5rem;
+    flex-shrink: 0;
+  }
+  .br-marquee .br-item {
+    flex: 0 0 auto;
+    min-width: 160px;
+    padding: 0;
+  }
+
+  @keyframes br-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-33.333%);
+    }
+  }
+  @keyframes br-scroll-rtl {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(33.333%);
+    }
+  }
+
+  /* ===== Scroll Reveal (Grid mode only) ===== */
+  .br-grid .br-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .br-grid .br-item.br-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .br-grid .br-item:nth-child(2) {
+    transition-delay: 0.05s;
+  }
+  .br-grid .br-item:nth-child(3) {
+    transition-delay: 0.1s;
+  }
+  .br-grid .br-item:nth-child(4) {
+    transition-delay: 0.15s;
+  }
+  .br-grid .br-item:nth-child(5) {
+    transition-delay: 0.2s;
+  }
+  .br-grid .br-item:nth-child(6) {
+    transition-delay: 0.25s;
+  }
+  .br-grid .br-item:nth-child(7) {
+    transition-delay: 0.3s;
+  }
+  .br-grid .br-item:nth-child(8) {
+    transition-delay: 0.35s;
+  }
+  .br-grid .br-item:nth-child(9) {
+    transition-delay: 0.4s;
+  }
+  .br-grid .br-item:nth-child(10) {
+    transition-delay: 0.45s;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1024px) {
+    .br-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .br-section {
+      padding-block-start: calc(var(--br-pt) * 0.7);
+      padding-block-end: calc(var(--br-pb) * 0.7);
+    }
+    .br-header {
+      margin-block-end: 2rem;
+    }
+    .br-section-heading {
+      font-size: calc(var(--font-heading-size, 32px) * 0.8);
+    }
+    .br-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    .br-item {
+      padding: 0;
+    }
+    .br-logo {
+      height: calc(var(--br-logo-height) * 0.85);
+      max-width: 140px;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .br-grid {
+      grid-template-columns: repeat(var(--br-columns-mobile), 1fr);
+      gap: 0.625rem;
+    }
+    .br-item {
+      padding: 0;
+    }
+    .br-logo {
+      height: calc(var(--br-logo-height) * 0.75);
+      max-width: 120px;
+    }
+    .br-marquee .br-item {
+      min-width: 130px;
+      padding: 0;
+    }
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    .br-section {
+      break-inside: avoid;
+    }
+    .br-shapes {
+      display: none;
+    }
+    .br-marquee__track {
+      animation: none;
+    }
+  }
+
+  /* ===== Reduced Motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .br-grid .br-item {
+      opacity: 1;
+      transform: none;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .br-item:hover {
+      transform: none;
+    }
+    .br-shape {
+      animation: none;
+    }
+    .br-marquee__track {
+      animation: none;
+    }
+    .br-logo,
+    .br-name {
+      transition: none;
+    }
+  }
+</style>
+
+{%- comment -%} ── Script: Scroll Reveal ── {%- endcomment -%}
+<script>
+  (function () {
+    var section = document.getElementById('brands-{{ section.id }}');
+    if (!section) return;
+    var items = section.querySelectorAll('.br-grid .br-item');
+    if (!items.length) return;
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('br-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    items.forEach(function (item) {
+      observer.observe(item);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.brands.name",
+  "tag": "section",
+  "class": "section-brands",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.brands.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.brands.settings.heading.label",
+      "default": "العلامات التجارية"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:sections.brands.settings.subheading.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.brands.settings.text_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.brands.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.brands.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.brands.settings.text_alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "t:sections.brands.settings.display_mode.label",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "t:sections.brands.settings.display_mode.options.grid"
+        },
+        {
+          "value": "marquee",
+          "label": "t:sections.brands.settings.display_mode.options.marquee"
+        }
+      ],
+      "info": "t:sections.brands.settings.display_mode.info"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "t:sections.brands.settings.columns_desktop.label",
+      "default": "5",
+      "options": [
+        {
+          "value": "3",
+          "label": "t:sections.brands.settings.columns_desktop.options.3"
+        },
+        {
+          "value": "4",
+          "label": "t:sections.brands.settings.columns_desktop.options.4"
+        },
+        {
+          "value": "5",
+          "label": "t:sections.brands.settings.columns_desktop.options.5"
+        },
+        {
+          "value": "6",
+          "label": "t:sections.brands.settings.columns_desktop.options.6"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.brands.settings.columns_mobile.label",
+      "default": "2",
+      "options": [
+        {
+          "value": "2",
+          "label": "t:sections.brands.settings.columns_mobile.options.2"
+        },
+        {
+          "value": "3",
+          "label": "t:sections.brands.settings.columns_mobile.options.3"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.brands.settings.card_style.label",
+      "default": "bordered",
+      "options": [
+        {
+          "value": "minimal",
+          "label": "t:sections.brands.settings.card_style.options.minimal"
+        },
+        {
+          "value": "bordered",
+          "label": "t:sections.brands.settings.card_style.options.bordered"
+        },
+        {
+          "value": "glass",
+          "label": "t:sections.brands.settings.card_style.options.glass"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.brands.settings.corner_radius.label",
+      "default": 12,
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_brand_name",
+      "label": "t:sections.brands.settings.show_brand_name.label",
+      "default": false,
+      "info": "t:sections.brands.settings.show_brand_name.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "t:sections.brands.settings.logo_height.label",
+      "default": 50,
+      "min": 30,
+      "max": 100,
+      "step": 5,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "logo_opacity",
+      "label": "t:sections.brands.settings.logo_opacity.label",
+      "default": 80,
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "checkbox",
+      "id": "grayscale",
+      "label": "t:sections.brands.settings.grayscale.label",
+      "default": false,
+      "info": "t:sections.brands.settings.grayscale.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "label": "t:sections.brands.settings.marquee_speed.label",
+      "default": 30,
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "sec",
+      "info": "t:sections.brands.settings.marquee_speed.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.brands.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.brands.settings.background_color.label"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.brands.settings.heading_color.label"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "t:sections.brands.settings.accent_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.brands.settings.show_shapes.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.brands.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.brands.settings.heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.brands.settings.heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.brands.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.brands.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.brands.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.brands.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.brands.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.brands.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand_logo",
+      "name": "t:sections.brands.blocks.brand_logo.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "t:sections.brands.blocks.brand_logo.settings.logo.label"
+        },
+        {
+          "type": "text",
+          "id": "brand_name",
+          "label": "t:sections.brands.blocks.brand_logo.settings.brand_name.label",
+          "default": "اسم العلامة",
+          "info": "t:sections.brands.blocks.brand_logo.settings.brand_name.info"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.brands.blocks.brand_logo.settings.link.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "new_tab",
+          "label": "t:sections.brands.blocks.brand_logo.settings.new_tab.label",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.brands.name",
+      "blocks": [
+        {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 1"
+          }
+        },
+        {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 2"
+          }
+        },
+        {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 3"
+          }
+        },
+        {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 4"
+          }
+        },
+        {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 5"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,57 @@
+{%- comment -%}
+  Sallety Theme - Price Snippet
+  Renders product price with sale/compare price support.
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - use_variant: {Boolean} Use selected variant price
+
+  Usage:
+  {% render 'price', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  if use_variant
+    assign target = product.selected_or_first_available_variant
+  else
+    assign target = product
+  endif
+
+  assign compare_at_price = target.compare_at_price
+  assign price = target.price
+  assign price_min = product.price_min
+  assign price_varies = product.price_varies
+-%}
+
+<div class="price{% if compare_at_price > price %} price--on-sale{% endif %}{% unless target.available %} price--sold-out{% endunless %}">
+  {%- if price_varies -%}
+    <span class="price__regular">
+      {{ 'products.product.price.from_price_html' | t: price: price_min | money }}
+    </span>
+  {%- else -%}
+    {%- if compare_at_price > price -%}
+      <span class="price__sale" data-product-price>
+        {{ price | money }}
+      </span>
+      <span class="price__compare" data-product-compare-price>
+        {{ compare_at_price | money }}
+      </span>
+    {%- else -%}
+      <span class="price__regular" data-product-price>
+        {{ price | money }}
+      </span>
+    {%- endif -%}
+  {%- endif -%}
+  
+  {%- if target.unit_price_measurement -%}
+    <span class="price__unit">
+      {{ target.unit_price | money }}
+      <span>/</span>
+      {%- if target.unit_price_measurement.reference_value != 1 -%}
+        {{ target.unit_price_measurement.reference_value }}
+      {%- endif -%}
+      {{ target.unit_price_measurement.reference_unit }}
+    </span>
+  {%- endif -%}
+</div>
+

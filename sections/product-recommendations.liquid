@@ -1,0 +1,670 @@
+{%- comment -%}
+  Sallety Theme - Premium Product Recommendations Section
+  High-quality, responsive product recommendations with TailwindCSS V4 and RTL support.
+
+  Features:
+  - Fully responsive (Desktop, Tablet, Mobile)
+  - RTL support for Arabic
+  - Smooth scroll carousel on mobile
+  - Grid layout on desktop
+  - Product card with hover effects
+  - Quick actions (Quick View, Wishlist, Compare)
+  - Color swatches
+  - Sale badges
+  - Loading skeleton
+  - Shopify native recommendations API
+{%- endcomment -%}
+
+{%- liquid
+  # Section settings
+  assign heading = section.settings.heading
+  assign subheading = section.settings.subheading
+  assign products_to_show = section.settings.products_to_show | default: 4
+  assign columns_desktop = section.settings.columns_desktop | default: 4
+  assign columns_tablet = section.settings.columns_tablet | default: 3
+  assign columns_mobile = section.settings.columns_mobile | default: 2
+  assign show_view_all = section.settings.show_view_all
+  assign view_all_link = section.settings.view_all_link
+  assign layout_style = section.settings.layout_style | default: 'grid'
+  assign card_style = section.settings.card_style | default: 'default'
+  assign show_vendor = section.settings.show_vendor
+  assign show_rating = section.settings.show_rating
+  assign image_ratio = section.settings.image_ratio | default: 'portrait'
+
+  # Color scheme
+  assign color_scheme = section.settings.color_scheme | default: 'scheme-1'
+  assign scheme_number = color_scheme | remove: 'scheme-'
+
+  # Grid columns classes
+  case columns_desktop
+    when 2
+      assign desktop_cols = 'lg:grid-cols-2'
+    when 3
+      assign desktop_cols = 'lg:grid-cols-3'
+    when 5
+      assign desktop_cols = 'lg:grid-cols-5'
+    when 6
+      assign desktop_cols = 'lg:grid-cols-6'
+    else
+      assign desktop_cols = 'lg:grid-cols-4'
+  endcase
+
+  case columns_tablet
+    when 2
+      assign tablet_cols = 'md:grid-cols-2'
+    when 4
+      assign tablet_cols = 'md:grid-cols-4'
+    else
+      assign tablet_cols = 'md:grid-cols-3'
+  endcase
+
+  case columns_mobile
+    when 1
+      assign mobile_cols = 'grid-cols-1'
+    else
+      assign mobile_cols = 'grid-cols-2'
+  endcase
+-%}
+
+{%- liquid
+  assign text_direction = 'rtl'
+  assign rtl_languages = 'ar,he,fa,ur,ku,ps,sd,yi' | split: ','
+  assign current_lang = request.locale.iso_code | downcase | slice: 0, 2
+  if rtl_languages contains current_lang
+    assign text_direction = 'rtl'
+  elsif settings.enable_rtl
+    assign text_direction = 'rtl'
+  else
+    assign text_direction = 'ltr'
+  endif
+-%}
+
+<section
+  class="product-recommendations section color-scheme-{{ scheme_number }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-recommendations"
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ products_to_show }}"
+  dir="{{ text_direction }}"
+  style="
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    {%- if recommendations.performed and recommendations.products_count > 0 -%}
+      {%- comment -%} Section Header {%- endcomment -%}
+      <header class="product-recommendations__header mb-8 md:mb-10 lg:mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div class="text-center sm:text-start">
+            {%- if heading != blank -%}
+              <h2 class="product-recommendations__title text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 leading-tight">
+                {{ heading }}
+              </h2>
+            {%- endif -%}
+            {%- if subheading != blank -%}
+              <p class="product-recommendations__subtitle text-sm sm:text-base text-secondary max-w-xl">
+                {{ subheading }}
+              </p>
+            {%- endif -%}
+          </div>
+
+          {%- if show_view_all and view_all_link != blank -%}
+            <a
+              href="{{ view_all_link }}"
+              class="product-recommendations__view-all inline-flex items-center justify-center sm:justify-start gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors group"
+            >
+              <span>{{ 'sections.product_recommendations.view_all' | t | default: 'عرض الكل' }}</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="rtl:rotate-180 group-hover:-translate-x-1 rtl:group-hover:translate-x-1 transition-transform"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Decorative line {%- endcomment -%}
+        <div class="mt-6 flex items-center gap-4">
+          <div class="h-1 w-16 sm:w-24 bg-gradient-to-l from-primary to-primary/50 rounded-full"></div>
+          <div class="flex-1 h-px bg-border/50"></div>
+        </div>
+      </header>
+
+      {%- comment -%} Products Grid / Carousel {%- endcomment -%}
+      {%- if layout_style == 'carousel' -%}
+        {%- comment -%} Carousel Layout {%- endcomment -%}
+        <div class="product-recommendations__carousel relative">
+          <div
+            class="product-recommendations__carousel-track flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto pb-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 snap-x snap-mandatory scrollbar-hide"
+            data-carousel-track
+          >
+            {%- for product in recommendations.products -%}
+              <div
+                class="product-recommendations__item flex-shrink-0 w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.833rem)] lg:w-[calc(25%-1.125rem)] snap-start"
+                style="animation-delay: {{ forloop.index | times: 50 }}ms;"
+              >
+                {% render 'product-card',
+                  product: product,
+                  image_ratio: image_ratio,
+                  show_vendor: show_vendor,
+                  card_style: card_style
+                %}
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%} Carousel Navigation (Desktop) {%- endcomment -%}
+          <button
+            type="button"
+            class="product-recommendations__nav product-recommendations__nav--prev hidden lg:flex absolute top-1/2 -translate-y-1/2 -start-4 xl:-start-6 w-12 h-12 items-center justify-center rounded-full bg-background border border-border shadow-lg text-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-carousel-prev
+            aria-label="{{ 'accessibility.previous' | t | default: 'السابق' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="rtl:rotate-180"
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="product-recommendations__nav product-recommendations__nav--next hidden lg:flex absolute top-1/2 -translate-y-1/2 -end-4 xl:-end-6 w-12 h-12 items-center justify-center rounded-full bg-background border border-border shadow-lg text-foreground hover:bg-primary hover:text-white hover:border-primary transition-all duration-200 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-carousel-next
+            aria-label="{{ 'accessibility.next' | t | default: 'التالي' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="rtl:rotate-180"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          {%- comment -%} Carousel Dots (Mobile/Tablet) {%- endcomment -%}
+          <div
+            class="product-recommendations__dots flex lg:hidden items-center justify-center gap-2 mt-6"
+            data-carousel-dots
+          >
+            {%- for product in recommendations.products -%}
+              <button
+                type="button"
+                class="w-2 h-2 rounded-full bg-border transition-all duration-200 {% if forloop.first %}bg-primary w-6{% endif %}"
+                data-carousel-dot="{{ forloop.index0 }}"
+                aria-label="{{ 'accessibility.go_to_slide' | t: number: forloop.index | default: forloop.index }}"
+              ></button>
+            {%- endfor -%}
+          </div>
+        </div>
+
+      {%- else -%}
+        {%- comment -%} Grid Layout {%- endcomment -%}
+        <div class="product-recommendations__grid grid {{ mobile_cols }} {{ tablet_cols }} {{ desktop_cols }} gap-4 sm:gap-5 lg:gap-6">
+          {%- for product in recommendations.products -%}
+            <div
+              class="product-recommendations__item animate-fade-in-up"
+              style="animation-delay: {{ forloop.index | times: 75 }}ms;"
+            >
+              {% render 'product-card',
+                product: product,
+                image_ratio: image_ratio,
+                show_vendor: show_vendor,
+                card_style: card_style
+              %}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    {%- else -%}
+      {%- comment -%} Loading Skeleton (shown before recommendations load) {%- endcomment -%}
+      <div class="product-recommendations__loading" data-recommendations-loading>
+        {%- if heading != blank -%}
+          <header class="product-recommendations__header mb-8 md:mb-10 lg:mb-12">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div class="text-center sm:text-start">
+                <h2 class="product-recommendations__title text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 leading-tight">
+                  {{ heading }}
+                </h2>
+                {%- if subheading != blank -%}
+                  <p class="product-recommendations__subtitle text-sm sm:text-base text-secondary max-w-xl">
+                    {{ subheading }}
+                  </p>
+                {%- endif -%}
+              </div>
+            </div>
+            <div class="mt-6 flex items-center gap-4">
+              <div class="h-1 w-16 sm:w-24 bg-gradient-to-l from-primary to-primary/50 rounded-full"></div>
+              <div class="flex-1 h-px bg-border/50"></div>
+            </div>
+          </header>
+        {%- endif -%}
+
+        <div class="grid {{ mobile_cols }} {{ tablet_cols }} {{ desktop_cols }} gap-4 sm:gap-5 lg:gap-6">
+          {%- for i in (1..products_to_show) -%}
+            <div class="product-recommendations__skeleton animate-pulse">
+              <div class="aspect-[3/4] rounded-xl bg-border/40 mb-3"></div>
+              <div class="h-3 bg-border/40 rounded w-1/3 mb-2"></div>
+              <div class="h-4 bg-border/40 rounded w-3/4 mb-2"></div>
+              <div class="h-4 bg-border/40 rounded w-1/2"></div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* Product Recommendations Section Styles */
+  .product-recommendations {
+    /* Direction is set via dir attribute on the section element */
+  }
+
+  /* Fade in up animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Carousel scrollbar hide */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Carousel smooth scroll */
+  .product-recommendations__carousel-track {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Snap scroll */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  /* Navigation buttons hover effect */
+  .product-recommendations__nav {
+    backdrop-filter: blur(8px);
+  }
+
+  /* Loading skeleton pulse */
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Carousel dots active state */
+  .product-recommendations__dots button.is-active {
+    background-color: var(--color-primary);
+    width: 1.5rem;
+  }
+
+  /* RTL specific adjustments */
+  [dir='rtl'] .product-recommendations__carousel-track {
+    direction: rtl;
+  }
+
+  [dir='rtl'] .product-recommendations__nav--prev {
+    right: auto;
+    left: -1rem;
+  }
+
+  [dir='rtl'] .product-recommendations__nav--next {
+    left: auto;
+    right: -1rem;
+  }
+
+  @media (min-width: 1280px) {
+    [dir='rtl'] .product-recommendations__nav--prev {
+      left: -1.5rem;
+    }
+    [dir='rtl'] .product-recommendations__nav--next {
+      right: -1.5rem;
+    }
+  }
+
+  /* Responsive font sizes */
+  @media (max-width: 640px) {
+    .product-recommendations__title {
+      font-size: 1.5rem;
+    }
+    .product-recommendations__subtitle {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1023px) {
+    .product-recommendations__title {
+      font-size: 1.875rem;
+    }
+  }
+
+  /* Grid gap responsive */
+  @media (max-width: 640px) {
+    .product-recommendations__grid {
+      gap: 0.75rem;
+    }
+  }
+
+  /* Hover states for touch devices */
+  @media (hover: none) {
+    .product-recommendations__nav {
+      display: none !important;
+    }
+  }
+
+  /* Focus visible states */
+  .product-recommendations a:focus-visible,
+  .product-recommendations button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  // Product Recommendations Carousel Functionality
+  (function() {
+    const section = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!section) return;
+
+    const track = section.querySelector('[data-carousel-track]');
+    const prevBtn = section.querySelector('[data-carousel-prev]');
+    const nextBtn = section.querySelector('[data-carousel-next]');
+    const dots = section.querySelectorAll('[data-carousel-dot]');
+
+    if (!track) return;
+
+    let currentIndex = 0;
+    const items = track.querySelectorAll('.product-recommendations__item');
+    const itemCount = items.length;
+
+    // Get visible items count based on screen width
+    function getVisibleCount() {
+      if (window.innerWidth >= 1024) return {{ columns_desktop }};
+      if (window.innerWidth >= 768) return {{ columns_tablet }};
+      return {{ columns_mobile }};
+    }
+
+    // Update navigation buttons state
+    function updateNavState() {
+      const visibleCount = getVisibleCount();
+      const maxIndex = Math.max(0, itemCount - visibleCount);
+
+      if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+      if (nextBtn) nextBtn.disabled = currentIndex >= maxIndex;
+
+      // Update dots
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('is-active', index === currentIndex);
+        dot.classList.toggle('bg-primary', index === currentIndex);
+        dot.classList.toggle('w-6', index === currentIndex);
+        dot.classList.toggle('bg-border', index !== currentIndex);
+        dot.classList.toggle('w-2', index !== currentIndex);
+      });
+    }
+
+    // Scroll to index
+    function scrollToIndex(index) {
+      const visibleCount = getVisibleCount();
+      const maxIndex = Math.max(0, itemCount - visibleCount);
+      currentIndex = Math.max(0, Math.min(index, maxIndex));
+
+      const item = items[currentIndex];
+      if (item) {
+        track.scrollTo({
+          left: item.offsetLeft - track.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+
+      updateNavState();
+    }
+
+    // Event listeners
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => scrollToIndex(currentIndex - 1));
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => scrollToIndex(currentIndex + 1));
+    }
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => scrollToIndex(index));
+    });
+
+    // Update on scroll
+    track.addEventListener('scroll', () => {
+      const scrollLeft = track.scrollLeft;
+      const itemWidth = items[0]?.offsetWidth || 0;
+      const gap = 16; // Approximate gap
+      currentIndex = Math.round(scrollLeft / (itemWidth + gap));
+      updateNavState();
+    });
+
+    // Update on resize
+    window.addEventListener('resize', updateNavState);
+
+    // Initial state
+    updateNavState();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.product_recommendations.name",
+  "tag": "section",
+  "class": "section-product-recommendations",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_recommendations.settings.header_content.content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.product_recommendations.settings.heading.label",
+      "default": "قد يعجبك أيضاً"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.product_recommendations.settings.subheading.label",
+      "default": "منتجات مختارة خصيصاً لك بناءً على اهتماماتك"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "t:sections.product_recommendations.settings.products_to_show.label",
+      "default": 4,
+      "min": 2,
+      "max": 12,
+      "step": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "t:sections.product_recommendations.settings.show_view_all.label",
+      "default": false
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "t:sections.product_recommendations.settings.view_all_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_recommendations.settings.header_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "layout_style",
+      "label": "t:sections.product_recommendations.settings.layout_style.label",
+      "options": [
+        { "value": "grid", "label": "t:sections.product_recommendations.settings.layout_style.options.grid" },
+        { "value": "carousel", "label": "t:sections.product_recommendations.settings.layout_style.options.carousel" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "t:sections.product_recommendations.settings.columns_desktop.label",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" },
+        { "value": "6", "label": "6" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "t:sections.product_recommendations.settings.columns_tablet.label",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.product_recommendations.settings.columns_mobile.label",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_recommendations.settings.header_card.content"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.product_recommendations.settings.image_ratio.label",
+      "options": [
+        { "value": "adapt", "label": "t:sections.product_recommendations.settings.image_ratio.options.adapt" },
+        { "value": "portrait", "label": "t:sections.product_recommendations.settings.image_ratio.options.portrait" },
+        { "value": "square", "label": "t:sections.product_recommendations.settings.image_ratio.options.square" },
+        { "value": "landscape", "label": "t:sections.product_recommendations.settings.image_ratio.options.landscape" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.product_recommendations.settings.card_style.label",
+      "options": [
+        { "value": "default", "label": "t:sections.product_recommendations.settings.card_style.options.default" },
+        { "value": "minimal", "label": "t:sections.product_recommendations.settings.card_style.options.minimal" },
+        { "value": "bordered", "label": "t:sections.product_recommendations.settings.card_style.options.bordered" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.product_recommendations.settings.show_vendor.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "t:sections.product_recommendations.settings.show_rating.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

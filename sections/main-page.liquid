@@ -1,0 +1,49 @@
+{%- comment -%}
+  Sallety Theme - Main Page Section
+  Add your custom page design here.
+{%- endcomment -%}
+
+<section class="main-page section" data-section-id="{{ section.id }}" data-section-type="page">
+  <div class="container">
+    <h1 class="page__title">{{ page.title }}</h1>
+    {%- if page.content != blank -%}
+      <div class="page__content rte">
+        {{ page.content }}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main_page.name",
+  "class": "section-main-page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}
+

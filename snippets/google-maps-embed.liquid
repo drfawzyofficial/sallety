@@ -1,0 +1,63 @@
+{%- comment -%}
+  Google Maps Embed Snippet
+  Renders the Google Maps iframe or placeholder
+  
+  Parameters:
+  - map_embed_url: String - Direct Google Maps embed URL
+  - map_address: String - Address for fallback embed
+  - map_zoom: Number - Zoom level for the map
+  - map_shadow: Boolean - Whether to show shadow
+  - map_border_radius: Number - Border radius in pixels
+{%- endcomment -%}
+
+{%- liquid
+  assign has_embed_url = false
+  assign has_address = false
+  assign final_url = ''
+  
+  # Check if we have a direct embed URL
+  if map_embed_url != blank
+    assign has_embed_url = true
+    # Clean up the URL - handle if user pasted full iframe or just URL
+    if map_embed_url contains 'src="'
+      # Extract URL from iframe code
+      assign url_parts = map_embed_url | split: 'src="'
+      assign url_part = url_parts[1] | split: '"' | first
+      assign final_url = url_part
+    else
+      assign final_url = map_embed_url
+    endif
+  endif
+  
+  # Fallback to address-based embed
+  if has_embed_url == false and map_address != blank
+    assign has_address = true
+    assign encoded_address = map_address | url_encode
+    assign final_url = 'https://maps.google.com/maps?q=' | append: encoded_address | append: '&z=' | append: map_zoom | append: '&output=embed'
+  endif
+-%}
+
+<div class="gmap-map-container{% if map_shadow %} gmap-map-container--shadow{% endif %}">
+  {%- if final_url != blank -%}
+    <iframe
+      src="{{ final_url }}"
+      width="100%"
+      height="100%"
+      style="border:0;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="{{ 'sections.google_maps.map_title' | t }}"
+    ></iframe>
+  {%- else -%}
+    {%- comment -%} Placeholder when no map URL or address is provided {%- endcomment -%}
+    <div class="gmap-placeholder">
+      <svg class="gmap-placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+        <circle cx="12" cy="10" r="3"></circle>
+      </svg>
+      <p class="gmap-placeholder-text">{{ 'sections.google_maps.placeholder_text' | t }}</p>
+    </div>
+  {%- endif -%}
+</div>
+

@@ -1,0 +1,425 @@
+{%- comment -%}
+  Sallety Theme - Article Card Placeholder Snippet
+  Displays a static placeholder article card when no blog is selected.
+  Uses the same styling as card-article.liquid and respects global blog settings.
+
+  Accepts:
+  - index: {Number} Index to show different placeholder images (1, 2, 3)
+
+  Usage:
+  {% render 'article-card-placeholder' %}
+  {% render 'article-card-placeholder', index: forloop.index %}
+{%- endcomment -%}
+
+{%- liquid
+  # Get global settings with fallbacks (same as card-article.liquid)
+  assign card_image_ratio = settings.blog_card_image_ratio | default: 'landscape'
+  assign card_border_radius = settings.blog_card_border_radius | default: 12
+  assign card_shadow = settings.blog_card_shadow | default: 'small'
+  
+  # Display settings from global settings
+  if settings.blog_show_date == false
+    assign display_date = false
+  else
+    assign display_date = true
+  endif
+  
+  if settings.blog_show_author == false
+    assign display_author = false
+  else
+    assign display_author = true
+  endif
+  
+  if settings.blog_show_excerpt == false
+    assign display_excerpt = false
+  else
+    assign display_excerpt = true
+  endif
+  
+  if settings.blog_show_read_more == false
+    assign display_read_more = false
+  else
+    assign display_read_more = true
+  endif
+  
+  # Typography settings
+  assign title_size_desktop = settings.blog_title_size_desktop | default: 18
+  assign title_size_mobile = settings.blog_title_size_mobile | default: 16
+  assign title_weight = settings.blog_title_weight | default: '600'
+  
+  # Color settings
+  assign card_bg = settings.blog_card_bg | default: '#ffffff'
+  assign title_color = settings.blog_title_color | default: '#1a2744'
+  assign meta_color = settings.blog_meta_color | default: '#6b7280'
+  assign excerpt_color = settings.blog_excerpt_color | default: '#4b5563'
+  
+  # Hover effects
+  if settings.blog_hover_image_zoom == false
+    assign hover_zoom = false
+  else
+    assign hover_zoom = true
+  endif
+  
+  if settings.blog_hover_card_lift == false
+    assign hover_lift = false
+  else
+    assign hover_lift = true
+  endif
+  
+  if settings.blog_hover_shadow == false
+    assign hover_shadow = false
+  else
+    assign hover_shadow = true
+  endif
+  
+  # Image aspect ratios
+  case card_image_ratio
+    when 'square'
+      assign aspect_ratio = '1/1'
+    when 'portrait'
+      assign aspect_ratio = '3/4'
+    when 'landscape'
+      assign aspect_ratio = '16/10'
+    when 'wide'
+      assign aspect_ratio = '16/9'
+    else
+      assign aspect_ratio = '16/10'
+  endcase
+  
+  # Shadow values
+  case card_shadow
+    when 'none'
+      assign shadow_value = 'none'
+      assign shadow_hover = 'none'
+    when 'small'
+      assign shadow_value = '0 2px 8px rgba(0, 0, 0, 0.06)'
+      assign shadow_hover = '0 8px 24px rgba(0, 0, 0, 0.12)'
+    when 'medium'
+      assign shadow_value = '0 4px 12px rgba(0, 0, 0, 0.08)'
+      assign shadow_hover = '0 12px 32px rgba(0, 0, 0, 0.15)'
+    when 'large'
+      assign shadow_value = '0 6px 20px rgba(0, 0, 0, 0.1)'
+      assign shadow_hover = '0 16px 40px rgba(0, 0, 0, 0.18)'
+    else
+      assign shadow_value = '0 2px 8px rgba(0, 0, 0, 0.06)'
+      assign shadow_hover = '0 8px 24px rgba(0, 0, 0, 0.12)'
+  endcase
+  
+  # Placeholder index for different images
+  assign placeholder_index = index | default: 1
+  assign placeholder_index_mod = placeholder_index | modulo: 6
+  if placeholder_index_mod == 0
+    assign placeholder_index_mod = 6
+  endif
+  
+  # Different placeholder image types based on index
+  case placeholder_index_mod
+    when 1
+      assign placeholder_type = 'collection-1'
+    when 2
+      assign placeholder_type = 'collection-2'
+    when 3
+      assign placeholder_type = 'collection-3'
+    when 4
+      assign placeholder_type = 'collection-4'
+    when 5
+      assign placeholder_type = 'collection-5'
+    when 6
+      assign placeholder_type = 'collection-6'
+    else
+      assign placeholder_type = 'collection-1'
+  endcase
+  
+  # RTL detection
+  assign is_rtl = false
+  assign rtl_languages = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  for rtl_lang in rtl_languages
+    assign rtl_lang_trimmed = rtl_lang | strip
+    if request.locale.iso_code == rtl_lang_trimmed or localization.language.iso_code == rtl_lang_trimmed
+      assign is_rtl = true
+      break
+    endif
+  endfor
+  
+  if settings.enable_rtl
+    assign is_rtl = true
+  endif
+  
+  # Generate unique ID
+  assign card_id = 'article-placeholder-' | append: placeholder_index
+-%}
+
+<style>
+  .card-article-placeholder {
+    --card-bg: {{ card_bg }};
+    --card-title-color: {{ title_color }};
+    --card-meta-color: {{ meta_color }};
+    --card-excerpt-color: {{ excerpt_color }};
+    --card-border-radius: {{ card_border_radius }}px;
+    --card-shadow: {{ shadow_value }};
+    --card-shadow-hover: {{ shadow_hover }};
+    --card-title-size-desktop: {{ title_size_desktop }}px;
+    --card-title-size-mobile: {{ title_size_mobile }}px;
+    --card-title-weight: {{ title_weight }};
+    --card-image-ratio: {{ aspect_ratio }};
+  }
+  
+  .card-article-placeholder {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-bg);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  {% if hover_lift %}
+  .card-article-placeholder:hover {
+    transform: translateY(-4px);
+  }
+  {% endif %}
+  
+  {% if hover_shadow %}
+  .card-article-placeholder:hover {
+    box-shadow: var(--card-shadow-hover);
+  }
+  {% endif %}
+  
+  .card-article-placeholder__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    cursor: default;
+  }
+  
+  .card-article-placeholder__image-wrapper {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--card-image-ratio);
+    background-color: #f3f4f6;
+  }
+  
+  .card-article-placeholder__image-wrapper svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  
+  {% if hover_zoom %}
+  .card-article-placeholder:hover .card-article-placeholder__image-wrapper svg {
+    transform: scale(1.05);
+  }
+  {% endif %}
+  
+  .card-article-placeholder__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    gap: 12px;
+    text-align: start;
+  }
+  
+  [dir="rtl"] .card-article-placeholder__content,
+  .card-article-placeholder[dir="rtl"] .card-article-placeholder__content {
+    text-align: right;
+    direction: rtl;
+  }
+  
+  .card-article-placeholder__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--card-meta-color);
+  }
+  
+  .card-article-placeholder__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .card-article-placeholder__meta-item svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  
+  .card-article-placeholder__meta-divider {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--card-meta-color);
+    opacity: 0.4;
+  }
+  
+  .card-article-placeholder__title {
+    font-family: var(--font-heading-family);
+    font-size: var(--card-title-size-desktop);
+    font-weight: var(--card-title-weight);
+    line-height: 1.4;
+    color: var(--card-title-color);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease;
+    text-align: start;
+  }
+  
+  [dir="rtl"] .card-article-placeholder__title,
+  .card-article-placeholder[dir="rtl"] .card-article-placeholder__title {
+    text-align: right;
+  }
+  
+  .card-article-placeholder:hover .card-article-placeholder__title {
+    color: var(--button-primary-bg, #1a2744);
+  }
+  
+  .card-article-placeholder__excerpt {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--card-excerpt-color);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+    text-align: start;
+  }
+  
+  [dir="rtl"] .card-article-placeholder__excerpt,
+  .card-article-placeholder[dir="rtl"] .card-article-placeholder__excerpt {
+    text-align: right;
+  }
+  
+  .card-article-placeholder__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  
+  .card-article-placeholder__read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--button-primary-bg, #1a2744);
+    transition: gap 0.2s ease;
+  }
+  
+  .card-article-placeholder:hover .card-article-placeholder__read-more {
+    gap: 12px;
+  }
+  
+  .card-article-placeholder__read-more svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+  
+  [dir="rtl"] .card-article-placeholder__read-more svg,
+  .card-article-placeholder[dir="rtl"] .card-article-placeholder__read-more svg {
+    transform: scaleX(-1);
+  }
+  
+  .card-article-placeholder:hover .card-article-placeholder__read-more svg {
+    transform: translateX(4px);
+  }
+  
+  [dir="rtl"] .card-article-placeholder:hover .card-article-placeholder__read-more svg,
+  .card-article-placeholder[dir="rtl"]:hover .card-article-placeholder__read-more svg {
+    transform: scaleX(-1) translateX(4px);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .card-article-placeholder__title {
+      font-size: var(--card-title-size-mobile);
+    }
+    
+    .card-article-placeholder__content {
+      padding: 16px;
+      gap: 10px;
+    }
+    
+    .card-article-placeholder__meta {
+      font-size: 12px;
+      gap: 8px;
+    }
+    
+    .card-article-placeholder__excerpt {
+      font-size: 13px;
+      -webkit-line-clamp: 2;
+    }
+  }
+</style>
+
+<article class="card-article-placeholder" id="{{ card_id }}" {% if is_rtl %}dir="rtl"{% endif %}>
+  <div class="card-article-placeholder__link">
+    <div class="card-article-placeholder__image-wrapper">
+      {{ placeholder_type | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+    
+    <div class="card-article-placeholder__content">
+      {%- if display_date or display_author -%}
+        <div class="card-article-placeholder__meta">
+          {%- if display_date -%}
+            <span class="card-article-placeholder__meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <time>{{ 'now' | date: format: 'abbreviated_date' }}</time>
+            </span>
+          {%- endif -%}
+          
+          {%- if display_author -%}
+            {%- if display_date -%}
+              <span class="card-article-placeholder__meta-divider"></span>
+            {%- endif -%}
+            <span class="card-article-placeholder__meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>{{ shop.name }}</span>
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      
+      <h3 class="card-article-placeholder__title">{{ 'blogs.sections.blogs.placeholder_title' | t }}</h3>
+      
+      {%- if display_excerpt -%}
+        <p class="card-article-placeholder__excerpt">{{ 'blogs.sections.blogs.placeholder_excerpt' | t }}</p>
+      {%- endif -%}
+      
+      {%- if display_read_more -%}
+        <div class="card-article-placeholder__footer">
+          <span class="card-article-placeholder__read-more">
+            {{ 'blogs.article.read_more' | t }}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</article>

@@ -1,0 +1,146 @@
+{%- comment -%}
+  Sallety Theme - Collection Card Snippet
+  Premium collection card with image, title, product count, and hover effects.
+  Used by collection-list section (homepage blocks).
+
+  Accepts:
+  - collection: {Object} Collection Liquid object
+  - image_ratio: {String} 'portrait' | 'square' | 'landscape' | 'wide' (default: portrait)
+  - card_style: {String} 'overlay' | 'below' | 'minimal' (default: overlay)
+  - show_count: {Boolean} Show product count (default: true)
+
+  Usage:
+  {% render 'collection-card', collection: collection %}
+{%- endcomment -%}
+
+{%- liquid
+  assign c_image_ratio = image_ratio | default: 'portrait'
+  assign c_card_style = card_style | default: 'overlay'
+  assign c_show_count = show_count | default: true
+-%}
+
+<div class="cc-card group">
+  <a
+    href="{{ collection.url }}"
+    class="cc-card__link block relative overflow-hidden rounded-xl"
+    aria-label="{{ collection.title | escape }}"
+    style="text-decoration: none;"
+  >
+    {%- comment -%} Image {%- endcomment -%}
+    <div class="cc-card__image-wrap relative overflow-hidden{% if c_image_ratio == 'square' %} cc-ratio--square{% elsif c_image_ratio == 'landscape' %} cc-ratio--landscape{% elsif c_image_ratio == 'wide' %} cc-ratio--wide{% else %} cc-ratio--portrait{% endif %}">
+      {%- if collection.featured_image -%}
+        <img
+          src="{{ collection.featured_image | image_url: width: 800 }}"
+          srcset="{{ collection.featured_image | image_url: width: 400 }} 400w, {{ collection.featured_image | image_url: width: 600 }} 600w, {{ collection.featured_image | image_url: width: 800 }} 800w"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          alt="{{ collection.title | escape }}"
+          width="800"
+          height="{{ 800 | divided_by: collection.featured_image.aspect_ratio | round }}"
+          loading="lazy"
+          class="cc-card__image w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+        >
+      {%- else -%}
+        <div
+          class="cc-card__placeholder w-full h-full flex items-center justify-center"
+          style="background: linear-gradient(135deg, var(--color-border) 0%, rgba(0,0,0,0.04) 100%);"
+        >
+          <svg
+            class="cc-card__placeholder-svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="0.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="color: var(--color-secondary-text); opacity: 0.3;"
+          >
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="2" y1="7" x2="7" y2="7"/>
+            <line x1="2" y1="17" x2="7" y2="17"/>
+            <line x1="17" y1="7" x2="22" y2="7"/>
+            <line x1="17" y1="17" x2="22" y2="17"/>
+          </svg>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Overlay Gradient {%- endcomment -%}
+      {%- if c_card_style == 'overlay' -%}
+        <div
+          class="cc-card__overlay absolute inset-0 transition-opacity duration-300"
+          style="background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 40%, transparent 70%); opacity: 0.85;"
+        ></div>
+      {%- endif -%}
+
+      {%- comment -%} Overlay Content {%- endcomment -%}
+      {%- if c_card_style == 'overlay' -%}
+        <div class="cc-card__content absolute inset-x-0 bottom-0 p-4 md:p-5 z-10">
+          <h3 class="cc-card__title text-white font-heading font-semibold text-base md:text-lg leading-tight mb-1 line-clamp-2">
+            {{ collection.title }}
+          </h3>
+          {%- if c_show_count -%}
+            <p class="cc-card__count text-white/70 text-xs md:text-sm">
+              {{ collection.products_count }}
+              {{ 'collections.general.products' | t | default: 'منتج' }}
+            </p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Below Content {%- endcomment -%}
+    {%- if c_card_style == 'below' or c_card_style == 'minimal' -%}
+      <div class="cc-card__content-below p-3 md:p-4">
+        <h3
+          class="cc-card__title font-heading font-semibold text-sm md:text-base leading-tight mb-1 transition-colors duration-200 group-hover:text-primary"
+          style="color: var(--color-foreground);"
+        >
+          {{ collection.title }}
+        </h3>
+        {%- if c_show_count -%}
+          <p class="cc-card__count text-xs md:text-sm" style="color: var(--color-secondary-text);">
+            {{ collection.products_count }}
+            {{ 'collections.general.products' | t | default: 'منتج' }}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </a>
+</div>
+
+<style>
+  .cc-ratio--portrait {
+    aspect-ratio: 3 / 4;
+  }
+  .cc-ratio--square {
+    aspect-ratio: 1 / 1;
+  }
+  .cc-ratio--landscape {
+    aspect-ratio: 4 / 3;
+  }
+  .cc-ratio--wide {
+    aspect-ratio: 16 / 9;
+  }
+  .cc-card__image-wrap {
+    background-color: var(--color-border);
+  }
+  .cc-card__link {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  }
+  .cc-card__link:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.15);
+  }
+  .cc-card:hover .cc-card__overlay {
+    opacity: 1 !important;
+  }
+  .cc-card__link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+</style>

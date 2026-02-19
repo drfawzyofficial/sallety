@@ -1,0 +1,1182 @@
+{%- comment -%}
+  Testimonials Section - أراء العملاء
+  Dynamic customer reviews with customizable styling
+  RTL layout with Arabic labels - Using Tailwind Grid System
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme class (uses CSS classes from theme.liquid)
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  
+  # Typography - Customer name sizes (section-specific)
+  assign name_size_desktop = section.settings.name_size_desktop | default: 22
+  assign name_size_tablet = section.settings.name_size_tablet | default: 18
+  assign name_size_mobile = section.settings.name_size_mobile | default: 16
+  
+  # Typography - Weights
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign body_weight = section.settings.body_weight | default: '400'
+  assign name_weight = section.settings.name_weight | default: '700'
+  
+  # Section-specific colors
+  assign star_color = section.settings.star_color | default: '#fbbf24'
+  assign dots_color = section.settings.dots_color | default: '#fbbf24'
+  assign dots_inactive_color = section.settings.dots_inactive_color | default: 'rgba(255, 255, 255, 0.3)'
+  assign arrows_color = section.settings.arrows_color | default: '#ffffff'
+  assign arrows_bg_color = section.settings.arrows_bg_color | default: 'rgba(255, 255, 255, 0.1)'
+  
+  # Section settings
+  assign section_heading = section.settings.section_heading | default: 'أراء العملاء'
+  assign show_heading = section.settings.show_heading
+  assign show_shapes = section.settings.show_shapes
+  assign card_border_radius = section.settings.card_border_radius | default: 16
+  
+  # Carousel settings
+  assign enable_carousel = section.settings.enable_carousel
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = section.settings.autoplay_speed | default: 5 | times: 1000
+  assign show_arrows = section.settings.show_arrows
+  assign show_pagination = section.settings.show_pagination
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+<section 
+  class="testimonials-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
+  style="
+    --testimonials-star-color: {{ star_color }};
+    --testimonials-dots-color: {{ dots_color }};
+    --testimonials-dots-inactive: {{ dots_inactive_color }};
+    --testimonials-arrows-color: {{ arrows_color }};
+    --testimonials-arrows-bg: {{ arrows_bg_color }};
+    --testimonials-name-desktop: {{ name_size_desktop }}px;
+    --testimonials-name-tablet: {{ name_size_tablet }}px;
+    --testimonials-name-mobile: {{ name_size_mobile }}px;
+    --testimonials-heading-weight: {{ heading_weight }};
+    --testimonials-body-weight: {{ body_weight }};
+    --testimonials-name-weight: {{ name_weight }};
+    --testimonials-card-radius: {{ card_border_radius }}px;
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+    font-family: var(--font-body-family);
+  "
+>
+  <!-- Decorative Parallax Shapes -->
+  {%- if show_shapes -%}
+    <div class="testimonials-shapes" aria-hidden="true">
+      <!-- Shape 1: Large circle top-right -->
+      <div class="testimonials-shape testimonials-shape-1"></div>
+      <!-- Shape 2: Small circle top-left -->
+      <div class="testimonials-shape testimonials-shape-2"></div>
+      <!-- Shape 3: Medium hexagon bottom-right -->
+      <div class="testimonials-shape testimonials-shape-3"></div>
+      <!-- Shape 4: Diamond center-left -->
+      <div class="testimonials-shape testimonials-shape-4"></div>
+      <!-- Shape 5: Small star top-center -->
+      <div class="testimonials-shape testimonials-shape-5"></div>
+      <!-- Shape 6: Ring bottom-left -->
+      <div class="testimonials-shape testimonials-shape-6"></div>
+      <!-- Shape 7: Triangle bottom-center -->
+      <div class="testimonials-shape testimonials-shape-7"></div>
+      <!-- Shape 8: Dots pattern right -->
+      <div class="testimonials-shape testimonials-shape-8"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
+    {%- if show_heading -%}
+      <h2 class="testimonials-heading text-center mb-8 sm:mb-10 lg:mb-12 leading-tight m-0 animate-on-scroll aos-fade-up"
+          style="
+            color: var(--color-text);
+            font-weight: var(--testimonials-heading-weight);
+          ">
+        {{ section_heading }}
+      </h2>
+    {%- endif -%}
+    
+    <!-- Testimonials Container -->
+    {%- if enable_carousel -%}
+      {%- comment -%} Carousel Mode {%- endcomment -%}
+      <testimonials-carousel 
+        class="testimonials-carousel relative animate-on-scroll aos-fade-up" data-aos-delay="200"
+        data-autoplay="{{ autoplay }}"
+        data-autoplay-speed="{{ autoplay_speed }}"
+        data-show-arrows="{{ show_arrows }}"
+        data-show-pagination="{{ show_pagination }}"
+        data-blocks-count="{{ section.blocks.size }}"
+      >
+        <div class="carousel-container overflow-hidden">
+          <div class="carousel-track flex transition-transform duration-500 ease-out">
+            {%- for block in section.blocks -%}
+              <div class="carousel-slide px-2 sm:px-2.5 lg:px-3">
+                <div 
+                  class="testimonial-card relative overflow-hidden p-5 sm:p-6 lg:p-8 transition-all duration-500 ease-out h-full" 
+                  style="background-color: var(--color-card-background); border-radius: var(--testimonials-card-radius);"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- render 'testimonial-card-content', block: block -%}
+                </div>
+              </div>
+            {%- else -%}
+              <div class="carousel-slide px-2 sm:px-2.5 lg:px-3">
+                <div class="testimonial-card p-5 sm:p-6 lg:p-8 text-center" style="background-color: var(--color-card-background); border-radius: var(--testimonials-card-radius);">
+                  <p class="m-0" style="color: var(--color-secondary-text);">اضغط على "إضافة تقييم" من إعدادات القسم لإضافة تقييمات العملاء</p>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+        
+        {%- comment -%} Navigation elements - visibility controlled by JS based on viewport {%- endcomment -%}
+        {%- if show_arrows -%}
+        <button class="carousel-btn carousel-btn-prev" aria-label="السابق" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+        <button class="carousel-btn carousel-btn-next" aria-label="التالي" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        {%- endif -%}
+        
+        {%- if show_pagination -%}
+        <div class="carousel-pagination"></div>
+        {%- endif -%}
+      </testimonials-carousel>
+      
+      <script src="{{ 'testimonials-carousel.js' | asset_url }}" defer></script>
+    {%- else -%}
+      {%- comment -%} Grid Mode {%- endcomment -%}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 animate-on-scroll aos-fade-up" data-aos-delay="200" data-aos-stagger="100">
+        {%- for block in section.blocks -%}
+          <div 
+            class="testimonial-card relative overflow-hidden p-5 sm:p-6 lg:p-8 transition-all duration-500 ease-out" 
+            style="background-color: var(--color-card-background); border-radius: var(--testimonials-card-radius);"
+            {{ block.shopify_attributes }}
+          >
+            {%- render 'testimonial-card-content', block: block -%}
+          </div>
+        {%- else -%}
+          <div class="testimonial-card p-5 sm:p-6 lg:p-8 col-span-1 sm:col-span-2 lg:col-span-3 text-center" style="background-color: var(--color-card-background); border-radius: var(--testimonials-card-radius);">
+            <p class="m-0" style="color: var(--color-secondary-text);">اضغط على "إضافة تقييم" من إعدادات القسم لإضافة تقييمات العملاء</p>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* ================================
+     RESPONSIVE TYPOGRAPHY
+     Heading & Body use general theme settings
+     Name uses section-specific settings
+     ================================ */
+  
+  /* Heading & Body - Use General Typography (auto-responsive via theme.liquid) */
+  .testimonials-heading {
+    font-size: var(--font-heading-size);
+  }
+  
+  .testimonial-text {
+    font-size: var(--font-body-size);
+  }
+  
+  /* Customer Name - Section-specific responsive sizes */
+  .testimonial-name {
+    font-size: var(--testimonials-name-desktop);
+  }
+
+  /* Tablet - Customer Name Only */
+  @media (max-width: 1024px) {
+    .testimonial-name {
+      font-size: var(--testimonials-name-tablet);
+    }
+  }
+
+  /* Mobile - Customer Name Only */
+  @media (max-width: 768px) {
+    .testimonial-name {
+      font-size: var(--testimonials-name-mobile);
+    }
+  }
+
+  /* Extra Small - Customer Name Only */
+  @media (max-width: 480px) {
+    .testimonial-name {
+      font-size: calc(var(--testimonials-name-mobile) - 1px);
+    }
+  }
+
+  /* ================================
+     CAROUSEL STYLES
+     RTL-aware carousel with smooth transitions
+     ================================ */
+  
+  .testimonials-carousel {
+    position: relative;
+    padding: 0 40px;
+  }
+
+  .carousel-container {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .carousel-slide {
+    flex: 0 0 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 640px) {
+    .carousel-slide {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .carousel-slide {
+      flex: 0 0 33.333%;
+      max-width: 33.333%;
+    }
+  }
+
+  /* Navigation Arrows */
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--testimonials-arrows-bg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--testimonials-arrows-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+
+  .carousel-btn:hover:not(:disabled) {
+    background: var(--testimonials-arrows-bg);
+    filter: brightness(1.3);
+    border-color: var(--testimonials-arrows-color);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .carousel-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Direction-aware arrow positioning using CSS logical properties */
+  .testimonials-section .carousel-btn-prev {
+    inset-inline-start: 0;
+  }
+
+  .testimonials-section .carousel-btn-next {
+    inset-inline-end: 0;
+  }
+
+  /* Arrow SVGs are drawn for RTL. Flip them in LTR context. */
+  html[dir="ltr"] .testimonials-section .carousel-btn svg,
+  html:not([dir="rtl"]) .testimonials-section .carousel-btn svg {
+    transform: scaleX(-1);
+  }
+
+  /* Pagination Dots */
+  .carousel-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--testimonials-dots-inactive);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .carousel-dot:hover {
+    background: var(--testimonials-dots-color);
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+
+  .carousel-dot.active {
+    background: var(--testimonials-dots-color);
+    transform: scale(1.2);
+  }
+
+  /* Carousel Responsive Adjustments */
+  @media (max-width: 768px) {
+    .testimonials-carousel {
+      padding: 0 32px;
+    }
+
+    .carousel-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .carousel-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .carousel-pagination {
+      margin-top: 20px;
+      gap: 6px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .testimonials-carousel {
+      padding: 0 24px;
+    }
+
+    .carousel-btn {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  /* Visually Hidden for Screen Readers */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ================================
+     PREMIUM CARD DESIGN
+     ================================ */
+  .testimonial-card {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+  }
+
+  .testimonial-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.25),
+      0 12px 48px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* Card Decoration Container */
+  .card-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  /* Quote Icon */
+  .quote-icon {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
+    color: var(--testimonials-star-color);
+    opacity: 0.15;
+    transition: all 0.4s ease;
+  }
+
+  .testimonial-card:hover .quote-icon {
+    opacity: 0.3;
+    transform: scale(1.1) rotate(-5deg);
+  }
+
+  /* Corner Accent */
+  .corner-accent {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, transparent 50%, var(--testimonials-star-color) 50%);
+    opacity: 0.08;
+    transition: all 0.4s ease;
+  }
+
+  .testimonial-card:hover .corner-accent {
+    opacity: 0.15;
+    width: 100px;
+    height: 100px;
+  }
+
+  /* Gradient Overlay */
+  .card-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.05) 100%
+    );
+    opacity: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  .testimonial-card:hover .card-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.03) 100%
+    );
+  }
+
+  /* Shine Effect */
+  .card-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.08),
+      transparent
+    );
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+  }
+
+  .testimonial-card:hover .card-shine {
+    left: 150%;
+  }
+
+  /* Avatar Enhancement */
+  .testimonial-card .w-12,
+  .testimonial-card .w-14,
+  .testimonial-card .lg\\:w-\\[60px\\] {
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .testimonial-card:hover .w-12,
+  .testimonial-card:hover .w-14,
+  .testimonial-card:hover .lg\\:w-\\[60px\\] {
+    border-color: var(--testimonials-star-color);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  }
+
+  /* Star Enhancement */
+  .testimonial-card svg[viewBox="0 0 20 20"] {
+    filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.3));
+    transition: all 0.3s ease;
+  }
+
+  .testimonial-card:hover svg[viewBox="0 0 20 20"] {
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
+    transform: scale(1.1);
+  }
+
+  /* Name Glow on Hover */
+  .testimonial-card:hover .testimonial-name {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+  }
+
+  /* Card nth-child variations */
+  .testimonial-card:nth-child(1) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #fbbf24 50%);
+  }
+
+  .testimonial-card:nth-child(2) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #60a5fa 50%);
+  }
+
+  .testimonial-card:nth-child(3) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #34d399 50%);
+  }
+
+  .testimonial-card:nth-child(4) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #f472b6 50%);
+  }
+
+  .testimonial-card:nth-child(5) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #a78bfa 50%);
+  }
+
+  .testimonial-card:nth-child(6) .corner-accent {
+    background: linear-gradient(135deg, transparent 50%, #fb923c 50%);
+  }
+
+  /* Responsive Card Adjustments */
+  @media (max-width: 768px) {
+    .quote-icon {
+      width: 30px;
+      height: 30px;
+      top: 12px;
+      left: 12px;
+    }
+
+    .corner-accent {
+      width: 60px;
+      height: 60px;
+    }
+
+    .testimonial-card:hover .corner-accent {
+      width: 70px;
+      height: 70px;
+    }
+
+    .testimonial-card:hover {
+      transform: translateY(-4px) scale(1.01);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .quote-icon {
+      width: 24px;
+      height: 24px;
+      top: 10px;
+      left: 10px;
+    }
+
+    .corner-accent {
+      width: 50px;
+      height: 50px;
+    }
+
+    .testimonial-card:hover .corner-accent {
+      width: 55px;
+      height: 55px;
+    }
+  }
+
+  /* ================================
+     DECORATIVE SHAPES - PARALLAX
+     ================================ */
+  .testimonials-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  
+  .testimonials-shape {
+    position: absolute;
+    opacity: 0.15;
+  }
+  
+  /* Shape 1: Large Circle Top Right */
+  .testimonials-shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -80px;
+    right: -60px;
+    background: var(--color-text);
+    border-radius: 50%;
+    animation: testimonials-float-1 15s ease-in-out infinite;
+  }
+  
+  /* Shape 2: Small Circle Top Left */
+  .testimonials-shape-2 {
+    width: 80px;
+    height: 80px;
+    top: 40px;
+    left: 10%;
+    background: var(--color-text);
+    border-radius: 50%;
+    animation: testimonials-float-2 12s ease-in-out infinite;
+    animation-delay: -2s;
+  }
+  
+  /* Shape 3: Hexagon Bottom Right */
+  .testimonials-shape-3 {
+    width: 120px;
+    height: 104px;
+    bottom: 60px;
+    right: 8%;
+    background: var(--color-text);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    animation: testimonials-rotate-slow 25s linear infinite;
+  }
+  
+  /* Shape 4: Diamond Center Left */
+  .testimonials-shape-4 {
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    left: 3%;
+    background: var(--color-text);
+    transform: rotate(45deg);
+    animation: testimonials-pulse 8s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+  
+  /* Shape 5: Star Top Center */
+  .testimonials-shape-5 {
+    width: 50px;
+    height: 50px;
+    top: 15%;
+    left: 50%;
+    background: var(--color-text);
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    animation: testimonials-twinkle 4s ease-in-out infinite;
+    animation-delay: -1s;
+  }
+  
+  /* Shape 6: Ring Bottom Left */
+  .testimonials-shape-6 {
+    width: 100px;
+    height: 100px;
+    bottom: 15%;
+    left: 12%;
+    border: 8px solid var(--color-text);
+    border-radius: 50%;
+    background: transparent;
+    animation: testimonials-float-3 18s ease-in-out infinite;
+    animation-delay: -5s;
+  }
+  
+  /* Shape 7: Triangle Bottom Center */
+  .testimonials-shape-7 {
+    width: 70px;
+    height: 61px;
+    bottom: 30px;
+    left: 45%;
+    background: var(--color-text);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    animation: testimonials-bounce 10s ease-in-out infinite;
+  }
+  
+  /* Shape 8: Dots Pattern Right */
+  .testimonials-shape-8 {
+    width: 80px;
+    height: 80px;
+    top: 35%;
+    right: 5%;
+    background-image: radial-gradient(var(--color-text) 3px, transparent 3px);
+    background-size: 15px 15px;
+    animation: testimonials-drift 20s linear infinite;
+  }
+  
+  /* ================================
+     SHAPE ANIMATIONS
+     ================================ */
+  @keyframes testimonials-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(-20px, 15px) scale(1.05); }
+    50% { transform: translate(-10px, 30px) scale(0.95); }
+    75% { transform: translate(-30px, 10px) scale(1.02); }
+  }
+  
+  @keyframes testimonials-float-2 {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(15px, -10px); }
+    66% { transform: translate(-10px, -20px); }
+  }
+  
+  @keyframes testimonials-float-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -15px) scale(1.1); }
+  }
+  
+  @keyframes testimonials-rotate-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes testimonials-pulse {
+    0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.08; }
+    50% { transform: rotate(45deg) scale(1.2); opacity: 0.12; }
+  }
+  
+  @keyframes testimonials-twinkle {
+    0%, 100% { transform: scale(1); opacity: 0.08; }
+    50% { transform: scale(1.3); opacity: 0.15; }
+  }
+  
+  @keyframes testimonials-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  
+  @keyframes testimonials-drift {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-10px, 10px); }
+    50% { transform: translate(-20px, 0); }
+    75% { transform: translate(-10px, -10px); }
+    100% { transform: translate(0, 0); }
+  }
+  
+  /* ================================
+     RESPONSIVE SHAPES
+     ================================ */
+  @media (max-width: 1024px) {
+    .testimonials-shape-1 { width: 200px; height: 200px; top: -50px; right: -40px; }
+    .testimonials-shape-3 { width: 80px; height: 70px; }
+    .testimonials-shape-6 { width: 70px; height: 70px; }
+    .testimonials-shape-8 { display: none; }
+  }
+  
+  @media (max-width: 768px) {
+    .testimonials-shape-1 { width: 150px; height: 150px; top: -40px; right: -30px; }
+    .testimonials-shape-2 { width: 50px; height: 50px; }
+    .testimonials-shape-3 { width: 60px; height: 52px; bottom: 30px; }
+    .testimonials-shape-4 { width: 40px; height: 40px; }
+    .testimonials-shape-5 { width: 35px; height: 35px; }
+    .testimonials-shape-6 { width: 50px; height: 50px; border-width: 5px; }
+    .testimonials-shape-7 { width: 50px; height: 43px; }
+  }
+  
+  @media (max-width: 480px) {
+    .testimonials-shape-1 { width: 100px; height: 100px; opacity: 0.06; }
+    .testimonials-shape-2 { display: none; }
+    .testimonials-shape-3 { display: none; }
+    .testimonials-shape-4 { width: 30px; height: 30px; }
+    .testimonials-shape-5 { width: 25px; height: 25px; }
+    .testimonials-shape-6 { display: none; }
+    .testimonials-shape-7 { display: none; }
+  }
+  
+  /* ================================
+     REDUCED MOTION - ACCESSIBILITY
+     ================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .testimonial-card {
+      transition: none;
+    }
+
+    .testimonial-card:hover {
+      transform: none;
+    }
+    
+    .testimonials-shape {
+      animation: none !important;
+    }
+
+    .card-shine {
+      display: none;
+    }
+
+    .quote-icon,
+    .corner-accent,
+    .testimonial-card svg[viewBox="0 0 20 20"] {
+      transition: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.testimonials.name",
+  "tag": "section",
+  "class": "section-testimonials",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.testimonials.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "t:sections.testimonials.settings.section_heading.label",
+      "default": "أراء العملاء"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "t:sections.testimonials.settings.card_border_radius.label",
+      "default": 16,
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.testimonials.settings.show_shapes.label",
+      "default": true,
+      "info": "t:sections.testimonials.settings.show_shapes.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": "t:sections.testimonials.settings.enable_carousel.label",
+      "default": true,
+      "info": "t:sections.testimonials.settings.enable_carousel.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.testimonials.settings.autoplay.label",
+      "default": true,
+      "info": "t:sections.testimonials.settings.autoplay.info"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "t:sections.testimonials.settings.autoplay_speed.label",
+      "default": 5,
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "unit": "ث"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "t:sections.testimonials.settings.show_arrows.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination",
+      "label": "t:sections.testimonials.settings.show_pagination.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.testimonials.settings.color_scheme.label",
+      "default": "scheme-3"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "t:sections.testimonials.settings.star_color.label",
+      "default": "#fbbf24"
+    },
+    {
+      "type": "color",
+      "id": "dots_color",
+      "label": "t:sections.testimonials.settings.dots_color.label",
+      "default": "#fbbf24"
+    },
+    {
+      "type": "color",
+      "id": "dots_inactive_color",
+      "label": "t:sections.testimonials.settings.dots_inactive_color.label",
+      "default": "rgba(255, 255, 255, 0.3)"
+    },
+    {
+      "type": "color",
+      "id": "arrows_color",
+      "label": "t:sections.testimonials.settings.arrows_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrows_bg_color",
+      "label": "t:sections.testimonials.settings.arrows_bg_color.label",
+      "default": "rgba(255, 255, 255, 0.1)"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.testimonials.settings.paragraph.content"
+    },
+    {
+      "type": "range",
+      "id": "name_size_desktop",
+      "label": "t:sections.testimonials.settings.name_size_desktop.label",
+      "default": 22,
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "name_size_tablet",
+      "label": "t:sections.testimonials.settings.name_size_tablet.label",
+      "default": 18,
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "name_size_mobile",
+      "label": "t:sections.testimonials.settings.name_size_mobile.label",
+      "default": 16,
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.testimonials.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.testimonials.settings.heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.testimonials.settings.heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.testimonials.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.testimonials.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.testimonials.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "name_weight",
+      "label": "t:sections.testimonials.settings.name_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.testimonials.settings.name_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.testimonials.settings.name_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.testimonials.settings.name_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.testimonials.settings.name_weight.options.700"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "body_weight",
+      "label": "t:sections.testimonials.settings.body_weight.label",
+      "default": "400",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.testimonials.settings.body_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.testimonials.settings.body_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.testimonials.settings.body_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.testimonials.settings.body_weight.options.700"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonials.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.testimonials.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.testimonials.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "t:sections.testimonials.blocks.testimonial.name",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "customer_image",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.customer_image.label",
+          "info": "t:sections.testimonials.blocks.testimonial.settings.customer_image.info"
+        },
+        {
+          "type": "text",
+          "id": "customer_name",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.customer_name.label",
+          "default": "اسم العميل"
+        },
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.rating.label",
+          "default": 5,
+          "min": 1,
+          "max": 5,
+          "step": 1
+        },
+        {
+          "type": "textarea",
+          "id": "review_text",
+          "label": "t:sections.testimonials.blocks.testimonial.settings.review_text.label",
+          "default": "تجربة رائعة مع هذا المتجر! المنتجات ذات جودة عالية والتوصيل سريع. أنصح الجميع بالتسوق من هنا."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonials.name",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "مريم الزهراني",
+            "rating": 5,
+            "review_text": "تجربة تسوق رائعة! المنتجات وصلت بسرعة والجودة ممتازة. سأعود للشراء مرة أخرى بكل تأكيد."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "فاطمة الكندري",
+            "rating": 5,
+            "review_text": "طلبت 3 عبايات وكل وحدة أحلى من الثانية! القصات مريحة والخياطة مرتبة جداً. أنصح فيكم وبقوة."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "أميمة العتيبي",
+            "rating": 5,
+            "review_text": "خدمة العملاء ممتازة واستجابوا لكل استفساراتي. المقاس جاء مناسب والخامة أجمل من الصورة!"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "نورة السالم",
+            "rating": 5,
+            "review_text": "أفضل متجر للتسوق أونلاين! الأسعار منافسة والشحن سريع. شكراً على الخدمة المميزة."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "سارة المطيري",
+            "rating": 4,
+            "review_text": "منتجات أصلية 100% والتغليف محترم جداً. تجربة مميزة وسأرشح المتجر لصديقاتي."
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "هند الراشد",
+            "rating": 5,
+            "review_text": "سعيدة جداً بتجربتي معكم! التواصل سريع والمنتج طابق الوصف تماماً. شكراً من القلب."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

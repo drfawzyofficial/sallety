@@ -1,0 +1,1587 @@
+{%- comment -%}
+  Sallety Theme - Premium Main Cart Section
+  A high-quality, responsive cart page with TailwindCSS V4 and RTL support.
+
+  Features:
+  - Fully responsive (Desktop, Tablet, Mobile)
+  - RTL support for Arabic
+  - Free shipping progress bar
+  - Cart notes
+  - Trust badges
+  - Empty cart state
+  - Quantity controls with AJAX
+  - Product recommendations
+  - Animated interactions
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme
+  assign scheme_number = section.settings.color_scheme.id | default: 'scheme-1' | remove: 'scheme-'
+
+  # Settings
+  assign show_free_shipping = section.settings.show_free_shipping_bar
+  assign show_cart_note = section.settings.show_cart_note
+  assign show_trust_badges = section.settings.show_trust_badges
+  assign show_recommendations = section.settings.show_recommendations
+  assign recommendations_title = section.settings.recommendations_title
+  assign recommendations_collection = collections[section.settings.recommendations_collection]
+
+  # Empty cart settings
+  assign empty_title = section.settings.empty_title
+  assign empty_description = section.settings.empty_description
+  assign empty_button_text = section.settings.empty_button_text
+  assign empty_button_link = section.settings.empty_button_link
+
+  # Trust badges
+  assign trust_badge_1_icon = section.settings.trust_badge_1_icon
+  assign trust_badge_1_text = section.settings.trust_badge_1_text
+  assign trust_badge_2_icon = section.settings.trust_badge_2_icon
+  assign trust_badge_2_text = section.settings.trust_badge_2_text
+  assign trust_badge_3_icon = section.settings.trust_badge_3_icon
+  assign trust_badge_3_text = section.settings.trust_badge_3_text
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section
+  id="main-cart-{{ section.id }}"
+  class="main-cart color-scheme-{{ scheme_number }}"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="cart"
+  style="
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  "
+>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    {%- if cart.item_count > 0 -%}
+      <!-- Cart Header -->
+      <header class="mb-6 md:mb-8 lg:mb-10">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+              {{ 'cart.general.title' | t }}
+            </h1>
+            <p class="text-sm sm:text-base text-secondary mt-1" data-cart-count-text>
+              {{ 'cart.general.item_count' | t: count: cart.item_count }}
+            </p>
+          </div>
+          <a
+            href="{{ routes.all_products_collection_url }}"
+            class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors group"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            {{ 'cart.general.continue_shopping' | t }}
+          </a>
+        </div>
+      </header>
+
+      <!-- Main Cart Content -->
+      <form action="{{ routes.cart_url }}" method="post" id="cart-form" class="cart-form">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 xl:gap-10">
+          <!-- Cart Items Column -->
+          <div class="lg:col-span-8">
+            <!-- Free Shipping Bar -->
+            {%- if show_free_shipping -%}
+              <div class="mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-l from-primary/5 via-accent/5 to-primary/5 border border-border/50">
+                {% render 'free-shipping-bar-premium' %}
+              </div>
+            {%- endif -%}
+
+            <!-- Cart Items Container -->
+            <div
+              class="bg-background rounded-2xl border border-border shadow-sm overflow-hidden"
+              data-cart-items-container
+            >
+              <!-- Desktop Table Header -->
+              <div class="hidden lg:grid lg:grid-cols-12 gap-4 px-6 py-4 bg-border/20 border-b border-border text-sm font-semibold text-secondary">
+                <div class="lg:col-span-5">{{ 'cart.items.product' | t }}</div>
+                <div class="lg:col-span-2 text-center">{{ 'cart.items.price' | t }}</div>
+                <div class="lg:col-span-2 text-center">{{ 'cart.items.quantity' | t }}</div>
+                <div class="lg:col-span-2 text-center">{{ 'cart.items.total' | t }}</div>
+                <div class="lg:col-span-1"></div>
+              </div>
+
+              <!-- Cart Items List -->
+              <div class="divide-y divide-border" data-cart-items>
+                {%- for item in cart.items -%}
+                  <div
+                    class="cart-item group relative p-4 sm:p-5 lg:p-6 hover:bg-border/5 transition-colors duration-200"
+                    data-cart-item
+                    data-line="{{ forloop.index }}"
+                    data-variant-id="{{ item.variant_id }}"
+                    data-item-key="{{ item.key }}"
+                  >
+                    <!-- Mobile & Tablet Layout -->
+                    <div class="lg:hidden">
+                      <div class="flex gap-4">
+                        <!-- Product Image -->
+                        <a href="{{ item.url }}" class="flex-shrink-0 relative group/image">
+                          <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-border/30 ring-1 ring-border/50">
+                            {%- if item.image -%}
+                              <img
+                                src="{{ item.image | image_url: width: 200 }}"
+                                alt="{{ item.title | escape }}"
+                                width="96"
+                                height="96"
+                                class="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-300"
+                                loading="lazy"
+                              >
+                            {%- else -%}
+                              <div class="w-full h-full flex items-center justify-center text-secondary">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="32"
+                                  height="32"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                  <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                              </div>
+                            {%- endif -%}
+                          </div>
+                          {%- if item.original_line_price != item.final_line_price -%}
+                            <span class="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto w-6 h-6 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                              %
+                            </span>
+                          {%- endif -%}
+                        </a>
+
+                        <!-- Product Details -->
+                        <div class="flex-1 min-w-0">
+                          {%- if item.vendor -%}
+                            <p class="text-[10px] sm:text-xs uppercase tracking-wider text-secondary font-medium mb-0.5">
+                              {{ item.vendor }}
+                            </p>
+                          {%- endif -%}
+                          <a
+                            href="{{ item.url }}"
+                            class="block text-sm sm:text-base font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 mb-1"
+                          >
+                            {{ item.product.title }}
+                          </a>
+
+                          {%- unless item.product.has_only_default_variant -%}
+                            <p class="text-xs sm:text-sm text-secondary mb-2 flex items-center gap-1">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <polyline points="9 11 12 14 22 4"></polyline>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                              </svg>
+                              {{ item.variant.title }}
+                            </p>
+                          {%- endunless -%}
+
+                          {%- if item.selling_plan_allocation -%}
+                            <p class="text-xs text-primary bg-primary/10 rounded-full px-2 py-0.5 w-fit mb-2">
+                              {{ item.selling_plan_allocation.selling_plan.name }}
+                            </p>
+                          {%- endif -%}
+
+                          <!-- Price (Mobile) -->
+                          <div class="mb-3">
+                            {%- if item.original_line_price != item.final_line_price -%}
+                              <span class="text-sm sm:text-base font-bold text-error" data-item-final-price>
+                                {{- item.final_line_price | money -}}
+                              </span>
+                              <span
+                                class="text-xs sm:text-sm text-secondary line-through mr-2 rtl:ml-2 rtl:mr-0"
+                                data-item-original-price
+                              >
+                                {{- item.original_line_price | money -}}
+                              </span>
+                            {%- else -%}
+                              <span class="text-sm sm:text-base font-bold text-foreground" data-item-final-price>
+                                {{- item.final_line_price | money -}}
+                              </span>
+                            {%- endif -%}
+                            <span
+                              class="block text-[10px] sm:text-xs text-secondary mt-0.5 {% if item.quantity <= 1 %}hidden{% endif %}"
+                              data-item-unit-price
+                            >
+                              {{ item.original_price | money }} ×
+                              <span data-item-quantity-display>{{ item.quantity }}</span>
+                            </span>
+                          </div>
+
+                          <!-- Quantity & Remove (Mobile) -->
+                          <div class="flex items-center justify-between gap-3">
+                            <!-- Quantity Selector -->
+                            <div
+                              class="quantity-selector inline-flex items-center rounded-lg border border-border bg-background overflow-hidden"
+                              data-quantity-selector
+                            >
+                              <button
+                                type="button"
+                                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                data-quantity-minus
+                                data-line="{{ forloop.index }}"
+                                aria-label="{{ 'products.product.quantity' | t }} {{ 'general.minus' | t }}"
+                                {% if item.quantity <= 1 %}
+                                  disabled
+                                {% endif %}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                              </button>
+
+                              <input
+                                type="number"
+                                class="w-10 sm:w-12 h-9 sm:h-10 text-center text-sm font-medium bg-transparent border-x border-border text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                data-quantity-input
+                                data-line="{{ forloop.index }}"
+                                name="updates[]"
+                                value="{{ item.quantity }}"
+                                min="1"
+                                aria-label="{{ 'products.product.quantity' | t }}"
+                              >
+
+                              <button
+                                type="button"
+                                class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all"
+                                data-quantity-plus
+                                data-line="{{ forloop.index }}"
+                                aria-label="{{ 'products.product.quantity' | t }} {{ 'general.plus' | t }}"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                              </button>
+                            </div>
+
+                            <!-- Remove Button -->
+                            <button
+                              type="button"
+                              class="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-lg text-secondary hover:text-error hover:bg-error/10 transition-all duration-200"
+                              data-cart-remove="{{ forloop.index }}"
+                              aria-label="{{ 'cart.general.remove_title' | t: title: item.title }}"
+                              title="{{ 'cart.general.remove' | t }}"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              >
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Desktop Layout -->
+                    <div class="hidden lg:grid lg:grid-cols-12 gap-4 items-center">
+                      <!-- Product Info -->
+                      <div class="lg:col-span-5">
+                        <div class="flex gap-4">
+                          <a href="{{ item.url }}" class="flex-shrink-0 relative group/image">
+                            <div class="w-20 h-20 xl:w-24 xl:h-24 rounded-xl overflow-hidden bg-border/30 ring-1 ring-border/50">
+                              {%- if item.image -%}
+                                <img
+                                  src="{{ item.image | image_url: width: 200 }}"
+                                  alt="{{ item.title | escape }}"
+                                  width="96"
+                                  height="96"
+                                  class="w-full h-full object-cover group-hover/image:scale-105 transition-transform duration-300"
+                                  loading="lazy"
+                                >
+                              {%- else -%}
+                                <div class="w-full h-full flex items-center justify-center text-secondary">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="32"
+                                    height="32"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                  >
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                  </svg>
+                                </div>
+                              {%- endif -%}
+                            </div>
+                            {%- if item.original_line_price != item.final_line_price -%}
+                              <span class="absolute -top-1 -right-1 rtl:-left-1 rtl:right-auto w-6 h-6 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+                                %
+                              </span>
+                            {%- endif -%}
+                          </a>
+                          <div class="flex-1 min-w-0">
+                            {%- if item.vendor -%}
+                              <p class="text-[10px] uppercase tracking-wider text-secondary font-medium mb-0.5">
+                                {{ item.vendor }}
+                              </p>
+                            {%- endif -%}
+                            <a
+                              href="{{ item.url }}"
+                              class="block text-sm xl:text-base font-semibold text-foreground hover:text-primary transition-colors line-clamp-2 mb-1"
+                            >
+                              {{ item.product.title }}
+                            </a>
+                            {%- unless item.product.has_only_default_variant -%}
+                              <p class="text-xs text-secondary flex items-center gap-1">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <polyline points="9 11 12 14 22 4"></polyline>
+                                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                </svg>
+                                {{ item.variant.title }}
+                              </p>
+                            {%- endunless -%}
+                            {%- if item.selling_plan_allocation -%}
+                              <p class="text-xs text-primary bg-primary/10 rounded-full px-2 py-0.5 w-fit mt-1">
+                                {{ item.selling_plan_allocation.selling_plan.name }}
+                              </p>
+                            {%- endif -%}
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Unit Price -->
+                      <div class="lg:col-span-2 text-center">
+                        <span class="text-sm font-medium text-foreground">{{ item.original_price | money }}</span>
+                      </div>
+
+                      <!-- Quantity -->
+                      <div class="lg:col-span-2 flex justify-center">
+                        <div
+                          class="quantity-selector inline-flex items-center rounded-lg border border-border bg-background overflow-hidden"
+                          data-quantity-selector
+                        >
+                          <button
+                            type="button"
+                            class="w-9 h-9 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            data-quantity-minus
+                            data-line="{{ forloop.index }}"
+                            aria-label="{{ 'products.product.quantity' | t }} {{ 'general.minus' | t }}"
+                            {% if item.quantity <= 1 %}
+                              disabled
+                            {% endif %}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          </button>
+
+                          <input
+                            type="number"
+                            class="w-10 h-9 text-center text-sm font-medium bg-transparent border-x border-border text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            data-quantity-input
+                            data-line="{{ forloop.index }}"
+                            name="updates[]"
+                            value="{{ item.quantity }}"
+                            min="1"
+                            aria-label="{{ 'products.product.quantity' | t }}"
+                          >
+
+                          <button
+                            type="button"
+                            class="w-9 h-9 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all"
+                            data-quantity-plus
+                            data-line="{{ forloop.index }}"
+                            aria-label="{{ 'products.product.quantity' | t }} {{ 'general.plus' | t }}"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Line Total -->
+                      <div class="lg:col-span-2 text-center">
+                        <div class="flex flex-col items-center">
+                          {%- if item.original_line_price != item.final_line_price -%}
+                            <span class="text-sm font-bold text-error" data-item-final-price>
+                              {{- item.final_line_price | money -}}
+                            </span>
+                            <span class="text-xs text-secondary line-through" data-item-original-price>
+                              {{- item.original_line_price | money -}}
+                            </span>
+                          {%- else -%}
+                            <span class="text-sm font-bold text-foreground" data-item-final-price>
+                              {{- item.final_line_price | money -}}
+                            </span>
+                          {%- endif -%}
+                        </div>
+                      </div>
+
+                      <!-- Remove Button (Desktop) -->
+                      <div class="lg:col-span-1 flex justify-center">
+                        <button
+                          type="button"
+                          class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:text-error hover:bg-error/10 transition-all duration-200"
+                          data-cart-remove="{{ forloop.index }}"
+                          aria-label="{{ 'cart.general.remove_title' | t: title: item.title }}"
+                          title="{{ 'cart.general.remove' | t }}"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Item Properties -->
+                    {%- if item.properties.size > 0 -%}
+                      <div class="mt-3 pt-3 border-t border-border/50">
+                        <div class="flex flex-wrap gap-2">
+                          {%- for property in item.properties -%}
+                            {%- unless property.last == blank -%}
+                              <span class="inline-flex items-center gap-1 text-xs text-secondary bg-border/30 rounded-full px-2 py-1">
+                                <span class="font-medium">{{ property.first }}:</span>
+                                {%- if property.last contains '/uploads/' -%}
+                                  <a href="{{ property.last }}" class="text-primary hover:underline" target="_blank">
+                                    {{- 'cart.general.view_file' | t | default: 'عرض الملف' -}}
+                                  </a>
+                                {%- else -%}
+                                  {{ property.last }}
+                                {%- endif -%}
+                              </span>
+                            {%- endunless -%}
+                          {%- endfor -%}
+                        </div>
+                      </div>
+                    {%- endif -%}
+
+                    <!-- Line Item Discounts -->
+                    {%- if item.line_level_discount_allocations.size > 0 -%}
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        {%- for discount in item.line_level_discount_allocations -%}
+                          <span class="inline-flex items-center gap-1 text-xs text-success bg-success/10 rounded-full px-2 py-1">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                            {{ discount.discount_application.title }} (-{{ discount.amount | money }})
+                          </span>
+                        {%- endfor -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+
+            <!-- Product Recommendations -->
+            {%- if show_recommendations -%}
+              {%- assign rec_products = recommendations_collection.products | default: collections.all.products -%}
+              {%- if rec_products.size > 0 -%}
+                <div class="mt-8 lg:mt-10">
+                  <h3 class="text-lg sm:text-xl font-bold text-foreground mb-4 sm:mb-6 flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-primary"
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    {%- if recommendations_title != blank -%}
+                      {{ recommendations_title }}
+                    {%- else -%}
+                      {{ 'cart.general.you_may_also_like' | t | default: 'قد يعجبك أيضاً' }}
+                    {%- endif -%}
+                  </h3>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                    {%- assign cart_product_ids = cart.items | map: 'product_id' -%}
+                    {%- for product in rec_products limit: 4 -%}
+                      {%- unless cart_product_ids contains product.id -%}
+                        {%- render 'product-card', product: product, image_ratio: 'square' -%}
+                      {%- endunless -%}
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+
+          <!-- Cart Summary Column -->
+          <div class="lg:col-span-4">
+            <div class="lg:sticky lg:top-24">
+              <div class="bg-background rounded-2xl border border-border shadow-sm overflow-hidden" data-cart-summary>
+                <!-- Summary Header -->
+                <div class="px-5 py-4 sm:px-6 sm:py-5 bg-border/20 border-b border-border">
+                  <h2 class="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="text-primary"
+                    >
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    {{ 'cart.general.order_summary' | t | default: 'ملخص الطلب' }}
+                  </h2>
+                </div>
+
+                <div class="p-5 sm:p-6 space-y-5">
+                  <!-- Cart Note -->
+                  {%- if show_cart_note -%}
+                    <details class="group">
+                      <summary class="flex items-center justify-between cursor-pointer py-2 text-sm font-medium text-foreground hover:text-primary transition-colors">
+                        <span class="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                          {{ 'cart.general.note' | t | default: 'ملاحظات الطلب' }}
+                        </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="text-secondary group-open:rotate-180 transition-transform duration-200"
+                        >
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </summary>
+                      <div class="pt-3">
+                        <textarea
+                          name="note"
+                          class="w-full h-24 px-4 py-3 text-sm border border-border rounded-xl bg-background text-foreground placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
+                          placeholder="{{ 'cart.general.note_placeholder' | t | default: 'أضف ملاحظات خاصة بطلبك...' }}"
+                          data-cart-note
+                        >{{ cart.note }}</textarea>
+                      </div>
+                    </details>
+                  {%- endif -%}
+
+                  <!-- Order Details -->
+                  <div class="space-y-3 pt-2 border-t border-border">
+                    <!-- Subtotal -->
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm text-secondary">{{ 'cart.general.subtotal' | t }}</span>
+                      <span class="text-sm font-medium text-foreground" data-cart-subtotal>
+                        {{- cart.items_subtotal_price | money -}}
+                      </span>
+                    </div>
+
+                    <!-- Cart Discounts -->
+                    {%- if cart.cart_level_discount_applications.size > 0 -%}
+                      {%- for discount in cart.cart_level_discount_applications -%}
+                        <div class="flex items-center justify-between text-success">
+                          <span class="text-sm flex items-center gap-1">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                            </svg>
+                            {{ discount.title }}
+                          </span>
+                          <span class="text-sm font-medium">-{{ discount.total_allocated_amount | money }}</span>
+                        </div>
+                      {%- endfor -%}
+                    {%- endif -%}
+
+                    <!-- Savings -->
+                    {%- if cart.total_discount > 0 -%}
+                      <div class="flex items-center justify-between text-success bg-success/5 rounded-lg px-3 py-2 -mx-1">
+                        <span class="text-sm font-medium">
+                          {{- 'cart.general.savings' | t | default: 'إجمالي التوفير' -}}
+                        </span>
+                        <span class="text-sm font-bold">-{{ cart.total_discount | money }}</span>
+                      </div>
+                    {%- endif -%}
+
+                    <!-- Shipping Note -->
+                    <p class="text-xs text-secondary pt-1">
+                      {{ 'cart.general.taxes_and_shipping_policy_at_checkout_html' | t }}
+                    </p>
+                  </div>
+
+                  <!-- Total -->
+                  <div class="flex items-center justify-between pt-4 border-t-2 border-border">
+                    <span class="text-base sm:text-lg font-bold text-foreground">
+                      {{- 'cart.general.total' | t | default: 'الإجمالي' -}}
+                    </span>
+                    <span class="text-xl sm:text-2xl font-bold text-primary" data-cart-total>
+                      {{- cart.total_price | money -}}
+                    </span>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="space-y-3 pt-2">
+                    <button
+                      type="submit"
+                      name="checkout"
+                      class="flex items-center justify-center gap-2 w-full py-3.5 sm:py-4 px-6 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/25 text-sm sm:text-base"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                      </svg>
+                      {{ 'cart.general.checkout' | t }}
+                    </button>
+
+                    <button
+                      type="submit"
+                      name="update"
+                      class="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl border-2 border-border text-foreground font-medium hover:bg-border/30 transition-all duration-200 text-sm sm:text-base"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                      </svg>
+                      {{ 'cart.general.update' | t }}
+                    </button>
+                  </div>
+
+                  <!-- Trust Badges -->
+                  {%- if show_trust_badges -%}
+                    <div class="grid grid-cols-3 gap-2 pt-4 border-t border-border">
+                      {%- if trust_badge_1_text != blank -%}
+                        <div class="flex flex-col items-center text-center p-2">
+                          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                            {%- case trust_badge_1_icon -%}
+                              {%- when 'lock' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                              {%- when 'truck' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="1" y="3" width="15" height="13"></rect>
+                                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                </svg>
+                              {%- when 'shield' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                  <polyline points="9 12 11 14 15 10"></polyline>
+                                </svg>
+                              {%- when 'refresh' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                              {%- when 'check' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              {%- else -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            {%- endcase -%}
+                          </div>
+                          <span class="text-[10px] sm:text-xs text-secondary font-medium leading-tight">
+                            {{- trust_badge_1_text -}}
+                          </span>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if trust_badge_2_text != blank -%}
+                        <div class="flex flex-col items-center text-center p-2">
+                          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                            {%- case trust_badge_2_icon -%}
+                              {%- when 'lock' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                              {%- when 'truck' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="1" y="3" width="15" height="13"></rect>
+                                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                </svg>
+                              {%- when 'shield' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                  <polyline points="9 12 11 14 15 10"></polyline>
+                                </svg>
+                              {%- when 'refresh' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                              {%- when 'check' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              {%- else -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="1" y="3" width="15" height="13"></rect>
+                                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                </svg>
+                            {%- endcase -%}
+                          </div>
+                          <span class="text-[10px] sm:text-xs text-secondary font-medium leading-tight">
+                            {{- trust_badge_2_text -}}
+                          </span>
+                        </div>
+                      {%- endif -%}
+
+                      {%- if trust_badge_3_text != blank -%}
+                        <div class="flex flex-col items-center text-center p-2">
+                          <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                            {%- case trust_badge_3_icon -%}
+                              {%- when 'lock' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                              {%- when 'truck' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <rect x="1" y="3" width="15" height="13"></rect>
+                                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                                </svg>
+                              {%- when 'shield' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                  <polyline points="9 12 11 14 15 10"></polyline>
+                                </svg>
+                              {%- when 'refresh' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                              {%- when 'check' -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              {%- else -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                >
+                                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                  <polyline points="9 12 11 14 15 10"></polyline>
+                                </svg>
+                            {%- endcase -%}
+                          </div>
+                          <span class="text-[10px] sm:text-xs text-secondary font-medium leading-tight">
+                            {{- trust_badge_3_text -}}
+                          </span>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+
+                  <!-- Payment Icons -->
+                  <div class="flex items-center justify-center gap-2 pt-4 border-t border-border">
+                    <span class="text-xs text-secondary">
+                      {{- 'cart.general.accepted_payments' | t | default: 'طرق الدفع المقبولة' }}:</span
+                    >
+                    <div class="flex items-center gap-1">
+                      {%- for type in shop.enabled_payment_types -%}
+                        {{ type | payment_type_svg_tag: class: 'w-8 h-5 text-secondary' }}
+                      {%- endfor -%}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    {%- else -%}
+      <!-- Empty Cart State -->
+      <div class="flex flex-col items-center justify-center min-h-[50vh] py-12 sm:py-16 lg:py-20 text-center">
+        <div class="w-28 h-28 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center mb-6 sm:mb-8 animate-pulse-slow">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-primary/60"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-3 sm:mb-4">
+          {%- if empty_title != blank and empty_title != 'سلة التسوق فارغة' -%}
+            {{ empty_title }}
+          {%- else -%}
+            {{ 'cart.general.empty' | t | default: 'سلة التسوق فارغة' }}
+          {%- endif -%}
+        </h1>
+
+        <p class="text-sm sm:text-base lg:text-lg text-secondary mb-6 sm:mb-8 max-w-md px-4">
+          {%- if empty_description != blank
+            and empty_description != 'لم تقم بإضافة أي منتجات إلى سلة التسوق بعد. تصفح منتجاتنا واختر ما يناسبك!'
+          -%}
+            {{ empty_description }}
+          {%- else -%}
+            {{
+              'cart.general.empty_description'
+              | t
+              | default: 'لم تقم بإضافة أي منتجات إلى سلة التسوق بعد. تصفح منتجاتنا واختر ما يناسبك!'
+            }}
+          {%- endif -%}
+        </p>
+
+        <a
+          href="{{ empty_button_link | default: routes.all_products_collection_url }}"
+          class="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/25 text-sm sm:text-base"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          {%- if empty_button_text != blank and empty_button_text != 'تسوق الآن' -%}
+            {{ empty_button_text }}
+          {%- else -%}
+            {{ 'cart.general.continue_shopping' | t | default: 'تسوق الآن' }}
+          {%- endif -%}
+        </a>
+
+        <!-- Featured Products for Empty Cart -->
+        {%- if show_recommendations -%}
+          {%- assign featured_products = recommendations_collection.products | default: collections.all.products -%}
+          {%- if featured_products.size > 0 -%}
+            <div class="w-full max-w-4xl mt-12 sm:mt-16">
+              <h3 class="text-lg sm:text-xl font-bold text-foreground mb-6 flex items-center justify-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="text-primary"
+                >
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                {{ 'cart.general.featured_products' | t | default: 'منتجات مميزة' }}
+              </h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+                {%- for product in featured_products limit: 4 -%}
+                  {%- render 'product-card', product: product, image_ratio: 'square' -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* Main Cart Styles */
+  .main-cart {
+    direction: rtl;
+    text-align: right;
+  }
+
+  /* Line clamp utility */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Pulse animation for empty cart */
+  @keyframes pulse-slow {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+
+  /* Cart item loading state */
+  .cart-item.is-loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .cart-item.is-loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Quantity selector focus states */
+  .quantity-selector:focus-within {
+    ring: 2px solid var(--color-primary);
+    ring-offset: 2px;
+  }
+
+  /* Remove button visibility on touch devices */
+  @media (hover: none) {
+    .cart-item [data-cart-remove] {
+      opacity: 1;
+    }
+  }
+
+  /* RTL specific adjustments */
+  [dir='rtl'] .rotate-180 {
+    transform: rotate(0deg);
+  }
+
+  [dir='rtl'] .group-hover\:translate-x-1:hover {
+    transform: translateX(-0.25rem);
+  }
+
+  /* Sticky summary on desktop */
+  @media (min-width: 1024px) {
+    [data-cart-summary] {
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  /* Payment icons styling */
+  .main-cart svg[class*='payment-icon'] {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .main-cart svg[class*='payment-icon']:hover {
+    opacity: 1;
+  }
+
+  /* Responsive font adjustments */
+  @media (max-width: 767px) {
+    .main-cart h1 {
+      font-size: 1.5rem;
+    }
+
+    .main-cart [data-cart-total] {
+      font-size: 1.25rem;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .main-cart h1 {
+      font-size: 1.875rem;
+    }
+  }
+
+  /* Smooth transitions for cart updates */
+  .cart-item {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .cart-item.is-removing {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  [dir='rtl'] .cart-item.is-removing {
+    transform: translateX(20px);
+  }
+
+  /* Button hover effects */
+  .main-cart button[type='submit']:active {
+    transform: scale(0.98);
+  }
+
+  /* Details/summary styling */
+  .main-cart details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .main-cart details summary::marker {
+    display: none;
+  }
+
+  /* Focus visible states for accessibility */
+  .main-cart a:focus-visible,
+  .main-cart button:focus-visible,
+  .main-cart input:focus-visible,
+  .main-cart textarea:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Container max-width override for cart */
+  .main-cart .container {
+    max-width: 1280px;
+  }
+
+  /* Shake animation for error feedback */
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+      transform: translateX(-4px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+      transform: translateX(4px);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.main_cart.name",
+  "tag": "section",
+  "class": "section-main-cart",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_cart.settings.header_features.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_free_shipping_bar",
+      "label": "t:sections.main_cart.settings.show_free_shipping_bar.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart_note",
+      "label": "t:sections.main_cart.settings.show_cart_note.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "t:sections.main_cart.settings.show_trust_badges.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_cart.settings.header_trust_badges.content"
+    },
+    {
+      "type": "select",
+      "id": "trust_badge_1_icon",
+      "label": "t:sections.main_cart.settings.trust_badge_1_icon.label",
+      "options": [
+        { "value": "lock", "label": "t:sections.main_cart.settings.trust_badge_icon.options.lock" },
+        { "value": "truck", "label": "t:sections.main_cart.settings.trust_badge_icon.options.truck" },
+        { "value": "shield", "label": "t:sections.main_cart.settings.trust_badge_icon.options.shield" },
+        { "value": "refresh", "label": "t:sections.main_cart.settings.trust_badge_icon.options.refresh" },
+        { "value": "check", "label": "t:sections.main_cart.settings.trust_badge_icon.options.check" }
+      ],
+      "default": "lock"
+    },
+    {
+      "type": "text",
+      "id": "trust_badge_1_text",
+      "label": "t:sections.main_cart.settings.trust_badge_1_text.label",
+      "default": "دفع آمن"
+    },
+    {
+      "type": "select",
+      "id": "trust_badge_2_icon",
+      "label": "t:sections.main_cart.settings.trust_badge_2_icon.label",
+      "options": [
+        { "value": "lock", "label": "t:sections.main_cart.settings.trust_badge_icon.options.lock" },
+        { "value": "truck", "label": "t:sections.main_cart.settings.trust_badge_icon.options.truck" },
+        { "value": "shield", "label": "t:sections.main_cart.settings.trust_badge_icon.options.shield" },
+        { "value": "refresh", "label": "t:sections.main_cart.settings.trust_badge_icon.options.refresh" },
+        { "value": "check", "label": "t:sections.main_cart.settings.trust_badge_icon.options.check" }
+      ],
+      "default": "truck"
+    },
+    {
+      "type": "text",
+      "id": "trust_badge_2_text",
+      "label": "t:sections.main_cart.settings.trust_badge_2_text.label",
+      "default": "شحن سريع"
+    },
+    {
+      "type": "select",
+      "id": "trust_badge_3_icon",
+      "label": "t:sections.main_cart.settings.trust_badge_3_icon.label",
+      "options": [
+        { "value": "lock", "label": "t:sections.main_cart.settings.trust_badge_icon.options.lock" },
+        { "value": "truck", "label": "t:sections.main_cart.settings.trust_badge_icon.options.truck" },
+        { "value": "shield", "label": "t:sections.main_cart.settings.trust_badge_icon.options.shield" },
+        { "value": "refresh", "label": "t:sections.main_cart.settings.trust_badge_icon.options.refresh" },
+        { "value": "check", "label": "t:sections.main_cart.settings.trust_badge_icon.options.check" }
+      ],
+      "default": "shield"
+    },
+    {
+      "type": "text",
+      "id": "trust_badge_3_text",
+      "label": "t:sections.main_cart.settings.trust_badge_3_text.label",
+      "default": "ضمان الجودة"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_cart.settings.header_recommendations.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recommendations",
+      "label": "t:sections.main_cart.settings.show_recommendations.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "recommendations_title",
+      "label": "t:sections.main_cart.settings.recommendations_title.label",
+      "default": "قد يعجبك أيضاً"
+    },
+    {
+      "type": "collection",
+      "id": "recommendations_collection",
+      "label": "t:sections.main_cart.settings.recommendations_collection.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_cart.settings.header_empty_cart.content"
+    },
+    {
+      "type": "text",
+      "id": "empty_title",
+      "label": "t:sections.main_cart.settings.empty_title.label",
+      "default": "سلة التسوق فارغة"
+    },
+    {
+      "type": "textarea",
+      "id": "empty_description",
+      "label": "t:sections.main_cart.settings.empty_description.label",
+      "default": "لم تقم بإضافة أي منتجات إلى سلة التسوق بعد. تصفح منتجاتنا واختر ما يناسبك!"
+    },
+    {
+      "type": "text",
+      "id": "empty_button_text",
+      "label": "t:sections.main_cart.settings.empty_button_text.label",
+      "default": "تسوق الآن"
+    },
+    {
+      "type": "url",
+      "id": "empty_button_link",
+      "label": "t:sections.main_cart.settings.empty_button_link.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

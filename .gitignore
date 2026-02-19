@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Shopify CLI
+.shopify/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# This script (contains access token)
+push_to_github.sh

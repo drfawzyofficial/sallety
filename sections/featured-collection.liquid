@@ -1,0 +1,942 @@
+{%- comment -%}
+  Sallety Theme - Featured Collection Carousel
+  Premium carousel section for showcasing products from a collection
+  Features: Autoplay, RTL support, responsive design, color schemes
+{%- endcomment -%}
+
+{%- liquid
+  assign collection = section.settings.collection
+  assign products_to_show = section.settings.products_to_show
+  assign columns_desktop = section.settings.columns_desktop
+  assign columns_tablet = section.settings.columns_tablet
+  assign columns_mobile = section.settings.columns_mobile
+  assign enable_carousel = section.settings.enable_carousel
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+  assign show_arrows = section.settings.show_arrows
+  assign show_pagination = section.settings.show_pagination
+  assign show_progress = section.settings.show_progress
+  assign image_ratio = section.settings.image_ratio
+-%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  #FeaturedCollection-{{ section.id }} {
+    --fc-columns-mobile: {{ columns_mobile }};
+    --fc-columns-tablet: {{ columns_tablet }};
+    --fc-columns-desktop: {{ columns_desktop }};
+    --fc-gap: 16px;
+    --fc-arrow-color: {{ section.settings.arrow_color }};
+    --fc-arrow-bg: {{ section.settings.arrow_bg }};
+    --fc-dot-color: {{ section.settings.dot_color }};
+    --fc-dot-inactive: {{ section.settings.dot_inactive_color }};
+    --fc-progress-color: {{ section.settings.progress_color }};
+  }
+
+  @media screen and (min-width: 750px) {
+    #FeaturedCollection-{{ section.id }} {
+      --fc-gap: 24px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign text_direction = 'rtl'
+  assign rtl_languages = 'ar,he,fa,ur,ku,ps,sd,yi' | split: ','
+  assign current_lang = request.locale.iso_code | downcase | slice: 0, 2
+  if rtl_languages contains current_lang
+    assign text_direction = 'rtl'
+  elsif settings.enable_rtl
+    assign text_direction = 'rtl'
+  else
+    assign text_direction = 'ltr'
+  endif
+-%}
+<div 
+  id="FeaturedCollection-{{ section.id }}"
+  class="color-{{ section.settings.color_scheme }} gradient"
+  style="background: var(--color-background);"
+  dir="{{ text_direction }}"
+>
+  <div class="section-{{ section.id }}-padding">
+    <div class="{{ section.settings.page_width }} mx-auto px-4 md:px-6 lg:px-8">
+      
+      {%- comment -%} Section Header {%- endcomment -%}
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-12">
+        <div class="max-w-2xl">
+          {%- if section.settings.subtitle != blank -%}
+            <span class="inline-block text-sm md:text-base font-medium text-[var(--color-accent)] mb-2 tracking-wide">
+              {{ section.settings.subtitle }}
+            </span>
+          {%- endif -%}
+          
+          {%- if section.settings.title != blank -%}
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-[var(--color-text)] mb-3">
+              {{ section.settings.title | escape }}
+            </h2>
+          {%- endif -%}
+          
+          {%- if section.settings.description != blank -%}
+            <div class="text-base md:text-lg text-[var(--color-secondary-text)] leading-relaxed rte">
+              {{ section.settings.description }}
+            </div>
+          {%- endif -%}
+        </div>
+        
+        {%- if section.settings.show_view_all and collection != blank -%}
+          <a 
+            href="{{ collection.url }}"
+            class="group hidden md:inline-flex items-center gap-2 text-[var(--color-accent)] font-semibold text-base transition-all duration-300 hover:gap-3 shrink-0"
+          >
+            <span>{{ 'sections.featured_collection.view_all' | t | default: 'عرض الكل' }}</span>
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"
+              class="fc-view-all-arrow transition-transform group-hover:translate-x-1"
+            >
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Carousel Container {%- endcomment -%}
+      <featured-collection-carousel
+        class="fc-carousel block relative"
+        data-autoplay="{{ autoplay }}"
+        data-autoplay-speed="{{ autoplay_speed }}"
+        data-enable-carousel="{{ enable_carousel }}"
+        data-show-arrows="{{ show_arrows }}"
+        data-show-pagination="{{ show_pagination }}"
+        data-columns-mobile="{{ columns_mobile }}"
+        data-columns-tablet="{{ columns_tablet }}"
+        data-columns-desktop="{{ columns_desktop }}"
+      >
+        {%- comment -%} Products Track {%- endcomment -%}
+        <div class="fc-carousel__viewport overflow-hidden">
+          <div 
+            class="fc-carousel__track flex transition-transform duration-500 ease-out"
+            style="gap: var(--fc-gap);"
+          >
+            {%- if collection == blank -%}
+              {%- for i in (1..products_to_show) -%}
+                <div class="fc-carousel__slide shrink-0">
+                  <div class="product-card-wrapper h-full">
+                    {% render 'product-card', 
+                      show_vendor: section.settings.show_vendor,
+                      image_ratio: image_ratio
+                    %}
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- else -%}
+              {%- for product in collection.products limit: products_to_show -%}
+                <div class="fc-carousel__slide shrink-0">
+                  <div class="product-card-wrapper h-full">
+                    {% render 'product-card',
+                      product: product,
+                      show_vendor: section.settings.show_vendor,
+                      image_ratio: image_ratio
+                    %}
+                  </div>
+                </div>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+
+        {%- comment -%} Navigation Arrows {%- endcomment -%}
+        {%- if show_arrows and enable_carousel -%}
+          <button
+            type="button"
+            class="fc-carousel__arrow fc-carousel__arrow--prev"
+            style="background: var(--fc-arrow-bg); color: var(--fc-arrow-color);"
+            aria-label="{{ 'accessibility.previous_slide' | t }}"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="fc-carousel__arrow-icon">
+              <path d="M19 12H5"></path>
+              <path d="m12 19-7-7 7-7"></path>
+            </svg>
+          </button>
+          
+          <button
+            type="button"
+            class="fc-carousel__arrow fc-carousel__arrow--next"
+            style="background: var(--fc-arrow-bg); color: var(--fc-arrow-color);"
+            aria-label="{{ 'accessibility.next_slide' | t }}"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="fc-carousel__arrow-icon">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </button>
+        {%- endif -%}
+
+        {%- comment -%} Progress Bar {%- endcomment -%}
+        {%- if show_progress and enable_carousel -%}
+          <div class="fc-carousel__progress mt-6 md:mt-8 h-1 rounded-full overflow-hidden" style="background: var(--fc-dot-inactive);">
+            <div 
+              class="fc-carousel__progress-bar h-full rounded-full transition-all duration-300 ease-out"
+              style="background: var(--fc-progress-color); width: 0%;"
+            ></div>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Pagination Dots {%- endcomment -%}
+        {%- if show_pagination and enable_carousel -%}
+          <div class="fc-carousel__pagination flex items-center justify-center gap-2 mt-6 md:mt-8"></div>
+        {%- endif -%}
+      </featured-collection-carousel>
+
+      {%- comment -%} Mobile View All Button {%- endcomment -%}
+      {%- if section.settings.show_view_all and collection != blank -%}
+        <div class="mt-8 md:hidden">
+          <a 
+            href="{{ collection.url }}"
+            class="flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl font-semibold text-base transition-all duration-300 active:scale-[0.98]"
+            style="background: var(--color-button); color: var(--color-button-label);"
+          >
+            <span>{{ 'sections.featured_collection.view_all' | t | default: 'عرض الكل' }}</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fc-view-all-arrow">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+      {%- endif -%}
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  featured-collection-carousel {
+    display: block;
+  }
+
+  /* ===== Slide Widths (Responsive Grid) ===== */
+  .fc-carousel__slide {
+    width: calc((100% - (var(--fc-columns-mobile) - 1) * var(--fc-gap)) / var(--fc-columns-mobile));
+  }
+
+  @media screen and (min-width: 640px) {
+    .fc-carousel__slide {
+      width: calc((100% - (var(--fc-columns-tablet) - 1) * var(--fc-gap)) / var(--fc-columns-tablet));
+    }
+  }
+
+  @media screen and (min-width: 1024px) {
+    .fc-carousel__slide {
+      width: calc((100% - (var(--fc-columns-desktop) - 1) * var(--fc-gap)) / var(--fc-columns-desktop));
+    }
+  }
+
+  /* Make product card images responsive */
+  .fc-carousel__slide .product-card__media img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ===== Navigation Arrows ===== */
+  .fc-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.2s ease, opacity 0.2s ease;
+    opacity: 1;
+  }
+
+  .fc-carousel__arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .fc-carousel__arrow:not(:disabled):hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .fc-carousel__arrow:not(:disabled):active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .fc-carousel__arrow--prev {
+    left: -22px;
+  }
+
+  .fc-carousel__arrow--next {
+    right: -22px;
+  }
+
+  @media screen and (max-width: 1279px) {
+    .fc-carousel__arrow--prev {
+      left: -8px;
+    }
+    .fc-carousel__arrow--next {
+      right: -8px;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .fc-carousel__arrow {
+      width: 36px;
+      height: 36px;
+    }
+    .fc-carousel__arrow--prev {
+      left: -4px;
+    }
+    .fc-carousel__arrow--next {
+      right: -4px;
+    }
+    .fc-carousel__arrow svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* RTL Arrow Positioning */
+  [dir="rtl"] .fc-carousel__arrow--prev {
+    left: auto;
+    right: -22px;
+  }
+
+  [dir="rtl"] .fc-carousel__arrow--next {
+    right: auto;
+    left: -22px;
+  }
+
+  @media screen and (max-width: 1279px) {
+    [dir="rtl"] .fc-carousel__arrow--prev {
+      left: auto;
+      right: -8px;
+    }
+    [dir="rtl"] .fc-carousel__arrow--next {
+      right: auto;
+      left: -8px;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    [dir="rtl"] .fc-carousel__arrow--prev {
+      left: auto;
+      right: -4px;
+    }
+    [dir="rtl"] .fc-carousel__arrow--next {
+      right: auto;
+      left: -4px;
+    }
+  }
+
+  /* RTL Arrow Icons Flip */
+  [dir="rtl"] .fc-carousel__arrow-icon {
+    transform: scaleX(-1);
+  }
+
+  /* ===== Pagination Dots ===== */
+  .fc-carousel__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s ease, transform 0.3s ease;
+    background: var(--fc-dot-inactive);
+    position: relative;
+  }
+
+  .fc-carousel__dot:hover {
+    transform: scale(1.2);
+    background: var(--fc-dot-color);
+    opacity: 0.7;
+  }
+
+  .fc-carousel__dot.active {
+    background: var(--fc-dot-color);
+    transform: scale(1.3);
+  }
+
+  /* ===== Progress Bar ===== */
+  [dir="rtl"] .fc-carousel__progress-bar {
+    margin-inline-start: auto;
+    margin-inline-end: 0;
+  }
+
+  /* ===== View All Arrow RTL ===== */
+  [dir="rtl"] .fc-view-all-arrow {
+    transform: scaleX(-1);
+  }
+
+  [dir="rtl"] a:hover .fc-view-all-arrow {
+    transform: scaleX(-1) translateX(4px);
+  }
+
+  /* ===== Reduced Motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .fc-carousel__track {
+      transition: none;
+    }
+    .fc-carousel__arrow,
+    .fc-carousel__dot,
+    .fc-carousel__progress-bar {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  if (!customElements.get('featured-collection-carousel')) {
+    class FeaturedCollectionCarousel extends HTMLElement {
+      constructor() {
+        super();
+        this.track = this.querySelector('.fc-carousel__track');
+        this.slides = [...this.querySelectorAll('.fc-carousel__slide')];
+        this.prevBtn = this.querySelector('.fc-carousel__arrow--prev');
+        this.nextBtn = this.querySelector('.fc-carousel__arrow--next');
+        this.pagination = this.querySelector('.fc-carousel__pagination');
+        this.progressBar = this.querySelector('.fc-carousel__progress-bar');
+
+        this.currentIndex = 0;
+        this.autoplayInterval = null;
+        this.touchStartX = 0;
+        this.touchEndX = 0;
+        this.isDragging = false;
+
+        this.settings = {
+          autoplay: this.dataset.autoplay === 'true',
+          autoplaySpeed: parseInt(this.dataset.autoplaySpeed) || 5000,
+          enableCarousel: this.dataset.enableCarousel === 'true',
+          showArrows: this.dataset.showArrows === 'true',
+          showPagination: this.dataset.showPagination === 'true',
+          columnsMobile: parseInt(this.dataset.columnsMobile) || 1,
+          columnsTablet: parseInt(this.dataset.columnsTablet) || 2,
+          columnsDesktop: parseInt(this.dataset.columnsDesktop) || 4
+        };
+      }
+
+      get isRTL() {
+        const sectionWrapper = this.closest('[dir]');
+        if (sectionWrapper) return sectionWrapper.getAttribute('dir') === 'rtl';
+        return document.documentElement.dir === 'rtl' ||
+               document.documentElement.lang === 'ar' ||
+               getComputedStyle(this).direction === 'rtl';
+      }
+
+      connectedCallback() {
+        if (!this.settings.enableCarousel || this.slides.length === 0) return;
+        this.init();
+        this.bindEvents();
+        if (this.settings.autoplay) this.startAutoplay();
+      }
+
+      disconnectedCallback() {
+        this.stopAutoplay();
+        if (this._resizeHandler) window.removeEventListener('resize', this._resizeHandler);
+      }
+
+      init() {
+        this.updateSlidesPerView();
+        this.hideControlsIfNotNeeded();
+        this.createPaginationDots();
+        this.updateCarousel();
+      }
+
+      hideControlsIfNotNeeded() {
+        const needsNav = this.slides.length > this.slidesPerView;
+        if (this.prevBtn) this.prevBtn.style.display = needsNav ? '' : 'none';
+        if (this.nextBtn) this.nextBtn.style.display = needsNav ? '' : 'none';
+        if (this.pagination) this.pagination.style.display = needsNav ? '' : 'none';
+        if (this.progressBar) this.progressBar.parentElement.style.display = needsNav ? '' : 'none';
+      }
+
+      bindEvents() {
+        if (this.prevBtn) this.prevBtn.addEventListener('click', () => this.prev());
+        if (this.nextBtn) this.nextBtn.addEventListener('click', () => this.next());
+
+        this.track.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+        this.track.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: true });
+        this.track.addEventListener('touchend', () => this.handleTouchEnd());
+
+        this.track.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.track.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.track.addEventListener('mouseup', () => this.handleMouseUp());
+        this.track.addEventListener('mouseleave', () => this.handleMouseUp());
+
+        this.addEventListener('mouseenter', () => this.stopAutoplay());
+        this.addEventListener('mouseleave', () => {
+          if (this.settings.autoplay) this.startAutoplay();
+        });
+
+        this._resizeHandler = this.debounce(() => {
+          const prevSlidesPerView = this.slidesPerView;
+          this.updateSlidesPerView();
+          if (prevSlidesPerView !== this.slidesPerView) {
+            this.currentIndex = Math.min(this.currentIndex, this.maxIndex);
+            this.createPaginationDots();
+            this.hideControlsIfNotNeeded();
+          }
+          this.updateCarousel();
+        }, 200);
+
+        window.addEventListener('resize', this._resizeHandler);
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) this.stopAutoplay();
+          else if (this.settings.autoplay) this.startAutoplay();
+        });
+      }
+
+      updateSlidesPerView() {
+        const width = window.innerWidth;
+        if (width >= 1024) {
+          this.slidesPerView = this.settings.columnsDesktop;
+        } else if (width >= 640) {
+          this.slidesPerView = this.settings.columnsTablet;
+        } else {
+          this.slidesPerView = this.settings.columnsMobile;
+        }
+        this.maxIndex = Math.max(0, this.slides.length - this.slidesPerView);
+      }
+
+      createPaginationDots() {
+        if (!this.pagination || !this.settings.showPagination) return;
+        this.pagination.innerHTML = '';
+        const totalDots = this.maxIndex + 1;
+        for (let i = 0; i < totalDots; i++) {
+          const dot = document.createElement('button');
+          dot.className = `fc-carousel__dot ${i === this.currentIndex ? 'active' : ''}`;
+          dot.setAttribute('aria-label', `Go to group ${i + 1}`);
+          dot.addEventListener('click', () => this.goTo(i));
+          this.pagination.appendChild(dot);
+        }
+      }
+
+      updateCarousel() {
+        if (!this.slides.length) return;
+
+        const slideEl = this.slides[0];
+        const gap = parseFloat(getComputedStyle(this.track).gap) || parseFloat(getComputedStyle(this).getPropertyValue('--fc-gap')) || 16;
+        const slideWidth = slideEl.offsetWidth;
+        const offset = this.currentIndex * (slideWidth + gap);
+        const direction = this.isRTL ? 1 : -1;
+
+        this.track.style.transform = `translateX(${offset * direction}px)`;
+        this.updateButtons();
+        this.updatePagination();
+        this.updateProgress();
+      }
+
+      updateButtons() {
+        if (this.prevBtn) this.prevBtn.disabled = this.currentIndex === 0;
+        if (this.nextBtn) this.nextBtn.disabled = this.currentIndex >= this.maxIndex;
+      }
+
+      updatePagination() {
+        if (!this.pagination) return;
+        const dots = this.pagination.querySelectorAll('.fc-carousel__dot');
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === this.currentIndex));
+      }
+
+      updateProgress() {
+        if (!this.progressBar) return;
+        const progress = this.maxIndex > 0
+          ? ((this.currentIndex + 1) / (this.maxIndex + 1)) * 100
+          : 100;
+        this.progressBar.style.width = `${progress}%`;
+      }
+
+      next() {
+        if (this.currentIndex < this.maxIndex) {
+          this.currentIndex++;
+        } else if (this.settings.autoplay) {
+          this.currentIndex = 0;
+        }
+        this.updateCarousel();
+      }
+
+      prev() {
+        if (this.currentIndex > 0) {
+          this.currentIndex--;
+          this.updateCarousel();
+        }
+      }
+
+      goTo(index) {
+        this.currentIndex = Math.max(0, Math.min(index, this.maxIndex));
+        this.updateCarousel();
+      }
+
+      handleTouchStart(e) {
+        this.touchStartX = e.touches[0].clientX;
+        this.stopAutoplay();
+      }
+
+      handleTouchMove(e) {
+        this.touchEndX = e.touches[0].clientX;
+      }
+
+      handleTouchEnd() {
+        const diff = this.touchStartX - this.touchEndX;
+        const threshold = 50;
+        if (Math.abs(diff) > threshold) {
+          if (this.isRTL) {
+            diff < 0 ? this.next() : this.prev();
+          } else {
+            diff > 0 ? this.next() : this.prev();
+          }
+        }
+        this.touchStartX = 0;
+        this.touchEndX = 0;
+        if (this.settings.autoplay) this.startAutoplay();
+      }
+
+      handleMouseDown(e) {
+        this.isDragging = true;
+        this.touchStartX = e.clientX;
+        this.track.style.cursor = 'grabbing';
+        this.track.style.userSelect = 'none';
+        this.stopAutoplay();
+      }
+
+      handleMouseMove(e) {
+        if (!this.isDragging) return;
+        this.touchEndX = e.clientX;
+      }
+
+      handleMouseUp() {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        this.track.style.cursor = '';
+        this.track.style.userSelect = '';
+
+        const diff = this.touchStartX - this.touchEndX;
+        const threshold = 50;
+        if (Math.abs(diff) > threshold) {
+          if (this.isRTL) {
+            diff < 0 ? this.next() : this.prev();
+          } else {
+            diff > 0 ? this.next() : this.prev();
+          }
+        }
+        this.touchStartX = 0;
+        this.touchEndX = 0;
+        if (this.settings.autoplay) this.startAutoplay();
+      }
+
+      startAutoplay() {
+        this.stopAutoplay();
+        this.autoplayInterval = setInterval(() => this.next(), this.settings.autoplaySpeed);
+      }
+
+      stopAutoplay() {
+        if (this.autoplayInterval) {
+          clearInterval(this.autoplayInterval);
+          this.autoplayInterval = null;
+        }
+      }
+
+      debounce(func, wait) {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+    }
+
+    customElements.define('featured-collection-carousel', FeaturedCollectionCarousel);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.featured_collection.name",
+  "tag": "section",
+  "class": "section section-featured-collection",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.featured_collection.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.featured_collection.settings.subtitle.label",
+      "default": "تسوق الآن"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.featured_collection.settings.title.label",
+      "default": "منتجات مميزة"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.featured_collection.settings.description.label",
+      "default": "<p>اكتشف مجموعتنا المميزة من أفضل المنتجات المختارة بعناية لك</p>"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "t:sections.featured_collection.settings.collection.label"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 8,
+      "label": "t:sections.featured_collection.settings.products_to_show.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.featured_collection.settings.show_vendor.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "default": true,
+      "label": "t:sections.featured_collection.settings.show_view_all.label"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.featured_collection.settings.image_ratio.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.featured_collection.settings.image_ratio.options.adapt"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.featured_collection.settings.image_ratio.options.portrait"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.featured_collection.settings.image_ratio.options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:sections.featured_collection.settings.image_ratio.options.landscape"
+        }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_collection.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "page_width",
+      "label": "t:sections.featured_collection.settings.page_width.label",
+      "options": [
+        {
+          "value": "max-w-screen-xl",
+          "label": "t:sections.featured_collection.settings.page_width.options.max-w-screen-xl"
+        },
+        {
+          "value": "max-w-screen-2xl",
+          "label": "t:sections.featured_collection.settings.page_width.options.max-w-screen-2xl"
+        },
+        {
+          "value": "w-full",
+          "label": "t:sections.featured_collection.settings.page_width.options.w-full"
+        }
+      ],
+      "default": "max-w-screen-xl"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.featured_collection.settings.columns_desktop.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2,
+      "label": "t:sections.featured_collection.settings.columns_tablet.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.featured_collection.settings.columns_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.featured_collection.settings.columns_mobile.options.1"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.featured_collection.settings.columns_mobile.options.2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_collection.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "default": true,
+      "label": "t:sections.featured_collection.settings.enable_carousel.label",
+      "info": "t:sections.featured_collection.settings.enable_carousel.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "default": true,
+      "label": "t:sections.featured_collection.settings.autoplay.label"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "unit": "ث",
+      "label": "t:sections.featured_collection.settings.autoplay_speed.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "default": true,
+      "label": "t:sections.featured_collection.settings.show_arrows.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination",
+      "default": true,
+      "label": "t:sections.featured_collection.settings.show_pagination.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress",
+      "default": false,
+      "label": "t:sections.featured_collection.settings.show_progress.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_collection.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.featured_collection.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "t:sections.featured_collection.settings.arrow_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg",
+      "label": "t:sections.featured_collection.settings.arrow_bg.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "t:sections.featured_collection.settings.dot_color.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "color",
+      "id": "dot_inactive_color",
+      "label": "t:sections.featured_collection.settings.dot_inactive_color.label",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "color",
+      "id": "progress_color",
+      "label": "t:sections.featured_collection.settings.progress_color.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.featured_collection.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.featured_collection.settings.padding_top.label",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.featured_collection.settings.padding_bottom.label",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured_collection.name",
+      "settings": {
+        "subtitle": "تسوق الآن",
+        "title": "منتجات مميزة",
+        "description": "<p>اكتشف مجموعتنا المميزة من أفضل المنتجات المختارة بعناية لك</p>"
+      }
+    }
+  ]
+}
+{% endschema %}

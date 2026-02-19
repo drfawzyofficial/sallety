@@ -1,0 +1,71 @@
+{%- comment -%}
+  Sallety Theme - Installments Info Snippet
+  Renders installment payment information (Afterpay, Tabby, Tamara, etc.)
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - installments_count: {Number} Number of installments (default: 4)
+  - provider: {String} 'afterpay' | 'tabby' | 'tamara' | 'klarna' | 'generic' (default: 'generic')
+
+  Usage:
+  {% render 'installments-info', product: product, provider: 'tabby', installments_count: 4 %}
+{%- endcomment -%}
+
+{%- liquid
+  assign count = installments_count | default: 4
+  assign pay_provider = provider | default: 'tabby'
+  assign current_variant = product.selected_or_first_available_variant
+  assign price = current_variant.price | default: product.price
+  assign installment_amount = price | divided_by: count
+-%}
+
+<div class="installments-info" data-installments>
+  <span class="installments-info__text">
+    {%- case pay_provider -%}
+      {%- when 'afterpay' -%}
+        {{ 'products.product.installments.afterpay_html' | t: count: count, amount: installment_amount | money | default: 'أو' }}
+        {{ count }} {{ 'products.product.installments.interest_free' | t | default: 'أقساط بدون فوائد' }}
+        {{ 'products.product.installments.of' | t | default: 'بقيمة' }}
+        <strong data-installment-amount>{{ installment_amount | money }}</strong>
+        {{ 'products.product.installments.with' | t | default: 'عبر' }}
+      {%- when 'tabby' -%}
+        {{ count }} {{ 'products.product.installments.interest_free' | t | default: 'أقساط بدون فوائد' }}
+        {{ 'products.product.installments.of' | t | default: 'بقيمة' }}
+        <strong data-installment-amount>{{ installment_amount | money }}</strong>
+        {{ 'products.product.installments.with' | t | default: 'عبر' }}
+      {%- when 'tamara' -%}
+        {{ count }} {{ 'products.product.installments.interest_free' | t | default: 'أقساط بدون فوائد' }}
+        {{ 'products.product.installments.of' | t | default: 'بقيمة' }}
+        <strong data-installment-amount>{{ installment_amount | money }}</strong>
+        {{ 'products.product.installments.with' | t | default: 'عبر' }}
+      {%- when 'klarna' -%}
+        {{ count }} {{ 'products.product.installments.interest_free' | t | default: 'أقساط بدون فوائد' }}
+        {{ 'products.product.installments.of' | t | default: 'بقيمة' }}
+        <strong data-installment-amount>{{ installment_amount | money }}</strong>
+        {{ 'products.product.installments.with' | t | default: 'عبر' }}
+      {%- else -%}
+        {{ count }} {{ 'products.product.installments.interest_free' | t | default: 'أقساط بدون فوائد' }}
+        {{ 'products.product.installments.of' | t | default: 'بقيمة' }}
+        <strong data-installment-amount>{{ installment_amount | money }}</strong>
+    {%- endcase -%}
+  </span>
+
+  {%- if pay_provider != 'generic' -%}
+    <span class="installments-info__provider">
+      {%- case pay_provider -%}
+        {%- when 'afterpay' -%}
+          <svg class="installments-info__logo installments-info__logo--afterpay" width="80" height="20" viewBox="0 0 100 24" fill="none"><rect width="100" height="24" rx="4" fill="#b2fce4"/><text x="50" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#000">afterpay</text></svg>
+        {%- when 'tabby' -%}
+          <svg class="installments-info__logo installments-info__logo--tabby" width="60" height="20" viewBox="0 0 60 24" fill="none"><rect width="60" height="24" rx="4" fill="#3bffc1"/><text x="30" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#000">tabby</text></svg>
+        {%- when 'tamara' -%}
+          <svg class="installments-info__logo installments-info__logo--tamara" width="72" height="20" viewBox="0 0 72 24" fill="none"><rect width="72" height="24" rx="4" fill="#f5d77c"/><text x="36" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#1a1a1a">tamara</text></svg>
+        {%- when 'klarna' -%}
+          <svg class="installments-info__logo installments-info__logo--klarna" width="64" height="20" viewBox="0 0 64 24" fill="none"><rect width="64" height="24" rx="4" fill="#ffb3c7"/><text x="32" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#000">Klarna.</text></svg>
+      {%- endcase -%}
+    </span>
+  {%- endif -%}
+
+  <button type="button" class="installments-info__more" data-installments-more>
+    {{ 'products.product.installments.more_info' | t | default: 'مزيد من المعلومات' }}
+  </button>
+</div>

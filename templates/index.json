@@ -1,0 +1,614 @@
+{
+  "sections": {
+    "slideshow": {
+      "type": "slideshow",
+      "settings": {
+        "full_width": true,
+        "slide_height_desktop": 640,
+        "slide_height_mobile": 480,
+        "content_position_vertical": "middle",
+        "content_position_horizontal": "start",
+        "content_width": 620,
+        "transition_type": "fade",
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "show_arrows": true,
+        "show_pagination": true,
+        "show_progress": true,
+        "show_counter": false,
+        "overlay_opacity": 30,
+        "overlay_color": "#000000",
+        "color_scheme": "scheme-1",
+        "arrow_color": "#ffffff",
+        "arrow_bg": "rgba(0,0,0,0.35)",
+        "dot_color": "#ffffff",
+        "dot_inactive_color": "rgba(255,255,255,0.4)",
+        "progress_color": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 0
+      },
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "subheading": "مجموعة جديدة",
+            "heading": "مرحباً بكم في متجرنا",
+            "heading_size": "large",
+            "text": "اكتشفوا أحدث التشكيلات والعروض الحصرية بأسعار مميزة",
+            "button_label_1": "تسوق الآن",
+            "button_style_1": "primary",
+            "button_label_2": "اكتشف المزيد",
+            "button_style_2": "outline",
+            "overlay_opacity_override": 0,
+            "content_alignment_horizontal": "inherit",
+            "content_alignment_vertical": "inherit"
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "subheading": "عروض حصرية",
+            "heading": "خصومات نهاية الموسم",
+            "heading_size": "large",
+            "text": "خصومات تصل إلى 50% على أفضل المنتجات",
+            "button_label_1": "تصفح العروض",
+            "button_style_1": "primary",
+            "overlay_opacity_override": 0,
+            "content_alignment_horizontal": "inherit",
+            "content_alignment_vertical": "inherit"
+          }
+        },
+        "slide_3": {
+          "type": "slide",
+          "settings": {
+            "subheading": "الأحدث",
+            "heading": "وصل حديثاً",
+            "heading_size": "large",
+            "text": "تعرف على أحدث المنتجات المضافة لمتجرنا",
+            "button_label_1": "شاهد الجديد",
+            "button_style_1": "primary",
+            "overlay_opacity_override": 0,
+            "content_alignment_horizontal": "inherit",
+            "content_alignment_vertical": "inherit"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2",
+        "slide_3"
+      ]
+    },
+    "promotion_list": {
+      "type": "promotion-list",
+      "settings": {
+        "color_scheme": "scheme-3",
+        "padding_top": 24,
+        "padding_bottom": 24,
+        "border_radius": 16,
+        "icon_size": 40,
+        "heading_weight": "600",
+        "body_weight": "400"
+      },
+      "blocks": {
+        "promo_1": {
+          "type": "promotion_list_item",
+          "settings": {
+            "icon": "truck",
+            "heading": "توصيل مجاني",
+            "description": "استمتع بتوصيل مجاني لجميع الطلبات داخل المملكة."
+          }
+        },
+        "promo_2": {
+          "type": "promotion_list_item",
+          "settings": {
+            "icon": "headset",
+            "heading": "خدمة عملاء مميزة",
+            "description": "فريق دعم جاهز للإجابة على استفساراتك ومساعدتك."
+          }
+        },
+        "promo_3": {
+          "type": "promotion_list_item",
+          "settings": {
+            "icon": "refresh",
+            "heading": "سهولة الاسترداد",
+            "description": "إرجاع أو استبدال المنتجات بسهولة ومرونة."
+          }
+        },
+        "promo_4": {
+          "type": "promotion_list_item",
+          "settings": {
+            "icon": "stars",
+            "heading": "جودة عالية",
+            "description": "منتجات مختارة بعناية بأقمشة فاخرة وتصاميم متقنة."
+          }
+        }
+      },
+      "block_order": [
+        "promo_1",
+        "promo_2",
+        "promo_3",
+        "promo_4"
+      ]
+    },
+    "banner_content": {
+      "type": "banner-content",
+      "settings": {
+        "heading": "مرحباً بك في متجرنا",
+        "description": "<p>اكتشف أفضل المنتجات بجودة عالية وأسعار منافسة. نوفر لك تجربة تسوق مميزة مع شحن سريع وخدمة عملاء متميزة.</p>",
+        "button_text": "تسوق الآن",
+        "button_link": "/collections/all",
+        "button_style": "primary",
+        "layout": "image-right",
+        "show_shapes": true
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "subtitle": "تسوق الآن",
+        "title": "منتجات مميزة",
+        "description": "<p>اكتشف مجموعتنا المميزة من أفضل المنتجات المختارة بعناية لك</p>",
+        "products_to_show": 8,
+        "show_vendor": false,
+        "show_view_all": true,
+        "image_ratio": "portrait",
+        "page_width": "max-w-screen-xl",
+        "columns_desktop": 4,
+        "columns_tablet": 2,
+        "columns_mobile": "1",
+        "enable_carousel": true,
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "show_arrows": true,
+        "show_pagination": true,
+        "show_progress": false,
+        "color_scheme": "scheme-1",
+        "arrow_color": "#ffffff",
+        "arrow_bg": "#1a2744",
+        "dot_color": "#1a2744",
+        "dot_inactive_color": "#e5e7eb",
+        "progress_color": "#1a2744",
+        "padding_top": 48,
+        "padding_bottom": 48
+      }
+    },
+    "promotional_banner": {
+      "type": "promotional-banner",
+      "settings": {}
+    },
+    "banner_two_images": {
+      "type": "banner-two-images",
+      "settings": {
+        "heading_1": "عروض الموسم",
+        "heading_2": "المنتجات الجديدة",
+        "layout_ratio": "50-50",
+        "gap_size": 24,
+        "image_height": 400,
+        "overlay_opacity": 30,
+        "show_shapes": false
+      }
+    },
+    "banner_image": {
+      "type": "banner-image",
+      "settings": {
+        "heading": "خصم 50% على جميع المنتجات",
+        "subheading": "لفترة محدودة فقط - لا تفوت الفرصة",
+        "image_height": 450,
+        "text_position": "center-center",
+        "overlay_opacity": 40,
+        "full_width": false,
+        "show_shapes": false
+      }
+    },
+    "video_section": {
+      "type": "video",
+      "settings": {
+        "show_heading": true,
+        "section_heading": "شاهد قصتنا",
+        "section_description": "تعرف على المزيد من خلال مشاهدة هذا الفيديو التوضيحي",
+        "autoplay": false,
+        "loop": false,
+        "muted": false,
+        "controls": true,
+        "show_shapes": true
+      }
+    },
+    "rich_text": {
+      "type": "rich-text",
+      "settings": {
+        "heading": "نص منسق",
+        "text": "<p>استخدم هذا القسم لتقديم معلومات عن متجرك أو منتجاتك أو علامتك التجارية.</p>",
+        "text_alignment": "center",
+        "content_width": "medium",
+        "heading_size": "medium",
+        "full_width": false,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "lookbook": {
+      "type": "lookbook",
+      "settings": {
+        "heading": "تسوق الإطلالة",
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": {
+        "hotspot_1": {
+          "type": "product_hotspot",
+          "settings": {
+            "position_x": 50,
+            "position_y": 50
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_1"
+      ]
+    },
+    "brands": {
+      "type": "brands",
+      "settings": {
+        "show_heading": true,
+        "heading": "العلامات التجارية",
+        "color_scheme": "scheme-1",
+        "logo_height": 50,
+        "logo_opacity": 80,
+        "grayscale": false,
+        "heading_weight": "700",
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": {
+        "brand_1": {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 1"
+          }
+        },
+        "brand_2": {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 2"
+          }
+        },
+        "brand_3": {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 3"
+          }
+        },
+        "brand_4": {
+          "type": "brand_logo",
+          "settings": {
+            "brand_name": "علامة تجارية 4"
+          }
+        }
+      },
+      "block_order": [
+        "brand_1",
+        "brand_2",
+        "brand_3",
+        "brand_4"
+      ]
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "settings": {},
+      "blocks": {
+        "testimonial_1": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "مريم الزهراني",
+            "rating": 5,
+            "review_text": "تجربة تسوق رائعة! المنتجات وصلت بسرعة والجودة ممتازة. سأعود للشراء مرة أخرى بكل تأكيد."
+          }
+        },
+        "testimonial_2": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "فاطمة الكندري",
+            "rating": 5,
+            "review_text": "طلبت 3 عبايات وكل وحدة أحلى من الثانية! القصات مريحة والخياطة مرتبة جداً. أنصح فيكم وبقوة."
+          }
+        },
+        "testimonial_3": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "أميمة العتيبي",
+            "rating": 5,
+            "review_text": "خدمة العملاء ممتازة واستجابوا لكل استفساراتي. المقاس جاء مناسب والخامة أجمل من الصورة!"
+          }
+        },
+        "testimonial_4": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "نورة السالم",
+            "rating": 5,
+            "review_text": "أفضل متجر للتسوق أونلاين! الأسعار منافسة والشحن سريع. شكراً على الخدمة المميزة."
+          }
+        },
+        "testimonial_5": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "سارة المطيري",
+            "rating": 4,
+            "review_text": "منتجات أصلية 100% والتغليف محترم جداً. تجربة مميزة وسأرشح المتجر لصديقاتي."
+          }
+        },
+        "testimonial_6": {
+          "type": "testimonial",
+          "settings": {
+            "customer_name": "هند الراشد",
+            "rating": 5,
+            "review_text": "سعيدة جداً بتجربتي معكم! التواصل سريع والمنتج طابق الوصف تماماً. شكراً من القلب."
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_1",
+        "testimonial_2",
+        "testimonial_3",
+        "testimonial_4",
+        "testimonial_5",
+        "testimonial_6"
+      ]
+    },
+    "recently_viewed": {
+      "type": "recently-viewed",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "شاهدته مؤخراً",
+        "subheading": "المنتجات التي قمت بتصفحها مؤخراً",
+        "products_to_show": 4,
+        "show_view_all": true,
+        "hide_when_empty": true,
+        "exclude_current_product": true,
+        "layout_style": "carousel",
+        "columns_desktop": "4",
+        "columns_tablet": "3",
+        "columns_mobile": "2",
+        "image_ratio": "portrait",
+        "card_style": "default",
+        "show_vendor": false,
+        "show_rating": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "featured_blog": {
+      "type": "featured-blog",
+      "settings": {
+        "heading": "مقالات المدونة",
+        "posts_to_show": 3,
+        "show_view_all": true,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "اشترك في نشرتنا البريدية",
+        "subheading": "احصل على آخر التحديثات حول المنتجات الجديدة والعروض القادمة.",
+        "button_text": "اشترك الآن",
+        "show_icon": true,
+        "layout": "stacked",
+        "text_alignment": "center",
+        "heading_size": "medium",
+        "background_style": "gradient",
+        "overlay_opacity": 0,
+        "show_decoration": true,
+        "show_wave": true,
+        "text_color": "#ffffff",
+        "corner_radius": 16,
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": {
+        "feature_1": {
+          "type": "feature",
+          "settings": {
+            "text": "بدون رسائل مزعجة"
+          }
+        },
+        "feature_2": {
+          "type": "feature",
+          "settings": {
+            "text": "إلغاء الاشتراك في أي وقت"
+          }
+        },
+        "feature_3": {
+          "type": "feature",
+          "settings": {
+            "text": "عروض حصرية للمشتركين"
+          }
+        }
+      },
+      "block_order": [
+        "feature_1",
+        "feature_2",
+        "feature_3"
+      ]
+    },
+    "faq_section": {
+      "type": "faq",
+      "settings": {
+        "show_heading": true,
+        "section_heading": "ابرز الاسئلة الشائعة",
+        "section_subheading": "او تواصل معنا مباشرة",
+        "show_image": true,
+        "layout": "image-left",
+        "card_style": "cards",
+        "show_shapes": false
+      },
+      "blocks": {
+        "faq_1": {
+          "type": "faq_item",
+          "settings": {
+            "question": "ما هي سياسة التوصيل الخاصة بكم؟",
+            "answer": "<p>نقوم بتوصيل جميع الطلبات خلال 3-5 أيام عمل داخل المملكة العربية السعودية. التوصيل مجاني للطلبات التي تتجاوز 200 ريال. نتعامل مع شركات شحن موثوقة لضمان وصول طلبك بأمان.</p>"
+          }
+        },
+        "faq_2": {
+          "type": "faq_item",
+          "settings": {
+            "question": "هل تتوفر مقاسات مختلفة لجميع العبايات؟",
+            "answer": "<p>نعم، نوفر مجموعة واسعة من المقاسات تناسب جميع الأحجام. يمكنك الاطلاع على جدول المقاسات في صفحة كل منتج لاختيار المقاس المناسب لك.</p>"
+          }
+        },
+        "faq_3": {
+          "type": "faq_item",
+          "settings": {
+            "question": "هل العبايات مصنوعة محلياً؟",
+            "answer": "<p>نعم، جميع عباياتنا مصنوعة محلياً بأيدي حرفيين سعوديين متخصصين. نحرص على استخدام أجود أنواع الأقمشة والخامات لضمان جودة عالية.</p>"
+          }
+        },
+        "faq_4": {
+          "type": "faq_item",
+          "settings": {
+            "question": "كيف يمكنني معرفة مقاسي المناسب؟",
+            "answer": "<p>نوفر دليل مفصل للمقاسات في كل صفحة منتج. يمكنك قياس جسمك ومقارنة القياسات مع الجدول للحصول على المقاس المثالي. إذا كنت بين مقاسين، ننصح باختيار المقاس الأكبر.</p>"
+          }
+        },
+        "faq_5": {
+          "type": "faq_item",
+          "settings": {
+            "question": "ما هي طرق الدفع المتاحة؟",
+            "answer": "<p>نقبل الدفع بجميع البطاقات البنكية (فيزا، ماستركارد، مدى)، بالإضافة إلى Apple Pay وتابي للتقسيط. يمكنك أيضاً الدفع عند الاستلام داخل المملكة.</p>"
+          }
+        },
+        "faq_6": {
+          "type": "faq_item",
+          "settings": {
+            "question": "كيف يمكنني التواصل مع خدمة العملاء؟",
+            "answer": "<p>يمكنك التواصل معنا عبر الواتساب على الرقم +201027706834 أو عبر البريد الإلكتروني support@sallety-theme.dev. فريق خدمة العملاء متاح يومياً من 9 صباحاً حتى 11 مساءً.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4",
+        "faq_5",
+        "faq_6"
+      ]
+    },
+    "contact_form": {
+      "type": "contact-form",
+      "settings": {
+        "show_heading": true,
+        "heading": "تواصل معنا",
+        "subheading": "نسعد بتواصلك معنا! فريقنا جاهز للإجابة على جميع استفساراتك",
+        "layout": "form-right",
+        "color_scheme": "scheme-1",
+        "show_shapes": true,
+        "card_radius": 16,
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": {
+        "form_block": {
+          "type": "contact_form",
+          "settings": {
+            "form_heading": "أرسل لنا رسالة",
+            "button_text": "إرسال الرسالة",
+            "success_message": "شكراً لتواصلك معنا! سنرد عليك في أقرب وقت."
+          }
+        },
+        "details_block": {
+          "type": "contact_details",
+          "settings": {
+            "details_heading": "معلومات التواصل",
+            "email": "support@example.com",
+            "phone": "+966 50 123 4567",
+            "whatsapp": "+966501234567",
+            "address": "المملكة العربية السعودية، الرياض",
+            "working_hours": "<p><strong>السبت - الخميس:</strong> 9:00 ص - 9:00 م</p><p><strong>الجمعة:</strong> 2:00 م - 9:00 م</p>",
+            "show_social_icons": true
+          }
+        }
+      },
+      "block_order": [
+        "form_block",
+        "details_block"
+      ]
+    },
+    "google_maps": {
+      "type": "google-maps",
+      "settings": {
+        "show_heading": true,
+        "heading": "شرفنا بزيارتك",
+        "subheading": "متواجدين لخدمتك طوال أيام الأسبوع من الساعة 8 ص الى 11 م",
+        "address": "الرياض، المملكة العربية السعودية",
+        "map_height_desktop": 450,
+        "map_height_mobile": 300,
+        "map_border_radius": 16,
+        "map_shadow": true,
+        "content_alignment": "center",
+        "layout_style": "stacked",
+        "content_position": "above",
+        "full_width": false,
+        "show_decorations": false,
+        "show_location_icon": false
+      }
+    },
+    "content_page": {
+      "type": "content-page",
+      "settings": {
+        "heading": "عن المتجر",
+        "subheading": "تعرف على قصتنا وما يميزنا",
+        "show_last_updated": false,
+        "color_scheme": "scheme-1",
+        "heading_size_desktop": 36,
+        "heading_size_tablet": 28,
+        "heading_size_mobile": 24,
+        "subheading_size": 18,
+        "body_size": 16,
+        "block_heading_size": 22,
+        "heading_weight": "700",
+        "content_width": "800",
+        "card_radius": 16,
+        "padding_top": 60,
+        "padding_bottom": 60
+      },
+      "blocks": {
+        "content_1": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "من نحن",
+            "block_content": "<p>نحن متجر إلكتروني متخصص نقدم لكم أفضل المنتجات بجودة عالية وأسعار منافسة.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "content_1"
+      ]
+    }
+  },
+  "order": [
+    "slideshow",
+    "promotion_list",
+    "banner_content",
+    "featured_collection",
+    "promotional_banner",
+    "banner_two_images",
+    "banner_image",
+    "video_section",
+    "rich_text",
+    "lookbook",
+    "brands",
+    "testimonials",
+    "recently_viewed",
+    "featured_blog",
+    "newsletter",
+    "faq_section",
+    "contact_form",
+    "google_maps",
+    "content_page"
+  ]
+}

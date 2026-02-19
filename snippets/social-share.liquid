@@ -1,0 +1,93 @@
+{%- comment -%}
+  Sallety Theme - Social Share Snippet
+  Renders social sharing buttons.
+
+  Accepts:
+  - share_title: {String} Title to share
+  - share_permalink: {String} URL to share
+  - share_image: {Object} Image to share (optional)
+
+  Usage:
+  {% render 'social-share', share_title: product.title, share_permalink: product.url %}
+{%- endcomment -%}
+
+{%- liquid
+  assign share_url = request.origin | append: share_permalink
+  assign encoded_title = share_title | url_encode
+  assign encoded_url = share_url | url_encode
+-%}
+
+<div class="social-share">
+  {%- if settings.share_facebook -%}
+    <a
+      href="https://www.facebook.com/sharer/sharer.php?u={{ encoded_url }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="social-share__link"
+      aria-label="{{ 'general.social.links.facebook' | t }}"
+    >
+      {% render 'icon-facebook' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.share_twitter -%}
+    <a
+      href="https://twitter.com/intent/tweet?text={{ encoded_title }}&url={{ encoded_url }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="social-share__link"
+      aria-label="{{ 'general.social.links.twitter' | t }}"
+    >
+      {% render 'icon-twitter' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.share_pinterest -%}
+    {%- if share_image -%}
+      {%- assign image_url = share_image | image_url: width: 1024 | prepend: 'https:' -%}
+    {%- endif -%}
+    <a
+      href="https://pinterest.com/pin/create/button/?url={{ encoded_url }}&description={{ encoded_title }}&media={{ image_url }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="social-share__link"
+      aria-label="{{ 'general.social.links.pinterest' | t }}"
+    >
+      {% render 'icon-pinterest' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.share_whatsapp -%}
+    <a
+      href="https://wa.me/?text={{ encoded_title }}%20{{ encoded_url }}"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="social-share__link"
+      aria-label="{{ 'general.social.links.whatsapp' | t }}"
+    >
+      {% render 'icon-whatsapp' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.share_email -%}
+    <a
+      href="mailto:?subject={{ encoded_title }}&body={{ encoded_url }}"
+      class="social-share__link"
+      aria-label="{{ 'general.share.share_email' | t }}"
+    >
+      {% render 'icon-email' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.share_copy_link -%}
+    <button
+      type="button"
+      class="social-share__link"
+      data-copy-link="{{ share_url }}"
+      aria-label="{{ 'general.share.copy_to_clipboard' | t }}"
+    >
+      {% render 'icon-link' %}
+    </button>
+  {%- endif -%}
+</div>
+

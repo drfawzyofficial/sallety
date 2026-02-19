@@ -1,0 +1,27 @@
+{%- comment -%}
+  Section Direction Helper
+  Outputs the correct text direction (rtl/ltr) based on:
+  1. The current locale language
+  2. The theme RTL settings
+
+  Usage:
+  {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+  Then use: dir="{{ section_dir }}"
+{%- endcomment -%}
+{%- liquid
+  assign sd_rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign sd_current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign sd_is_rtl = false
+  for sd_lang in sd_rtl_langs
+    assign sd_lang_trimmed = sd_lang | strip | downcase
+    if sd_current_lang == sd_lang_trimmed
+      assign sd_is_rtl = true
+      break
+    endif
+  endfor
+  if settings.enable_rtl and sd_is_rtl
+    echo 'rtl'
+  else
+    echo 'ltr'
+  endif
+-%}

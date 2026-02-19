@@ -1,0 +1,1395 @@
+{%- comment -%}
+  Sallety Theme - Main Product Section
+  Premium product page with vertical thumbnail gallery, configurable variant pickers,
+  trust badges, product features, installments, and collapsible tabs.
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+
+  comment
+    RTL Logic
+  endcomment
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
+      break
+    endif
+  endfor
+
+  assign section_dir = 'ltr'
+  if settings.enable_rtl and is_rtl_lang
+    assign section_dir = 'rtl'
+  endif
+-%}
+
+<style>
+  .section-main-product {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+</style>
+
+<section
+  class="main-product section"
+  data-section-id="{{ section.id }}"
+  data-section-type="product"
+  dir="{{ section_dir }}"
+>
+  <div class="container">
+    {%- comment -%} Breadcrumbs {%- endcomment -%}
+    {%- if section.settings.show_breadcrumbs -%}
+      <nav
+        class="product-page__breadcrumbs breadcrumbs"
+        aria-label="{{ 'general.breadcrumbs.label' | t | default: 'مسار التنقل' }}"
+      >
+        <div class="breadcrumbs__item">
+          <a href="{{ routes.root_url }}" class="breadcrumbs__link">
+            {{- 'general.breadcrumbs.home' | t | default: 'الرئيسية' -}}
+          </a>
+          <span class="breadcrumbs__separator" aria-hidden="true">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="{% if section_dir == 'rtl' %}transform: scaleX(-1);{% endif %}"
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </span>
+        </div>
+        {%- if collection -%}
+          <div class="breadcrumbs__item">
+            <a href="{{ collection.url }}" class="breadcrumbs__link">{{ collection.title }}</a>
+            <span class="breadcrumbs__separator" aria-hidden="true">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="{% if section_dir == 'rtl' %}transform: scaleX(-1);{% endif %}"
+              >
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </span>
+          </div>
+        {%- elsif product.collections.size > 0 -%}
+          <div class="breadcrumbs__item">
+            <a href="{{ product.collections.first.url }}" class="breadcrumbs__link">
+              {{- product.collections.first.title -}}
+            </a>
+            <span class="breadcrumbs__separator" aria-hidden="true">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="{% if section_dir == 'rtl' %}transform: scaleX(-1);{% endif %}"
+              >
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </span>
+          </div>
+        {%- endif -%}
+        <div class="breadcrumbs__item">
+          <span class="breadcrumbs__current">{{ product.title }}</span>
+        </div>
+      </nav>
+    {%- endif -%}
+
+    <div class="product-page" data-product-id="{{ product.id }}">
+      {%- comment -%} Product Media / Gallery {%- endcomment -%}
+      <div class="product-page__media">
+        {% render 'product-gallery',
+          product: product,
+          thumbnail_position: section.settings.thumbnail_position,
+          enable_zoom: section.settings.enable_zoom,
+          variant_id: current_variant.id
+        %}
+        {%- if product.media.size > 0 -%}
+          <p class="product-page__model-info">
+            {%- if product.metafields.custom.model_info != blank -%}
+              {{ product.metafields.custom.model_info }}
+            {%- endif -%}
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Product Info {%- endcomment -%}
+      <div class="product-page__info" data-accordion>
+        <script type="application/json" data-product-json>
+          {{ product | json }}
+        </script>
+
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when '@app' -%}
+              <div class="product-page__block" {{ block.shopify_attributes }}>
+                {% render block %}
+              </div>
+
+            {%- when 'title' -%}
+              <div class="product-page__block" {{ block.shopify_attributes }}>
+                <h1 class="product-page__title">
+                  {{ product.title }}
+                </h1>
+              </div>
+
+            {%- when 'price' -%}
+              <div class="product-page__block product-page__price-block" {{ block.shopify_attributes }}>
+                <div class="product-page__price">
+                  {% render 'price', product: product, use_variant: true %}
+                </div>
+              </div>
+
+            {%- when 'description_excerpt' -%}
+              <div class="product-page__block product-page__description-excerpt" {{ block.shopify_attributes }}>
+                {%- if product.description != blank -%}
+                  <p>
+                    {{ product.description | strip_html | truncatewords: block.settings.words_count | default: 30 }}
+                  </p>
+                  {%- if block.settings.show_learn_more -%}
+                    <a href="#product-details" class="product-page__learn-more">
+                      {{ 'products.product.learn_more' | t | default: 'اعرف المزيد' }}
+                    </a>
+                  {%- endif -%}
+                {%- endif -%}
+              </div>
+
+            {%- when 'vendor' -%}
+              {%- if product.vendor != blank -%}
+                <div class="product-page__block" {{ block.shopify_attributes }}>
+                  <p class="product-page__vendor">
+                    <a href="{{ product.vendor | url_for_vendor }}">{{ product.vendor }}</a>
+                  </p>
+                </div>
+              {%- endif -%}
+
+            {%- when 'sku' -%}
+              {%- if current_variant.sku != blank -%}
+                <div class="product-page__block" {{ block.shopify_attributes }}>
+                  <p class="product-page__sku">
+                    {{ 'products.product.sku' | t | default: 'رمز المنتج' }}:
+                    <span data-product-sku>{{ current_variant.sku }}</span>
+                  </p>
+                </div>
+              {%- endif -%}
+
+            {%- when 'variant_picker' -%}
+              <div class="product-page__block product-page__variants" {{ block.shopify_attributes }}>
+                {% render 'variant-picker', product: product, picker_type: block.settings.picker_type %}
+              </div>
+
+            {%- when 'trust_badges' -%}
+              <div class="product-page__block" {{ block.shopify_attributes }}>
+                {% render 'trust-badges',
+                  badge_1_icon: block.settings.badge_1_icon,
+                  badge_1_text: block.settings.badge_1_text,
+                  badge_2_icon: block.settings.badge_2_icon,
+                  badge_2_text: block.settings.badge_2_text,
+                  badge_3_icon: block.settings.badge_3_icon,
+                  badge_3_text: block.settings.badge_3_text
+                %}
+              </div>
+
+            {%- when 'buy_buttons' -%}
+              <div class="product-page__block product-page__buy-buttons" {{ block.shopify_attributes }}>
+                {%- form 'product', product, data-product-form: '', novalidate: 'novalidate' -%}
+                  <input type="hidden" name="id" value="{{ current_variant.id }}">
+                  <input type="hidden" name="quantity" value="1" data-form-quantity>
+
+                  <div class="product-page__buy-row">
+                    {%- if settings.enable_wishlist -%}
+                      <button
+                        type="button"
+                        class="product-page__wishlist-btn"
+                        data-wishlist-add="{{ product.id }}"
+                        data-product-handle="{{ product.handle }}"
+                        data-product-title="{{ product.title | escape }}"
+                        data-product-image="{{ product.featured_media | image_url: width: 400 }}"
+                        data-product-price="{{ current_variant.price }}"
+                        data-product-url="{{ product.url }}"
+                        aria-label="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+                        title="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="pointer-events-none wishlist-icon"
+                        >
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                      </button>
+                    {%- endif -%}
+
+                    <button
+                      type="submit"
+                      name="add"
+                      class="product-page__add-to-cart btn btn--primary"
+                      {% unless current_variant.available %}
+                        disabled
+                      {% endunless %}
+                      data-add-to-cart
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="flex-shrink-0 pointer-events-none"
+                      >
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                      </svg>
+                      <span data-add-to-cart-text>
+                        {%- if current_variant.available -%}
+                          {{ 'products.product.add_to_cart' | t | default: 'أضف إلى السلة' }}
+                        {%- else -%}
+                          {{ 'products.product.sold_out' | t | default: 'نفذت الكمية' }}
+                        {%- endif -%}
+                      </span>
+                      <span class="btn__loading-spinner" aria-hidden="true">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/></circle>
+                        </svg>
+                      </span>
+                    </button>
+
+                    <div class="product-page__inline-quantity" data-quantity-block>
+                      {%- liquid
+                        assign max_qty = 99
+                        if current_variant.inventory_management != blank and current_variant.inventory_policy != 'continue'
+                          if current_variant.inventory_quantity > 0 and current_variant.inventory_quantity < max_qty
+                            assign max_qty = current_variant.inventory_quantity
+                          endif
+                        endif
+                      -%}
+                      {% render 'quantity-input', id: product.id, max: max_qty, min: 1, variant: current_variant %}
+                    </div>
+                  </div>
+
+                  {%- if block.settings.show_dynamic_checkout -%}
+                    <div
+                      class="product-page__dynamic-checkout"
+                      style="--checkout-bg: {{ block.settings.checkout_bg | default: '#000000' }}; --checkout-text: {{ block.settings.checkout_text | default: '#ffffff' }};"
+                    >
+                      {{ form | payment_button }}
+                    </div>
+                  {%- endif -%}
+                {%- endform -%}
+              </div>
+
+            {%- when 'description' -%}
+              {%- if product.description != blank -%}
+                <div class="product-page__block product-page__description rte" {{ block.shopify_attributes }}>
+                  {{ product.description }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'share' -%}
+              <div class="product-page__block product-page__share" {{ block.shopify_attributes }}>
+                {% render 'social-share',
+                  share_title: product.title,
+                  share_permalink: product.url,
+                  share_image: product.featured_media
+                %}
+              </div>
+
+            {%- when 'inventory' -%}
+              <div class="product-page__block product-page__inventory" {{ block.shopify_attributes }}>
+                {% render 'product-inventory', product: product %}
+              </div>
+
+            {%- when 'payment_badges' -%}
+              <div class="product-page__block product-page__payment-badges" {{ block.shopify_attributes }}>
+                <div class="payment-badges">
+                  {%- if block.settings.show_title -%}
+                    <p class="payment-badges__title">{{ block.settings.title | default: 'طرق الدفع المتاحة' }}</p>
+                  {%- endif -%}
+                  <div class="payment-badges__icons">
+                    {%- if block.settings.badge_mode == 'dynamic' -%}
+                      {{ shop.enabled_payment_types | payment_type_svg_tag }}
+                    {%- else -%}
+                      {%- if block.settings.show_visa -%}
+                        <span class="payment-badge" title="Visa">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#1A1F71"/><path d="M20.3 21.5h-2.8l1.8-10.9h2.8l-1.8 10.9zm11.5-10.6c-.6-.2-1.4-.4-2.5-.4-2.8 0-4.7 1.5-4.7 3.6 0 1.6 1.4 2.4 2.5 3 1.1.5 1.5.9 1.5 1.3 0 .7-.9 1-1.7 1-1.1 0-1.8-.2-2.7-.6l-.4-.2-.4 2.5c.7.3 1.9.6 3.2.6 3 0 4.9-1.5 4.9-3.7 0-1.2-.7-2.2-2.4-3-.9-.5-1.5-.8-1.5-1.3 0-.4.5-.9 1.5-.9.9 0 1.5.2 2 .4l.2.1.5-2.4zm7.3-.3h-2.2c-.7 0-1.2.2-1.5.9l-4.2 10h3l.6-1.6h3.6l.3 1.6h2.6l-2.2-10.9zm-3.6 7l1.5-4 .8 4h-2.3zm-21.3-7l-2.6 7.4-.3-1.5c-.5-1.7-2-3.5-3.7-4.4l2.5 9.4h3l4.5-10.9h-3.4z" fill="#fff"/><path d="M13 10.6h-4.6l-.1.3c3.5.9 5.8 3.1 6.8 5.7l-1-4.9c-.2-.7-.7-.9-1.1-1.1z" fill="#F9A533"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_mastercard -%}
+                        <span class="payment-badge" title="Mastercard">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#252525"/><circle cx="19" cy="16" r="8" fill="#EB001B"/><circle cx="29" cy="16" r="8" fill="#F79E1B"/><path d="M24 10.3a8 8 0 0 1 0 11.4 8 8 0 0 1 0-11.4z" fill="#FF5F00"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_amex -%}
+                        <span class="payment-badge" title="American Express">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#2E77BC"/><path d="M7 16.5l1.5-3.5h2l.8 2 .8-2h2l1.5 3.5-1.5 3.5h-2l-.8-2-.8 2h-2L7 16.5zm17-3.5h5l1 1.2L31 13h4l-2.5 3.5L35 20h-4l-1-1.2-1 1.2h-5v-7zm2 2v1h3v1.5h-3v1h3.3l1.2-1.7-1.2-1.8H26z" fill="#fff"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_paypal -%}
+                        <span class="payment-badge" title="PayPal">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#fff" stroke="#e5e7eb"/><path d="M19.5 8h5.3c2.8 0 4.8 1.5 4.4 4.3-.5 3.5-2.8 5.2-5.8 5.2h-1.5c-.4 0-.8.3-.9.8l-.7 4.2c0 .3-.3.5-.6.5h-2.8c-.3 0-.5-.3-.4-.6l2.4-13.8c.1-.4.3-.6.6-.6z" fill="#003087"/><path d="M21.2 9.5h4c2.3 0 3.8 1.3 3.5 3.6-.4 2.8-2.3 4.2-4.7 4.2h-1.2c-.4 0-.6.3-.7.6l-.6 3.4c0 .2-.2.4-.5.4h-2.2c-.3 0-.4-.2-.3-.5l2-11.2c0-.3.3-.5.7-.5z" fill="#002F86"/><path d="M33 8.5h5c2.5 0 4.2 1.4 3.9 3.8-.4 3.2-2.6 4.7-5.3 4.7h-1.3c-.4 0-.7.3-.8.7l-.6 3.8c0 .3-.3.5-.6.5h-2.5c-.3 0-.5-.3-.4-.6l2.1-12.4c.1-.3.3-.5.5-.5z" fill="#009CDE"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_mada -%}
+                        <span class="payment-badge" title="Mada">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#fff" stroke="#e5e7eb"/><path d="M10 13h3.5c1.5 0 2.5 1 2.5 2.3 0 1.5-1 2.5-2.6 2.5H12v2.5h-2V13zm2 3.3h1.2c.6 0 .9-.3.9-.8s-.3-.8-.9-.8H12v1.6z" fill="#0D3B66"/><path d="M18 13h2v7.3h-2V13zm5.5 0H26l2.5 4.5V13h2v7.3h-2.3L25.5 16v4.3h-2V13z" fill="#0D3B66"/><circle cx="37" cy="16.5" r="4" fill="#6DC24B"/><circle cx="34" cy="16.5" r="4" fill="#009FE3"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_apple_pay -%}
+                        <span class="payment-badge" title="Apple Pay">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#000"/><path d="M15.5 11.5c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.4.5-.8 1.4-.7 2.1.8.1 1.6-.4 2.1-1zm.7 1.1c-1.2-.1-2.2.7-2.7.7-.5 0-1.4-.6-2.2-.6-1.2 0-2.2.7-2.8 1.7-1.2 2.1-.3 5.1.8 6.8.6.8 1.2 1.7 2.1 1.7.8 0 1.2-.6 2.2-.6s1.3.6 2.2.5c.9 0 1.4-.8 2-1.6.6-.9.9-1.8.9-1.8-1-.4-1.8-1.6-1.8-3 0-1.2.7-2.2 1.7-2.7-.6-.9-1.6-1.1-2.4-1.1z" fill="#fff"/><path d="M24 12h2.4c1.6 0 2.8 1.1 2.8 2.7 0 1.6-1.2 2.7-2.9 2.7H26v2.8h-2V12zm2 4c1 0 1.6-.5 1.6-1.4 0-.8-.6-1.3-1.6-1.3h-1v2.7h1zm4 1.3c0-1.4 1-2.2 2.9-2.3l2-.1v-.5c0-.7-.5-1.1-1.3-1.1-.7 0-1.2.3-1.3.8h-1.8c.1-1.4 1.3-2.3 3.2-2.3 1.8 0 3 .9 3 2.3v4.8h-1.8v-1.1c-.5.8-1.3 1.2-2.3 1.2-1.4 0-2.6-.8-2.6-2.2v.5zm4.9-.6v-.6l-1.7.1c-.8.1-1.3.4-1.3 1s.5.9 1.2.9c.9 0 1.8-.6 1.8-1.4z" fill="#fff"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_tabby -%}
+                        <span class="payment-badge" title="Tabby">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#3BFFC1"/><path d="M13 11h3v1.5h-3v4c0 .6.3.8.8.8h1v1.5c-.5.2-1 .2-1.5.2-1.5 0-2.3-.8-2.3-2.2v-4.3H10V11h1v-2h2v2zm5.5 0h2v1.3c.4-.9 1.3-1.5 2.5-1.5v2c-1.5-.1-2.5.7-2.5 2v4h-2V11zm13 0v7.8h-2v-1c-.6.8-1.4 1.2-2.4 1.2-2 0-3.3-1.6-3.3-4.1s1.3-4.1 3.3-4.1c1 0 1.8.4 2.4 1.2V11h2zm-2 3.9c0-1.4-.7-2.3-1.8-2.3-1.1 0-1.8.9-1.8 2.3 0 1.4.7 2.3 1.8 2.3 1.1 0 1.8-.9 1.8-2.3zm4 .1c0-2.5 1.3-4.1 3.3-4.1 1 0 1.8.4 2.3 1.1V8h2v10.8h-2v-1c-.5.8-1.3 1.2-2.3 1.2-2 0-3.3-1.6-3.3-4zm2 0c0 1.4.7 2.3 1.8 2.3 1.1 0 1.8-.9 1.8-2.3 0-1.4-.7-2.3-1.8-2.3-1.1 0-1.8.9-1.8 2.3z" fill="#292929"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_tamara -%}
+                        <span class="payment-badge" title="Tamara">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#2E4057"/><path d="M10 11h3v1.5h-3v4c0 .6.3.8.8.8h1v1.5c-.5.2-1 .2-1.5.2-1.5 0-2.3-.8-2.3-2.2v-4.3H7V11h1v-2h2v2zm5 0h2v1.3c.4-.9 1.3-1.5 2.5-1.5v2c-1.5-.1-2.5.7-2.5 2v4h-2V11zm7 0h2v1c.6-.8 1.4-1.2 2.4-1.2 1 0 1.8.4 2.2 1.3.6-.9 1.5-1.3 2.5-1.3 1.7 0 2.7 1.1 2.7 2.8v5.2h-2v-4.7c0-1-.5-1.6-1.3-1.6-.9 0-1.5.7-1.5 1.7v4.6h-2v-4.7c0-1-.5-1.6-1.3-1.6-.9 0-1.5.7-1.5 1.7v4.6h-2V11z" fill="#fff"/><circle cx="39" cy="14.5" r="4" fill="#F9D423"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                      {%- if block.settings.show_stc_pay -%}
+                        <span class="payment-badge" title="STC Pay">
+                          <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="48" height="32" rx="4" fill="#4F008C"/><path d="M14 13.5c0-.8.7-1.5 1.5-1.5h2c.8 0 1.5.7 1.5 1.5v1c0 .8-.7 1.5-1.5 1.5h-2c-.8 0-1.5.7-1.5 1.5v1c0 .8.7 1.5 1.5 1.5h2c.8 0 1.5-.7 1.5-1.5" stroke="#fff" stroke-width="1.5"/><path d="M24 12v1.5h2v7h1.5v-7h2V12H24z" fill="#fff"/><path d="M33 15.5c0-2 1.5-3.5 3.5-3.5 1.2 0 2.2.6 2.8 1.5l-1.3.7c-.3-.5-.9-.8-1.5-.8-1.1 0-2 .9-2 2s.9 2 2 2c.6 0 1.2-.3 1.5-.8l1.3.7c-.6.9-1.6 1.5-2.8 1.5-2 0-3.5-1.5-3.5-3.3z" fill="#fff"/>
+                          </svg>
+                        </span>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+                </div>
+              </div>
+
+            {%- when 'estimated_delivery' -%}
+              <div class="product-page__block product-page__delivery" {{ block.shopify_attributes }}>
+                <div class="estimated-delivery">
+                  <svg
+                    class="estimated-delivery__icon"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                  <div class="estimated-delivery__content">
+                    <span class="estimated-delivery__label">
+                      {{- block.settings.label | default: 'التوصيل المتوقع' -}}
+                    </span>
+                    <span class="estimated-delivery__time">
+                      {{- block.settings.delivery_time | default: '2-4 أيام عمل' -}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            {%- when 'features_list' -%}
+              <div class="product-page__block product-page__features-list" {{ block.shopify_attributes }}>
+                <ul
+                  class="features-checklist"
+                  style="--fl-cols-desktop: 2; --fl-cols-mobile: 1;"
+                >
+                  {%- if block.settings.feature_1 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_1 }}</span>
+                    </li>
+                  {%- endif -%}
+                  {%- if block.settings.feature_2 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_2 }}</span>
+                    </li>
+                  {%- endif -%}
+                  {%- if block.settings.feature_3 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_3 }}</span>
+                    </li>
+                  {%- endif -%}
+                  {%- if block.settings.feature_4 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_4 }}</span>
+                    </li>
+                  {%- endif -%}
+                  {%- if block.settings.feature_5 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_5 }}</span>
+                    </li>
+                  {%- endif -%}
+                  {%- if block.settings.feature_6 != blank -%}
+                    <li class="features-checklist__item">
+                      <svg
+                        class="features-checklist__icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      <span>{{ block.settings.feature_6 }}</span>
+                    </li>
+                  {%- endif -%}
+                </ul>
+              </div>
+
+            {%- when 'collapsible_tab' -%}
+              <div
+                class="product-page__block product-page__collapsible accordion__item{% if block.settings.open_by_default %} is-open{% endif %}"
+                {{ block.shopify_attributes }}
+                data-accordion-item
+                id="product-details"
+              >
+                <button
+                  type="button"
+                  class="product-page__collapsible-header accordion__header"
+                  data-accordion-header
+                  aria-expanded="{{ block.settings.open_by_default }}"
+                >
+                  <span class="product-page__collapsible-title">
+                    {{- block.settings.heading | default: 'التفاصيل' -}}
+                  </span>
+                  <span class="accordion__icon">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </span>
+                </button>
+                <div class="product-page__collapsible-content accordion__content" data-accordion-content>
+                  {%- if block.settings.show_product_description and product.description != blank -%}
+                    <div class="rte">{{ product.description }}</div>
+                  {%- endif -%}
+                  {%- if block.settings.show_product_features -%}
+                    {% render 'product-features',
+                      feature_1_icon: block.settings.feature_1_icon,
+                      feature_1_text: block.settings.feature_1_text,
+                      feature_2_icon: block.settings.feature_2_icon,
+                      feature_2_text: block.settings.feature_2_text,
+                      feature_3_icon: block.settings.feature_3_icon,
+                      feature_3_text: block.settings.feature_3_text,
+                      feature_4_icon: block.settings.feature_4_icon,
+                      feature_4_text: block.settings.feature_4_text,
+                      feature_5_icon: block.settings.feature_5_icon,
+                      feature_5_text: block.settings.feature_5_text,
+                      feature_6_icon: block.settings.feature_6_icon,
+                      feature_6_text: block.settings.feature_6_text
+                    %}
+                  {%- endif -%}
+                  {%- if block.settings.content != blank -%}
+                    <div class="rte">{{ block.settings.content }}</div>
+                  {%- endif -%}
+                  {%- if block.settings.page != blank -%}
+                    <div class="rte">{{ pages[block.settings.page].content }}</div>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- when 'reviews' -%}
+              {%- assign pr_raw = product.metafields.custom.product_reviews -%}
+              <div
+                class="product-page__block product-page__reviews-rating"
+                {{ block.shopify_attributes }}
+                data-reviews-rating-block
+                data-star-color="{{ block.settings.star_color | default: '#fbbf24' }}"
+                data-text-color="{{ block.settings.text_color | default: '' }}"
+              >
+                {%- if pr_raw != blank -%}
+                  <script type="text/plain" data-product-reviews-raw>
+                    {
+                      {
+                        pr_raw;
+                      }
+                    }
+                  </script>
+                {%- endif -%}
+                <div class="product-reviews-inline" data-reviews-inline style="display: none;">
+                  <div class="product-reviews-inline__stars" data-inline-stars></div>
+                  <span class="product-reviews-inline__avg" data-inline-avg></span>
+                  <span class="product-reviews-inline__count" data-inline-count></span>
+                </div>
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{%- comment -%} Sizing Guide Modal {%- endcomment -%}
+<div class="modal" id="sizing-guide-modal" aria-hidden="true">
+  <div class="modal__overlay" data-modal-close></div>
+  <div class="modal__content">
+    <div class="modal__header">
+      <h2 class="modal__title">{{ 'products.product.sizing_guide' | t | default: 'دليل المقاسات' }}</h2>
+      <button
+        type="button"
+        class="modal__close"
+        data-modal-close
+        aria-label="{{ 'general.close' | t | default: 'إغلاق' }}"
+      >
+        {% render 'icon-close' %}
+      </button>
+    </div>
+    <div class="modal__body">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'variant_picker' and block.settings.sizing_guide_page != blank -%}
+          {{ pages[block.settings.sizing_guide_page].content }}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  window.variantStrings = window.variantStrings || {};
+  window.variantStrings.addToCart = {{ 'products.product.add_to_cart' | t | default: 'أضف إلى السلة' | json }};
+  window.variantStrings.soldOut = {{ 'products.product.sold_out' | t | default: 'نفذت الكمية' | json }};
+  window.variantStrings.unavailable = {{ 'products.product.unavailable' | t | default: 'غير متوفر' | json }};
+</script>
+
+<style>
+  /* ===== Inline Product Rating ===== */
+  .product-reviews-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .product-reviews-inline__stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .product-reviews-inline__avg {
+    font-weight: 700;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .product-reviews-inline__count {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+</style>
+
+<script>
+  (function () {
+    document.querySelectorAll('[data-reviews-rating-block]').forEach(function (block) {
+      var rawEl = block.querySelector('[data-product-reviews-raw]');
+      if (!rawEl) return;
+
+      var text = rawEl.textContent;
+      if (!text || !text.trim()) return;
+
+      var starColor = block.dataset.starColor || '#fbbf24';
+      var textColor = block.dataset.textColor || '';
+
+      /* Parse reviews from multi-line text */
+      var entries = text.split(/(?=\d+\s*[-\u2013]\s*Name\s*:)/i).filter(function (s) {
+        return s.trim();
+      });
+      var ratings = [];
+
+      entries.forEach(function (entry) {
+        var starsMatch = entry.match(/(?:stars?|starts?)\s*:\s*(\d+)/i);
+        if (starsMatch) {
+          var r = Math.min(5, Math.max(1, parseInt(starsMatch[1])));
+          ratings.push(r);
+        }
+      });
+
+      if (ratings.length === 0) return;
+
+      var total = ratings.reduce(function (a, b) {
+        return a + b;
+      }, 0);
+      var avg = (total / ratings.length).toFixed(1);
+      var avgNum = parseFloat(avg);
+
+      /* Generate star SVGs */
+      var starsHtml = '';
+      for (var i = 1; i <= 5; i++) {
+        if (i <= Math.floor(avgNum)) {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20" fill="' +
+            starColor +
+            '"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
+        } else if (i - 0.5 <= avgNum) {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient id="phalf' +
+            i +
+            '"><stop offset="50%" stop-color="' +
+            starColor +
+            '"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z" fill="url(#phalf' +
+            i +
+            ')" stroke="' +
+            starColor +
+            '" stroke-width="1"/></svg>';
+        } else {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="' +
+            starColor +
+            '" stroke-width="1"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
+        }
+      }
+
+      var inlineEl = block.querySelector('[data-reviews-inline]');
+      var starsEl = block.querySelector('[data-inline-stars]');
+      var avgEl = block.querySelector('[data-inline-avg]');
+      var countEl = block.querySelector('[data-inline-count]');
+
+      if (starsEl) starsEl.innerHTML = starsHtml;
+      if (avgEl) {
+        avgEl.textContent = avg;
+        if (textColor) avgEl.style.color = textColor;
+      }
+      if (countEl) {
+        countEl.textContent = '(' + ratings.length + ' {{ "products.product.reviews_count" | t | default: "تقييم" }})';
+        if (textColor) countEl.style.color = textColor;
+      }
+      if (inlineEl) inlineEl.style.display = '';
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_product.name",
+  "class": "section-main-product",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "العنوان",
+      "limit": 1
+    },
+    {
+      "type": "reviews",
+      "name": "التقييم",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "لتفعيل التقييمات، أضف حقل ميتا (Metafield) للمنتج باسم custom.product_reviews من نوع نص متعدد الأسطر (Multi-line text). أدخل البيانات بالتنسيق التالي: 1- Name: أحمد, comment: منتج رائع, stars: 5 — سطر لكل تقييم."
+        },
+        {
+          "type": "color",
+          "id": "star_color",
+          "label": "لون النجوم",
+          "default": "#fbbf24"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "لون النص",
+          "default": "#6b7280"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "السعر",
+      "limit": 1
+    },
+    {
+      "type": "description_excerpt",
+      "name": "مقتطف الوصف",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "words_count",
+          "label": "عدد الكلمات",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "default": 30
+        },
+        {
+          "type": "checkbox",
+          "id": "show_learn_more",
+          "label": "إظهار رابط اعرف المزيد",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "vendor",
+      "name": "البائع",
+      "limit": 1
+    },
+    {
+      "type": "sku",
+      "name": "رمز المنتج SKU",
+      "limit": 1
+    },
+    {
+      "type": "variant_picker",
+      "name": "اختيار الخيارات",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "نوع العرض",
+          "options": [
+            { "value": "buttons", "label": "أزرار" },
+            { "value": "swatches", "label": "ألوان (دوائر) + أزرار مقاسات" },
+            { "value": "dropdown", "label": "قائمة منسدلة" }
+          ],
+          "default": "swatches"
+        }
+      ]
+    },
+    {
+      "type": "trust_badges",
+      "name": "شارات الثقة",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "badge_1_icon",
+          "label": "أيقونة الشارة 1",
+          "options": [
+            { "value": "shipping", "label": "شحن / ساعة" },
+            { "value": "guarantee", "label": "درع / ضمان" },
+            { "value": "secure", "label": "قفل / أمان" },
+            { "value": "support", "label": "هاتف / دعم" },
+            { "value": "returns", "label": "إرجاع / تحديث" },
+            { "value": "quality", "label": "نجمة / جودة" }
+          ],
+          "default": "shipping"
+        },
+        {
+          "type": "text",
+          "id": "badge_1_text",
+          "label": "نص الشارة 1",
+          "default": "شحن مجاني وإرجاع مجاني"
+        },
+        {
+          "type": "select",
+          "id": "badge_2_icon",
+          "label": "أيقونة الشارة 2",
+          "options": [
+            { "value": "shipping", "label": "شحن / ساعة" },
+            { "value": "guarantee", "label": "درع / ضمان" },
+            { "value": "secure", "label": "قفل / أمان" },
+            { "value": "support", "label": "هاتف / دعم" },
+            { "value": "returns", "label": "إرجاع / تحديث" },
+            { "value": "quality", "label": "نجمة / جودة" }
+          ],
+          "default": "guarantee"
+        },
+        {
+          "type": "text",
+          "id": "badge_2_text",
+          "label": "نص الشارة 2",
+          "default": "ضمان استرداد الأموال خلال 30 يومًا"
+        },
+        {
+          "type": "select",
+          "id": "badge_3_icon",
+          "label": "أيقونة الشارة 3",
+          "options": [
+            { "value": "shipping", "label": "شحن / ساعة" },
+            { "value": "guarantee", "label": "درع / ضمان" },
+            { "value": "secure", "label": "قفل / أمان" },
+            { "value": "support", "label": "هاتف / دعم" },
+            { "value": "returns", "label": "إرجاع / تحديث" },
+            { "value": "quality", "label": "نجمة / جودة" }
+          ],
+          "default": "secure"
+        },
+        {
+          "type": "text",
+          "id": "badge_3_text",
+          "label": "نص الشارة 3"
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "أزرار الشراء",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "إظهار زر الدفع السريع",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "checkout_bg",
+          "label": "لون خلفية زر الدفع",
+          "default": "#000000"
+        },
+        {
+          "type": "color",
+          "id": "checkout_text",
+          "label": "لون نص زر الدفع",
+          "default": "#ffffff"
+        }
+      ]
+    },
+    {
+      "type": "description",
+      "name": "الوصف الكامل",
+      "limit": 1
+    },
+    {
+      "type": "share",
+      "name": "مشاركة",
+      "limit": 1
+    },
+    {
+      "type": "inventory",
+      "name": "حالة المخزون",
+      "limit": 1
+    },
+    {
+      "type": "payment_badges",
+      "name": "شارات الدفع",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_title",
+          "label": "إظهار العنوان",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "العنوان",
+          "default": "طرق الدفع المتاحة"
+        },
+        {
+          "type": "select",
+          "id": "badge_mode",
+          "label": "طريقة العرض",
+          "options": [
+            { "value": "dynamic", "label": "تلقائي (من إعدادات المتجر)" },
+            { "value": "manual", "label": "يدوي (اختيار الأيقونات)" }
+          ],
+          "default": "dynamic",
+          "info": "تلقائي يعرض طرق الدفع المفعلة في متجرك، يدوي يتيح لك اختيار الأيقونات"
+        },
+        {
+          "type": "header",
+          "content": "أيقونات الدفع اليدوية"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_visa",
+          "label": "Visa",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_mastercard",
+          "label": "Mastercard",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_amex",
+          "label": "American Express",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_paypal",
+          "label": "PayPal",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_mada",
+          "label": "Mada",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_apple_pay",
+          "label": "Apple Pay",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tabby",
+          "label": "Tabby",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_tamara",
+          "label": "Tamara",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stc_pay",
+          "label": "STC Pay",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "estimated_delivery",
+      "name": "وقت التوصيل المتوقع",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "التسمية",
+          "default": "التوصيل المتوقع"
+        },
+        {
+          "type": "text",
+          "id": "delivery_time",
+          "label": "وقت التوصيل",
+          "default": "2-4 أيام عمل"
+        }
+      ]
+    },
+    {
+      "type": "features_list",
+      "name": "قائمة المميزات",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "المميزات"
+        },
+        {
+          "type": "text",
+          "id": "feature_1",
+          "label": "الميزة 1",
+          "default": "شحن مجاني للطلبات فوق 200 ريال"
+        },
+        {
+          "type": "text",
+          "id": "feature_2",
+          "label": "الميزة 2",
+          "default": "إرجاع مجاني خلال 14 يوم"
+        },
+        {
+          "type": "text",
+          "id": "feature_3",
+          "label": "الميزة 3",
+          "default": "ضمان جودة المنتج"
+        },
+        {
+          "type": "text",
+          "id": "feature_4",
+          "label": "الميزة 4"
+        },
+        {
+          "type": "text",
+          "id": "feature_5",
+          "label": "الميزة 5"
+        },
+        {
+          "type": "text",
+          "id": "feature_6",
+          "label": "الميزة 6"
+        }
+      ]
+    },
+    {
+      "type": "collapsible_tab",
+      "name": "قسم قابل للطي",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "العنوان",
+          "default": "التفاصيل"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_product_description",
+          "label": "إظهار وصف المنتج",
+          "default": false,
+          "info": "عند التفعيل سيتم عرض وصف المنتج في هذا القسم"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "المحتوى"
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "محتوى من صفحة"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "مفتوح افتراضياً",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_product_features",
+          "label": "إظهار مميزات المنتج (شبكة أيقونات)",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "feature_1_icon",
+          "label": "أيقونة الميزة 1",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "odor"
+        },
+        {
+          "type": "text",
+          "id": "feature_1_text",
+          "label": "نص الميزة 1"
+        },
+        {
+          "type": "select",
+          "id": "feature_2_icon",
+          "label": "أيقونة الميزة 2",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "temperature"
+        },
+        {
+          "type": "text",
+          "id": "feature_2_text",
+          "label": "نص الميزة 2"
+        },
+        {
+          "type": "select",
+          "id": "feature_3_icon",
+          "label": "أيقونة الميزة 3",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "fast_drying"
+        },
+        {
+          "type": "text",
+          "id": "feature_3_text",
+          "label": "نص الميزة 3"
+        },
+        {
+          "type": "select",
+          "id": "feature_4_icon",
+          "label": "أيقونة الميزة 4",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "wrinkle"
+        },
+        {
+          "type": "text",
+          "id": "feature_4_text",
+          "label": "نص الميزة 4"
+        },
+        {
+          "type": "select",
+          "id": "feature_5_icon",
+          "label": "أيقونة الميزة 5",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "breathable"
+        },
+        {
+          "type": "text",
+          "id": "feature_5_text",
+          "label": "نص الميزة 5"
+        },
+        {
+          "type": "select",
+          "id": "feature_6_icon",
+          "label": "أيقونة الميزة 6",
+          "options": [
+            { "value": "odor", "label": "مقاوم للروائح" },
+            { "value": "temperature", "label": "منظم للحرارة" },
+            { "value": "fast_drying", "label": "سريع الجفاف" },
+            { "value": "wrinkle", "label": "مقاوم للتجاعيد" },
+            { "value": "breathable", "label": "قابل للتنفس" },
+            { "value": "lightweight", "label": "خفيف الوزن" },
+            { "value": "stretch", "label": "مطاطي" },
+            { "value": "uv_protection", "label": "حماية من الأشعة" },
+            { "value": "moisture", "label": "ماص للرطوبة" },
+            { "value": "durable", "label": "متين" },
+            { "value": "soft", "label": "ناعم" },
+            { "value": "eco", "label": "صديق للبيئة" },
+            { "value": "antibacterial", "label": "مضاد للبكتيريا" },
+            { "value": "waterproof", "label": "مقاوم للماء" }
+          ],
+          "default": "soft"
+        },
+        {
+          "type": "text",
+          "id": "feature_6_text",
+          "label": "نص الميزة 6"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "التخطيط"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "إظهار مسار التنقل",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "thumbnail_position",
+      "label": "موقع الصور المصغرة",
+      "options": [
+        { "value": "right", "label": "يمين" },
+        { "value": "left", "label": "يسار" },
+        { "value": "bottom", "label": "أسفل" }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "تفعيل تكبير الصورة",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

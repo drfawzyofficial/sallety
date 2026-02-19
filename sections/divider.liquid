@@ -1,0 +1,298 @@
+{%- comment -%}
+  Sallety Theme — Divider Section
+  Visual separator between sections.
+{%- endcomment -%}
+
+{%- liquid
+  assign style = section.settings.style | default: 'solid'
+  assign width = section.settings.width | default: 'medium'
+  assign thickness = section.settings.thickness | default: 1
+  assign div_color = section.settings.divider_color
+  assign alignment = section.settings.alignment | default: 'center'
+  assign icon_type = section.settings.icon_type | default: 'none'
+  assign padding_top = section.settings.padding_top | default: 20
+  assign padding_bottom = section.settings.padding_bottom | default: 20
+  assign bg_color = section.settings.background_color
+-%}
+
+<section
+  id="divider-{{ section.id }}"
+  class="dv-section"
+  data-section-id="{{ section.id }}"
+  style="
+    --dv-pt: {{ padding_top }}px;
+    --dv-pb: {{ padding_bottom }}px;
+    --dv-thickness: {{ thickness }}px;
+    --dv-color: {{ div_color | default: 'var(--color-border, rgba(0,0,0,0.12))' }};
+    {%- if bg_color != blank %}--dv-bg: {{ bg_color }};{% endif %}
+  "
+>
+  <div class="dv-container dv-align--{{ alignment }}">
+    {%- if style == 'none' -%}
+      {%- comment -%}Invisible spacer — no visual output{%- endcomment -%}
+    {%- elsif style == 'with_icon' -%}
+      <div class="dv-icon-row dv-width--{{ width }}">
+        <span class="dv-line dv-line--solid"></span>
+        <span class="dv-icon" aria-hidden="true">
+          {%- case icon_type -%}
+            {%- when 'diamond' -%}
+              ◆
+            {%- when 'star' -%}
+              ★
+            {%- when 'circle' -%}
+              ●
+            {%- when 'dot_3' -%}
+              • • •
+            {%- else -%}
+              ◆
+          {%- endcase -%}
+        </span>
+        <span class="dv-line dv-line--solid"></span>
+      </div>
+    {%- elsif style == 'gradient' -%}
+      <div class="dv-line dv-line--gradient dv-width--{{ width }}"></div>
+    {%- else -%}
+      <div class="dv-line dv-line--{{ style }} dv-width--{{ width }}"></div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .dv-section {
+    padding-block-start: var(--dv-pt);
+    padding-block-end: var(--dv-pb);
+    background: var(--dv-bg, transparent);
+  }
+  .dv-container {
+    padding-inline: 1rem;
+    display: flex;
+  }
+  .dv-align--center {
+    justify-content: center;
+  }
+  .dv-align--start {
+    justify-content: flex-start;
+  }
+  .dv-align--end {
+    justify-content: flex-end;
+  }
+
+  .dv-width--small {
+    width: 30%;
+    min-width: 100px;
+  }
+  .dv-width--medium {
+    width: 60%;
+    min-width: 200px;
+  }
+  .dv-width--large {
+    width: 80%;
+  }
+  .dv-width--full {
+    width: 100%;
+  }
+
+  .dv-line {
+    height: var(--dv-thickness);
+    flex: 1;
+  }
+  .dv-line--solid {
+    background: var(--dv-color);
+  }
+  .dv-line--dashed {
+    border-top: var(--dv-thickness) dashed var(--dv-color);
+    background: none;
+    height: 0;
+  }
+  .dv-line--dotted {
+    border-top: var(--dv-thickness) dotted var(--dv-color);
+    background: none;
+    height: 0;
+  }
+  .dv-line--double {
+    border-top: var(--dv-thickness) double var(--dv-color);
+    background: none;
+    height: 0;
+    min-height: 3px;
+  }
+  .dv-line--gradient {
+    background: linear-gradient(to right, transparent, var(--dv-color), transparent);
+    border: none;
+  }
+
+  .dv-icon-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .dv-icon {
+    font-size: calc(var(--dv-thickness) * 6 + 8px);
+    color: var(--dv-color);
+    line-height: 1;
+    flex-shrink: 0;
+    letter-spacing: 4px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.divider.name",
+  "tag": "section",
+  "class": "section-divider",
+  "settings": [
+    {
+      "type": "select",
+      "id": "style",
+      "label": "t:sections.divider.settings.style.label",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "t:sections.divider.settings.style.options.solid"
+        },
+        {
+          "value": "dashed",
+          "label": "t:sections.divider.settings.style.options.dashed"
+        },
+        {
+          "value": "dotted",
+          "label": "t:sections.divider.settings.style.options.dotted"
+        },
+        {
+          "value": "double",
+          "label": "t:sections.divider.settings.style.options.double"
+        },
+        {
+          "value": "gradient",
+          "label": "t:sections.divider.settings.style.options.gradient"
+        },
+        {
+          "value": "with_icon",
+          "label": "t:sections.divider.settings.style.options.with_icon"
+        },
+        {
+          "value": "none",
+          "label": "t:sections.divider.settings.style.options.none"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "icon_type",
+      "label": "t:sections.divider.settings.icon_type.label",
+      "default": "diamond",
+      "options": [
+        {
+          "value": "diamond",
+          "label": "t:sections.divider.settings.icon_type.options.diamond"
+        },
+        {
+          "value": "star",
+          "label": "t:sections.divider.settings.icon_type.options.star"
+        },
+        {
+          "value": "circle",
+          "label": "t:sections.divider.settings.icon_type.options.circle"
+        },
+        {
+          "value": "dot_3",
+          "label": "t:sections.divider.settings.icon_type.options.dot_3"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "width",
+      "label": "t:sections.divider.settings.width.label",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.divider.settings.width.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.divider.settings.width.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.divider.settings.width.options.large"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.divider.settings.width.options.full"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "thickness",
+      "label": "t:sections.divider.settings.thickness.label",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 1,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "t:sections.divider.settings.divider_color.label"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:sections.divider.settings.alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.divider.settings.alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.divider.settings.alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.divider.settings.alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.divider.settings.background_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.divider.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.divider.settings.padding_top.label",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.divider.settings.padding_bottom.label",
+      "default": 20,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.divider.name"
+    }
+  ]
+}
+{% endschema %}

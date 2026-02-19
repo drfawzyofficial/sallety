@@ -1,0 +1,92 @@
+{%- comment -%}
+  Sallety Theme — Spacer Section
+  Configurable empty space between sections.
+{%- endcomment -%}
+
+{%- liquid
+  assign height_d = section.settings.height_desktop | default: 60
+  assign height_t = section.settings.height_tablet | default: 40
+  assign height_m = section.settings.height_mobile | default: 24
+  assign bg_color = section.settings.background_color
+-%}
+
+<section
+  id="spacer-{{ section.id }}"
+  class="sp-section"
+  data-section-id="{{ section.id }}"
+  aria-hidden="true"
+  style="
+    --sp-h-d: {{ height_d }}px;
+    --sp-h-t: {{ height_t }}px;
+    --sp-h-m: {{ height_m }}px;
+    {%- if bg_color != blank %}background: {{ bg_color }};{% endif %}
+  "
+></section>
+
+<style>
+  .sp-section {
+    height: var(--sp-h-d);
+    width: 100%;
+    display: block;
+  }
+  @media (max-width: 1024px) {
+    .sp-section {
+      height: var(--sp-h-t);
+    }
+  }
+  @media (max-width: 639px) {
+    .sp-section {
+      height: var(--sp-h-m);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.spacer.name",
+  "tag": "section",
+  "class": "section-spacer",
+  "settings": [
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "t:sections.spacer.settings.height_desktop.label",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "height_tablet",
+      "label": "t:sections.spacer.settings.height_tablet.label",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "default": 40,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "t:sections.spacer.settings.height_mobile.label",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.spacer.settings.background_color.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.spacer.name"
+    }
+  ]
+}
+{% endschema %}

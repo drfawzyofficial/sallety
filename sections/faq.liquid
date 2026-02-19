@@ -1,0 +1,949 @@
+{%- comment -%}
+  FAQ Section - الأسئلة الشائعة
+  Two columns: FAQ accordion + Image
+  RTL layout with Arabic labels - Following Sallety Theme Patterns
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme class (uses CSS classes from theme.liquid)
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  
+  # Typography - Responsive sizes
+  assign heading_size_desktop = section.settings.heading_size_desktop | default: 32
+  assign heading_size_tablet = section.settings.heading_size_tablet | default: 28
+  assign heading_size_mobile = section.settings.heading_size_mobile | default: 24
+  assign subheading_size_desktop = section.settings.subheading_size_desktop | default: 18
+  assign subheading_size_tablet = section.settings.subheading_size_tablet | default: 16
+  assign subheading_size_mobile = section.settings.subheading_size_mobile | default: 14
+  assign question_size_desktop = section.settings.question_size_desktop | default: 18
+  assign question_size_tablet = section.settings.question_size_tablet | default: 16
+  assign question_size_mobile = section.settings.question_size_mobile | default: 15
+  assign answer_size_desktop = section.settings.answer_size_desktop | default: 16
+  assign answer_size_tablet = section.settings.answer_size_tablet | default: 15
+  assign answer_size_mobile = section.settings.answer_size_mobile | default: 14
+  
+  # Typography - Weights
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign question_weight = section.settings.question_weight | default: '500'
+  
+  # Section settings
+  assign section_heading = section.settings.section_heading
+  assign section_subheading = section.settings.section_subheading
+  assign show_heading = section.settings.show_heading
+  assign show_image = section.settings.show_image
+  assign image = section.settings.image
+  assign layout = section.settings.layout | default: 'image-left'
+  assign show_shapes = section.settings.show_shapes
+  assign card_style = section.settings.card_style | default: 'cards'
+  assign image_border_radius = section.settings.image_border_radius | default: 16
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+  
+  # Layout order
+  if layout == 'image-left'
+    assign image_order = 'order-1'
+    assign faq_order = 'order-2'
+  else
+    assign image_order = 'order-2 lg:order-2'
+    assign faq_order = 'order-1 lg:order-1'
+  endif
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section 
+  class="faq-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
+  dir="{{ section_dir }}"
+  style="
+    --faq-image-radius: {{ image_border_radius }}px;
+    --faq-heading-desktop: {{ heading_size_desktop }}px;
+    --faq-heading-tablet: {{ heading_size_tablet }}px;
+    --faq-heading-mobile: {{ heading_size_mobile }}px;
+    --faq-subheading-desktop: {{ subheading_size_desktop }}px;
+    --faq-subheading-tablet: {{ subheading_size_tablet }}px;
+    --faq-subheading-mobile: {{ subheading_size_mobile }}px;
+    --faq-question-desktop: {{ question_size_desktop }}px;
+    --faq-question-tablet: {{ question_size_tablet }}px;
+    --faq-question-mobile: {{ question_size_mobile }}px;
+    --faq-answer-desktop: {{ answer_size_desktop }}px;
+    --faq-answer-tablet: {{ answer_size_tablet }}px;
+    --faq-answer-mobile: {{ answer_size_mobile }}px;
+    --faq-heading-weight: {{ heading_weight }};
+    --faq-question-weight: {{ question_weight }};
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+    font-family: var(--font-body-family);
+  "
+>
+  <!-- Decorative Parallax Shapes -->
+  {%- if show_shapes -%}
+    {% render 'decorative-shapes', accent_color: accent_color, text_color: text_color, prefix: 'faq' %}
+  {%- endif -%}
+
+  <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
+    <!-- Section Header -->
+    {%- if show_heading and section_heading != blank -%}
+      <div class="faq-header text-center mb-10 sm:mb-12 lg:mb-14 animate-on-scroll aos-fade-up">
+        <h2 class="faq-main-heading leading-tight m-0 mb-3" style="color: var(--color-text); font-weight: var(--faq-heading-weight);">
+          {{ section_heading }}
+        </h2>
+        {%- if section_subheading != blank -%}
+          <p class="faq-subheading m-0" style="color: var(--color-accent); font-weight: 500;">
+            {{ section_subheading }}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
+      
+      <!-- Image Column -->
+      {%- if show_image -%}
+        <div class="{{ image_order }} hidden lg:block animate-on-scroll aos-fade-right">
+          <div class="faq-image-wrapper sticky top-24 rounded-2xl overflow-hidden" style="border-radius: var(--faq-image-radius);">
+            {%- if image != blank -%}
+              <img 
+                src="{{ image | image_url: width: 800 }}"
+                srcset="
+                  {{ image | image_url: width: 400 }} 400w,
+                  {{ image | image_url: width: 600 }} 600w,
+                  {{ image | image_url: width: 800 }} 800w
+                "
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                alt="{{ image.alt | default: section_heading | default: 'FAQ illustration' }}"
+                class="faq-image w-full h-auto object-cover"
+                loading="lazy"
+                width="{{ image.width }}"
+                height="{{ image.height }}"
+              >
+            {%- else -%}
+              <!-- Default Placeholder Image -->
+              <div class="faq-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 300px; aspect-ratio: 4/3;">
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <!-- FAQ Column -->
+      <div class="{{ faq_order }} {% unless show_image %}lg:col-span-2 max-w-3xl mx-auto w-full{% endunless %} animate-on-scroll aos-fade-left" data-aos-delay="200">
+        <div class="faq-list space-y-3 sm:space-y-4" data-aos-stagger="100">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'faq_item' -%}
+              <div class="faq-item {% if card_style == 'cards' %}faq-item--card{% else %}faq-item--simple{% endif %} animate-on-scroll aos-fade-up" {{ block.shopify_attributes }}>
+                <button 
+                  class="faq-question w-full flex items-center justify-between gap-4 text-right"
+                  aria-expanded="false"
+                  aria-controls="faq-answer-{{ block.id }}"
+                  data-faq-toggle
+                >
+                  <span class="faq-question-text" style="color: var(--color-text); font-weight: var(--faq-question-weight);">
+                    {{ block.settings.question }}
+                  </span>
+                  <span class="faq-icon flex-shrink-0" style="color: var(--color-secondary-text);">
+                    <svg class="faq-icon-plus w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <svg class="faq-icon-minus w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M5 12h14"/>
+                    </svg>
+                  </span>
+                </button>
+                <div 
+                  id="faq-answer-{{ block.id }}" 
+                  class="faq-answer"
+                  aria-hidden="true"
+                >
+                  <div class="faq-answer-content" style="color: var(--color-secondary-text);">
+                    {{ block.settings.answer }}
+                  </div>
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- if section.blocks.size == 0 -%}
+            <div class="faq-empty text-center py-12" style="color: var(--color-secondary-text);">
+              <svg class="w-16 h-16 mx-auto mb-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <path d="M12 17h.01"/>
+              </svg>
+              <p class="text-lg font-medium mb-2">لا توجد أسئلة</p>
+              <p class="text-sm opacity-75">أضف أسئلة من إعدادات القسم في محرر القالب</p>
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* FAQ Section Base Styles */
+  .faq-section {
+    position: relative;
+  }
+
+  /* Typography - Responsive */
+  .faq-main-heading {
+    font-size: var(--faq-heading-desktop);
+  }
+
+  .faq-subheading {
+    font-size: var(--faq-subheading-desktop);
+  }
+
+  .faq-question-text {
+    font-size: var(--faq-question-desktop);
+  }
+
+  .faq-answer-content {
+    font-size: var(--faq-answer-desktop);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 1024px) {
+    .faq-main-heading {
+      font-size: var(--faq-heading-tablet);
+    }
+    .faq-subheading {
+      font-size: var(--faq-subheading-tablet);
+    }
+    .faq-question-text {
+      font-size: var(--faq-question-tablet);
+    }
+    .faq-answer-content {
+      font-size: var(--faq-answer-tablet);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .faq-main-heading {
+      font-size: var(--faq-heading-mobile);
+    }
+    .faq-subheading {
+      font-size: var(--faq-subheading-mobile);
+    }
+    .faq-question-text {
+      font-size: var(--faq-question-mobile);
+    }
+    .faq-answer-content {
+      font-size: var(--faq-answer-mobile);
+    }
+  }
+
+  /* Image Styles */
+  .faq-image-wrapper {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+    transition: all 0.4s ease;
+  }
+
+  .faq-image-wrapper:hover {
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
+    transform: translateY(-4px);
+  }
+
+  /* FAQ Item - Card Style */
+  .faq-item--card {
+    background: var(--color-card-background);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+  }
+
+  .faq-item--card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .faq-item--card .faq-question {
+    padding: 20px 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .faq-item--card .faq-question:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .faq-item--card .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out;
+  }
+
+  .faq-item--card .faq-answer-content {
+    padding: 0 24px 20px;
+  }
+
+  /* FAQ Item - Simple Style */
+  .faq-item--simple {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 16px;
+  }
+
+  .faq-item--simple:last-child {
+    border-bottom: none;
+  }
+
+  .faq-item--simple .faq-question {
+    padding: 16px 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .faq-item--simple .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out;
+  }
+
+  .faq-item--simple .faq-answer-content {
+    padding: 0 0 16px;
+  }
+
+  /* Icon Animation */
+  .faq-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .faq-icon-minus {
+    display: none;
+  }
+
+  .faq-item.is-open .faq-icon-plus {
+    display: none;
+  }
+
+  .faq-item.is-open .faq-icon-minus {
+    display: block;
+  }
+
+  .faq-icon svg {
+    transition: color 0.2s ease;
+  }
+
+  .faq-question:hover .faq-icon svg {
+    color: var(--color-accent);
+  }
+
+  /* Mobile Card Adjustments */
+  @media (max-width: 768px) {
+    .faq-item--card .faq-question {
+      padding: 16px 18px;
+    }
+
+    .faq-item--card .faq-answer-content {
+      padding: 0 18px 16px;
+    }
+
+    .faq-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .faq-item--card,
+    .faq-icon,
+    .faq-answer {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+/**
+ * FAQ Section - Accordion functionality
+ * @fileoverview Accessible FAQ accordion with keyboard support
+ * @version 2.0.0
+ */
+(function() {
+  'use strict';
+
+  /** @constant {string} Toggle button selector */
+  const TOGGLE_SELECTOR = '[data-faq-toggle]';
+  /** @constant {string} FAQ item class */
+  const ITEM_CLASS = 'faq-item';
+  /** @constant {string} Open state class */
+  const OPEN_CLASS = 'is-open';
+  /** @constant {string} Section root selector */
+  const SECTION_SELECTOR = '.faq-section';
+
+  /**
+   * Initialize FAQ accordion
+   * @returns {void}
+   */
+  function initFAQ() {
+    // Use event delegation for better performance
+    document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', handleKeydown);
+  }
+
+  /**
+   * Handle click events using delegation
+   * @param {MouseEvent} event - The click event
+   */
+  function handleClick(event) {
+    const toggle = event.target.closest(TOGGLE_SELECTOR);
+    if (!toggle) return;
+    
+    toggleItem(toggle);
+  }
+
+  /**
+   * Handle keyboard events for accessibility
+   * @param {KeyboardEvent} event - The keyboard event
+   */
+  function handleKeydown(event) {
+    const toggle = event.target.closest(TOGGLE_SELECTOR);
+    if (!toggle) return;
+
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        toggleItem(toggle);
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        focusNextItem(toggle);
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        focusPrevItem(toggle);
+        break;
+      case 'Home':
+        event.preventDefault();
+        focusFirstItem(toggle);
+        break;
+      case 'End':
+        event.preventDefault();
+        focusLastItem(toggle);
+        break;
+    }
+  }
+
+  /**
+   * Toggle an FAQ item
+   * @param {HTMLElement} toggle - The toggle button
+   */
+  function toggleItem(toggle) {
+    const faqItem = toggle.closest(`.${ITEM_CLASS}`);
+    if (!faqItem) return;
+
+    const isOpen = faqItem.classList.contains(OPEN_CLASS);
+    const answerId = toggle.getAttribute('aria-controls');
+    const answer = answerId ? document.getElementById(answerId) : null;
+
+    // Close other open items within the same FAQ section (accordion behavior)
+    const sectionRoot = toggle.closest(SECTION_SELECTOR);
+    if (sectionRoot) {
+      const openItems = Array.from(sectionRoot.querySelectorAll(`.${ITEM_CLASS}.${OPEN_CLASS}`));
+      for (const item of openItems) {
+        if (item === faqItem) continue;
+        closeItem(item);
+      }
+    }
+
+    // Toggle current item
+    if (isOpen) {
+      closeItem(faqItem);
+    } else {
+      openItem(faqItem);
+    }
+  }
+
+  /**
+   * Open an FAQ item and sync ARIA
+   * @param {HTMLElement} item - The FAQ item container
+   */
+  function openItem(item) {
+    const toggle = item.querySelector(TOGGLE_SELECTOR);
+    const answerId = toggle?.getAttribute('aria-controls');
+    const answer = answerId ? document.getElementById(answerId) : null;
+
+    item.classList.add(OPEN_CLASS);
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    if (answer) {
+      answer.setAttribute('aria-hidden', 'false');
+      const content = answer.querySelector('.faq-answer-content');
+      if (content) {
+        answer.style.maxHeight = content.scrollHeight + 'px';
+      }
+    }
+  }
+
+  /**
+   * Close an FAQ item and sync ARIA
+   * @param {HTMLElement} item - The FAQ item container
+   */
+  function closeItem(item) {
+    const toggle = item.querySelector(TOGGLE_SELECTOR);
+    const answerId = toggle?.getAttribute('aria-controls');
+    const answer = answerId ? document.getElementById(answerId) : null;
+
+    item.classList.remove(OPEN_CLASS);
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    if (answer) {
+      answer.setAttribute('aria-hidden', 'true');
+      answer.style.maxHeight = '0';
+    }
+  }
+
+  /**
+   * Focus the next FAQ item
+   * @param {HTMLElement} currentToggle - Current toggle button
+   */
+  function focusNextItem(currentToggle) {
+    const scope = currentToggle.closest(SECTION_SELECTOR) || document;
+    const toggles = Array.from(scope.querySelectorAll(TOGGLE_SELECTOR));
+    const currentIndex = toggles.indexOf(currentToggle);
+    const nextIndex = (currentIndex + 1) % toggles.length;
+    toggles[nextIndex]?.focus();
+  }
+
+  /**
+   * Focus the previous FAQ item
+   * @param {HTMLElement} currentToggle - Current toggle button
+   */
+  function focusPrevItem(currentToggle) {
+    const scope = currentToggle.closest(SECTION_SELECTOR) || document;
+    const toggles = Array.from(scope.querySelectorAll(TOGGLE_SELECTOR));
+    const currentIndex = toggles.indexOf(currentToggle);
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : toggles.length - 1;
+    toggles[prevIndex]?.focus();
+  }
+
+  /**
+   * Focus the first FAQ item
+   * @param {HTMLElement} currentToggle - Current toggle button
+   */
+  function focusFirstItem(currentToggle) {
+    const scope = currentToggle.closest(SECTION_SELECTOR) || document;
+    const toggles = scope.querySelectorAll(TOGGLE_SELECTOR);
+    toggles[0]?.focus();
+  }
+
+  /**
+   * Focus the last FAQ item
+   * @param {HTMLElement} currentToggle - Current toggle button
+   */
+  function focusLastItem(currentToggle) {
+    const scope = currentToggle.closest(SECTION_SELECTOR) || document;
+    const toggles = scope.querySelectorAll(TOGGLE_SELECTOR);
+    toggles[toggles.length - 1]?.focus();
+  }
+
+  // Initialize on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFAQ);
+  } else {
+    initFAQ();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.faq.name",
+  "tag": "section",
+  "class": "section-faq",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.faq.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "section_heading",
+      "label": "t:sections.faq.settings.section_heading.label",
+      "default": "ابرز الاسئلة الشائعة"
+    },
+    {
+      "type": "text",
+      "id": "section_subheading",
+      "label": "t:sections.faq.settings.section_subheading.label",
+      "default": "او تواصل معنا مباشرة"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "t:sections.faq.settings.show_image.label",
+      "default": true,
+      "info": "t:sections.faq.settings.show_image.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.faq.settings.image.label",
+      "info": "t:sections.faq.settings.image.info"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "t:sections.faq.settings.image_border_radius.label",
+      "default": 16,
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.faq.settings.layout.label",
+      "default": "image-left",
+      "options": [
+        {
+          "value": "image-left",
+          "label": "t:sections.faq.settings.layout.options.image-left"
+        },
+        {
+          "value": "image-right",
+          "label": "t:sections.faq.settings.layout.options.image-right"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.faq.settings.card_style.label",
+      "default": "cards",
+      "options": [
+        {
+          "value": "cards",
+          "label": "t:sections.faq.settings.card_style.options.cards"
+        },
+        {
+          "value": "simple",
+          "label": "t:sections.faq.settings.card_style.options.simple"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.faq.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.faq.settings.show_shapes.label",
+      "default": false,
+      "info": "t:sections.faq.settings.show_shapes.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "t:sections.faq.settings.heading_size_desktop.label",
+      "default": 32,
+      "min": 24,
+      "max": 48,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_desktop",
+      "label": "t:sections.faq.settings.subheading_size_desktop.label",
+      "default": 18,
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "question_size_desktop",
+      "label": "t:sections.faq.settings.question_size_desktop.label",
+      "default": 18,
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "answer_size_desktop",
+      "label": "t:sections.faq.settings.answer_size_desktop.label",
+      "default": 16,
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_tablet",
+      "label": "t:sections.faq.settings.heading_size_tablet.label",
+      "default": 28,
+      "min": 20,
+      "max": 40,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_tablet",
+      "label": "t:sections.faq.settings.subheading_size_tablet.label",
+      "default": 16,
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "question_size_tablet",
+      "label": "t:sections.faq.settings.question_size_tablet.label",
+      "default": 16,
+      "min": 14,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "answer_size_tablet",
+      "label": "t:sections.faq.settings.answer_size_tablet.label",
+      "default": 15,
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "t:sections.faq.settings.heading_size_mobile.label",
+      "default": 24,
+      "min": 18,
+      "max": 32,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "label": "t:sections.faq.settings.subheading_size_mobile.label",
+      "default": 14,
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "question_size_mobile",
+      "label": "t:sections.faq.settings.question_size_mobile.label",
+      "default": 15,
+      "min": 13,
+      "max": 18,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "answer_size_mobile",
+      "label": "t:sections.faq.settings.answer_size_mobile.label",
+      "default": 14,
+      "min": 12,
+      "max": 16,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.faq.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.faq.settings.heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.faq.settings.heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.faq.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.faq.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.faq.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "question_weight",
+      "label": "t:sections.faq.settings.question_weight.label",
+      "default": "500",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.faq.settings.question_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.faq.settings.question_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.faq.settings.question_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.faq.settings.question_weight.options.700"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.faq.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.faq.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.faq.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "t:sections.faq.blocks.faq_item.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "t:sections.faq.blocks.faq_item.settings.question.label",
+          "default": "ما هي سياسة التوصيل الخاصة بكم؟"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "t:sections.faq.blocks.faq_item.settings.answer.label",
+          "default": "<p>نقوم بتوصيل جميع الطلبات خلال 3-5 أيام عمل داخل المملكة العربية السعودية. التوصيل مجاني للطلبات التي تتجاوز 200 ريال.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.faq.name",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "ما هي سياسة التوصيل الخاصة بكم؟",
+            "answer": "<p>نقوم بتوصيل جميع الطلبات خلال 3-5 أيام عمل داخل المملكة العربية السعودية. التوصيل مجاني للطلبات التي تتجاوز 200 ريال. نتعامل مع شركات شحن موثوقة لضمان وصول طلبك بأمان.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "هل تتوفر مقاسات مختلفة لجميع المنتجات؟",
+            "answer": "<p>نعم، نوفر مجموعة واسعة من المقاسات تناسب جميع الأحجام. يمكنك الاطلاع على جدول المقاسات في صفحة كل منتج لاختيار المقاس المناسب لك.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "ما هي سياسة الإرجاع والاستبدال؟",
+            "answer": "<p>يمكنك إرجاع أو استبدال المنتج خلال 14 يوم من تاريخ الاستلام، بشرط أن يكون المنتج بحالته الأصلية مع جميع الملحقات والتغليف. لبدء عملية الإرجاع، تواصل معنا عبر خدمة العملاء.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "كيف يمكنني معرفة مقاسي المناسب؟",
+            "answer": "<p>نوفر دليل مفصل للمقاسات في كل صفحة منتج. يمكنك قياس جسمك ومقارنة القياسات مع الجدول للحصول على المقاس المثالي. إذا كنت بين مقاسين، ننصح باختيار المقاس الأكبر.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "هل المنتجات أصلية 100%؟",
+            "answer": "<p>نعم، جميع منتجاتنا أصلية 100% ونضمن جودتها. نحن وكلاء معتمدون للعلامات التجارية التي نبيعها ونقدم ضمان الأصالة على جميع المنتجات.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "كيف يمكنني التواصل مع خدمة العملاء؟",
+            "answer": "<p>يمكنك التواصل معنا عبر الواتساب على الرقم +966501234567 أو عبر البريد الإلكتروني support@sallety-theme.dev. فريق خدمة العملاء متاح يومياً من 9 صباحاً حتى 11 مساءً.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

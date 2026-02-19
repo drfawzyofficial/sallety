@@ -1,0 +1,577 @@
+{%- comment -%}
+  Sallety Theme - Wishlist Page Section
+  Displays user's wishlist items stored in localStorage
+  Products are fetched dynamically via JavaScript
+  Full RTL Support
+{%- endcomment -%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<div class="wishlist-page py-8 md:py-12" dir="{{ section_dir }}" data-section-type="wishlist">
+  <div class="container mx-auto px-4">
+    {%- comment -%} Page Header - Hidden when wishlist is empty {%- endcomment -%}
+    <div class="wishlist-header text-center mb-8 md:mb-12 hidden" data-wishlist-header>
+      <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-[var(--color-foreground)] mb-3">
+        {{ section.settings.title }}
+      </h1>
+      <p class="text-[var(--color-secondary)] text-sm md:text-base">
+        {{ section.settings.description }}
+      </p>
+      <div class="mt-4 inline-flex items-center gap-2 text-sm text-[var(--color-secondary)]">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          stroke="currentColor"
+          stroke-width="1"
+          class="text-red-500"
+        >
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span data-wishlist-count-text>
+          <span data-wishlist-page-count>0</span> {{ section.settings.items_text }}
+        </span>
+      </div>
+    </div>
+
+    {%- comment -%} Wishlist Container {%- endcomment -%}
+    <div class="wishlist-container" data-wishlist-container>
+      {%- comment -%} Loading State {%- endcomment -%}
+      <div class="wishlist-loading flex flex-col items-center justify-center py-16" data-wishlist-loading>
+        <div
+          class="w-12 h-12 border-3 border-[var(--color-border)] border-t-[var(--color-primary)] rounded-full animate-spin mb-4"
+        ></div>
+        <p class="text-[var(--color-secondary)] text-sm">{{ section.settings.loading_text }}</p>
+      </div>
+
+      {%- comment -%} Empty State - Hidden by default, shown via JS when wishlist is empty {%- endcomment -%}
+      <div class="wishlist-empty hidden text-center py-16" data-wishlist-empty>
+        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-[var(--color-surface)] flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-[var(--color-secondary)]"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <h2 class="text-xl md:text-2xl font-semibold text-[var(--color-foreground)] mb-3">
+          {{ section.settings.empty_title }}
+        </h2>
+        <p class="text-[var(--color-secondary)] mb-6 max-w-md mx-auto">
+          {{ section.settings.empty_description }}
+        </p>
+        <a
+          href="{{ routes.collections_url }}"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span>{{ section.settings.empty_button_text }}</span>
+        </a>
+      </div>
+
+      {%- comment -%} Products Grid {%- endcomment -%}
+      {%- liquid
+        case section.settings.columns_desktop
+          when 2
+            assign grid_classes = 'grid-cols-1 sm:grid-cols-2'
+          when 3
+            assign grid_classes = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+          when 5
+            assign grid_classes = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+          when 6
+            assign grid_classes = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+          else
+            assign grid_classes = 'grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        endcase
+
+        case section.settings.columns_mobile
+          when '1'
+            assign mobile_grid = 'grid-cols-1'
+          else
+            assign mobile_grid = 'grid-cols-2'
+        endcase
+      -%}
+      <div
+        class="wishlist-grid hidden grid {{ mobile_grid }} {{ grid_classes }} gap-4 md:gap-6"
+        dir="{{ section_dir }}"
+        data-wishlist-grid
+      >
+        {%- comment -%} Products will be rendered here via JavaScript {%- endcomment -%}
+      </div>
+
+      {%- comment -%} Clear All Button {%- endcomment -%}
+      <div class="wishlist-actions hidden mt-8 text-center" data-wishlist-actions>
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm text-[var(--color-secondary)] hover:text-red-500 transition-colors"
+          data-wishlist-clear-trigger
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>{{ section.settings.clear_all_text }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%} Clear Wishlist Confirmation Modal {%- endcomment -%}
+<div
+  class="wishlist-confirm-modal fixed inset-0 z-[1000] hidden items-center justify-center p-4"
+  id="wishlist-clear-modal"
+  dir="{{ section_dir }}"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="wishlist-modal-title"
+  data-wishlist-modal
+>
+  {%- comment -%} Overlay {%- endcomment -%}
+  <div
+    class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+    data-wishlist-modal-overlay
+  ></div>
+
+  {%- comment -%} Modal Content {%- endcomment -%}
+  <div
+    class="relative w-full max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0"
+    data-wishlist-modal-content
+  >
+    {%- comment -%} Modal Header {%- endcomment -%}
+    <div class="relative px-6 pt-8 pb-4 text-center">
+      {%- comment -%} Warning Icon {%- endcomment -%}
+      <div class="mx-auto w-16 h-16 mb-4 rounded-full bg-red-100 flex items-center justify-center">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-red-500"
+        >
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+
+      {%- comment -%} Title {%- endcomment -%}
+      <h3 id="wishlist-modal-title" class="font-bold text-gray-900 mb-2">
+        {{ section.settings.clear_modal_title | default: 'مسح قائمة المفضلة' }}
+      </h3>
+
+      {%- comment -%} Description {%- endcomment -%}
+      <p class="text-gray-600 leading-relaxed">
+        {{ section.settings.clear_confirm }}
+      </p>
+    </div>
+
+    {%- comment -%} Modal Actions {%- endcomment -%}
+    <div class="px-6 pb-6 pt-2 flex flex-col sm:flex-row gap-3">
+      {%- comment -%} Cancel Button {%- endcomment -%}
+      <button
+        type="button"
+        class="flex-1 px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold transition-all duration-200 hover:bg-gray-100 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+        data-wishlist-modal-cancel
+      >
+        {{ section.settings.clear_cancel_text | default: 'إلغاء' }}
+      </button>
+
+      {%- comment -%} Confirm Button {%- endcomment -%}
+      <button
+        type="button"
+        class="flex-1 px-6 py-3 rounded-xl bg-red-500 text-white font-semibold transition-all duration-200 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center gap-2"
+        data-wishlist-modal-confirm
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        <span>{{ section.settings.clear_confirm_text | default: 'نعم، مسح الكل' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Wishlist Confirmation Modal Styles */
+  .wishlist-confirm-modal.is-open {
+    display: flex;
+  }
+
+  .wishlist-confirm-modal.is-open [data-wishlist-modal-content] {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* Animation for modal entrance */
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      transform: scale(0.95) translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .wishlist-confirm-modal.is-open [data-wishlist-modal-overlay] {
+    animation: modalFadeIn 0.2s ease-out forwards;
+  }
+
+  .wishlist-confirm-modal.is-open [data-wishlist-modal-content] {
+    animation: modalSlideUp 0.3s ease-out forwards;
+  }
+</style>
+
+<script>
+  // Wishlist page translations for JavaScript
+  window.wishlistPageStrings = {
+    removeFromWishlist: '{{ section.settings.remove_from_wishlist_text | escape }}',
+    outOfStock: '{{ section.settings.out_of_stock_text | escape }}',
+    viewProduct: '{{ section.settings.view_product_text | escape }}',
+    notAvailable: '{{ section.settings.not_available_text | escape }}',
+    saleLabel: '{{ section.settings.sale_label | escape }}',
+  };
+
+  // Initialize wishlist page when DOM is ready
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.Sallety && window.Sallety.wishlist) {
+      // Render wishlist products
+      Sallety.wishlist.renderWishlistPage();
+
+      // Get wishlist count
+      var wishlistCount = Sallety.wishlist.getCount();
+
+      // Update count display
+      var countEl = document.querySelector('[data-wishlist-page-count]');
+      if (countEl) {
+        countEl.textContent = wishlistCount;
+      }
+
+      // Show/hide header based on wishlist count
+      var headerEl = document.querySelector('[data-wishlist-header]');
+      if (headerEl) {
+        if (wishlistCount > 0) {
+          headerEl.classList.remove('hidden');
+        } else {
+          headerEl.classList.add('hidden');
+        }
+      }
+
+      // Show actions if items exist
+      var actionsEl = document.querySelector('[data-wishlist-actions]');
+      if (actionsEl && wishlistCount > 0) {
+        actionsEl.classList.remove('hidden');
+      }
+
+      // Clear all button - Open confirmation modal
+      var clearTrigger = document.querySelector('[data-wishlist-clear-trigger]');
+      var clearModal = document.getElementById('wishlist-clear-modal');
+      var modalOverlay = clearModal ? clearModal.querySelector('[data-wishlist-modal-overlay]') : null;
+      var cancelBtn = clearModal ? clearModal.querySelector('[data-wishlist-modal-cancel]') : null;
+      var confirmBtn = clearModal ? clearModal.querySelector('[data-wishlist-modal-confirm]') : null;
+
+      function openClearModal() {
+        if (clearModal) {
+          clearModal.classList.add('is-open');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function closeClearModal() {
+        if (clearModal) {
+          clearModal.classList.remove('is-open');
+          document.body.style.overflow = '';
+        }
+      }
+
+      if (clearTrigger) {
+        clearTrigger.addEventListener('click', openClearModal);
+      }
+
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', closeClearModal);
+      }
+
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeClearModal);
+      }
+
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function () {
+          Sallety.wishlist.clear();
+          closeClearModal();
+          
+          // Update UI immediately without page refresh
+          var gridEl = document.querySelector('[data-wishlist-grid]');
+          var emptyEl = document.querySelector('[data-wishlist-empty]');
+          var headerEl = document.querySelector('[data-wishlist-header]');
+          var actionsEl = document.querySelector('[data-wishlist-actions]');
+          var loadingEl = document.querySelector('[data-wishlist-loading]');
+          var countEl = document.querySelector('[data-wishlist-page-count]');
+          
+          // Hide grid and actions, show empty state
+          if (gridEl) gridEl.classList.add('hidden');
+          if (actionsEl) actionsEl.classList.add('hidden');
+          if (headerEl) headerEl.classList.add('hidden');
+          if (loadingEl) loadingEl.classList.add('hidden');
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          if (countEl) countEl.textContent = '0';
+          
+          // Dispatch event to update header wishlist count
+          window.dispatchEvent(new CustomEvent('wishlist:updated'));
+        });
+      }
+
+      // Close on Escape key
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && clearModal && clearModal.classList.contains('is-open')) {
+          closeClearModal();
+        }
+      });
+    }
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_wishlist.name",
+  "tag": "section",
+  "class": "section-wishlist",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main_wishlist.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.main_wishlist.settings.title.label",
+      "default": "قائمة المفضلة"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "t:sections.main_wishlist.settings.description.label",
+      "default": "المنتجات التي أضفتها إلى قائمة المفضلة"
+    },
+    {
+      "type": "text",
+      "id": "items_text",
+      "label": "t:sections.main_wishlist.settings.items_text.label",
+      "default": "منتج"
+    },
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "t:sections.main_wishlist.settings.loading_text.label",
+      "default": "جاري التحميل..."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_wishlist.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "label": "t:sections.main_wishlist.settings.columns_desktop.label"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.main_wishlist.settings.columns_mobile.label",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.main_wishlist.settings.columns_mobile.options.1"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.main_wishlist.settings.columns_mobile.options.2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.main_wishlist.settings.image_ratio.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main_wishlist.settings.image_ratio.options.adapt"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.main_wishlist.settings.image_ratio.options.portrait"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.main_wishlist.settings.image_ratio.options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:sections.main_wishlist.settings.image_ratio.options.landscape"
+        }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_wishlist.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "empty_title",
+      "label": "t:sections.main_wishlist.settings.empty_title.label",
+      "default": "قائمة المفضلة فارغة"
+    },
+    {
+      "type": "textarea",
+      "id": "empty_description",
+      "label": "t:sections.main_wishlist.settings.empty_description.label",
+      "default": "لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد. تصفح المنتجات وأضف ما يعجبك!"
+    },
+    {
+      "type": "text",
+      "id": "empty_button_text",
+      "label": "t:sections.main_wishlist.settings.empty_button_text.label",
+      "default": "تصفح المنتجات"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_wishlist.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "remove_from_wishlist_text",
+      "label": "t:sections.main_wishlist.settings.remove_from_wishlist_text.label",
+      "default": "إزالة من المفضلة"
+    },
+    {
+      "type": "text",
+      "id": "out_of_stock_text",
+      "label": "t:sections.main_wishlist.settings.out_of_stock_text.label",
+      "default": "نفذت الكمية"
+    },
+    {
+      "type": "text",
+      "id": "view_product_text",
+      "label": "t:sections.main_wishlist.settings.view_product_text.label",
+      "default": "عرض المنتج"
+    },
+    {
+      "type": "text",
+      "id": "not_available_text",
+      "label": "t:sections.main_wishlist.settings.not_available_text.label",
+      "default": "غير متوفر"
+    },
+    {
+      "type": "text",
+      "id": "sale_label",
+      "label": "t:sections.main_wishlist.settings.sale_label.label",
+      "default": "تخفيض"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_wishlist.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "clear_all_text",
+      "label": "t:sections.main_wishlist.settings.clear_all_text.label",
+      "default": "مسح الكل"
+    },
+    {
+      "type": "text",
+      "id": "clear_modal_title",
+      "label": "t:sections.main_wishlist.settings.clear_modal_title.label",
+      "default": "مسح قائمة المفضلة"
+    },
+    {
+      "type": "text",
+      "id": "clear_confirm",
+      "label": "t:sections.main_wishlist.settings.clear_confirm.label",
+      "default": "هل أنت متأكد من مسح جميع المنتجات من المفضلة؟"
+    },
+    {
+      "type": "text",
+      "id": "clear_cancel_text",
+      "label": "t:sections.main_wishlist.settings.clear_cancel_text.label",
+      "default": "إلغاء"
+    },
+    {
+      "type": "text",
+      "id": "clear_confirm_text",
+      "label": "t:sections.main_wishlist.settings.clear_confirm_text.label",
+      "default": "نعم، مسح الكل"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.main_wishlist.name"
+    }
+  ]
+}
+{% endschema %}

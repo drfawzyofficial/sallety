@@ -1,0 +1,9 @@
+{%- comment -%}
+  Sallety Theme - Product Card Only Template
+  This alternate product template renders only the product card.
+  Used by recently-viewed JS to render server-rendered product cards
+  via /products/HANDLE?view=card
+{%- endcomment -%}
+
+{%- layout none -%}
+{% render 'product-card', product: product, image_ratio: 'portrait', show_vendor: false %}

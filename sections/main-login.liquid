@@ -1,0 +1,427 @@
+{%- comment -%}
+  Main Login Section
+  Simplified design using color_scheme
+  Centered form with RTL layout
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme class (uses CSS classes from theme.liquid)
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+
+  # Layout Settings
+  assign card_radius = section.settings.card_radius | default: 24
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section
+  class="main-login color-scheme-{{ scheme_number }} py-12 lg:py-16"
+  dir="{{ section_dir }}"
+  style="
+    --login-card-radius: {{ card_radius }}px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  "
+>
+  <div class="login-wrapper w-full max-w-md mx-auto px-4 sm:px-6">
+    <div
+      class="login-card"
+      style="background: var(--color-card-background); border-radius: var(--login-card-radius); box-shadow: 0 10px 40px rgba(0,0,0,0.08);"
+    >
+      <div class="p-6 sm:p-8 lg:p-10">
+        <!-- User Circle Icon -->
+        <div class="user-icon flex items-center justify-center mb-6">
+          <div
+            class="w-24 h-24 rounded-full flex items-center justify-center"
+            style="border: 2px solid var(--color-border);"
+          >
+            <svg
+              class="w-12 h-12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              style="color: var(--color-secondary-text);"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginFormContainer">
+          <div class="login-header text-center mb-8">
+            <h1 class="login-title mb-2" style="color: var(--color-accent);">
+              {{ section.settings.login_title | default: 'تسجيل الدخول' }}
+            </h1>
+            <p class="login-subtitle" style="color: var(--color-secondary-text);">
+              {{ section.settings.login_subtitle | default: 'أهلاً بعودتك! سجل دخولك للمتابعة' }}
+            </p>
+          </div>
+
+          {%- form 'customer_login', class: 'login-form' -%}
+            {%- if form.errors -%}
+              <div
+                class="login-alert login-alert--error mb-6"
+                style="background: color-mix(in srgb, var(--color-error) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-error) 30%, transparent); color: var(--color-error); padding: 12px 16px; border-radius: var(--input-border-radius, 8px); display: flex; align-items: center; gap: 10px;"
+              >
+                <svg
+                  class="w-5 h-5 flex-shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>
+                  {{- 'customer.forms.errors.invalid_credentials' | t | default: form.errors | default_errors -}}
+                </span>
+              </div>
+            {%- endif -%}
+
+            <!-- Email Field -->
+            <div class="login-field mb-5">
+              <label for="loginEmail" class="login-label block mb-2 font-medium" style="color: var(--color-text);">
+                {{ 'customer.login_page.email' | t }}
+              </label>
+              <input
+                type="email"
+                id="loginEmail"
+                name="customer[email]"
+                class="login-input w-full"
+                placeholder="your@email.com"
+                autocomplete="email"
+                autocapitalize="off"
+                required
+                style="
+                  height: 52px;
+                  direction: ltr;
+                  text-align: right;
+                "
+              >
+            </div>
+
+            <!-- Password Field -->
+            <div class="login-field mb-5">
+              <label for="loginPassword" class="login-label block mb-2 font-medium" style="color: var(--color-text);">
+                {{ 'customer.login_page.password' | t }}
+              </label>
+              <div class="login-password-wrapper relative">
+                <input
+                  type="password"
+                  id="loginPassword"
+                  name="customer[password]"
+                  class="login-input w-full"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  required
+                  style="
+                    height: 52px;
+                    padding-left: 48px;
+                    direction: ltr;
+                    text-align: right;
+                  "
+                >
+                <button
+                  type="button"
+                  class="login-password-toggle absolute left-3 top-1/2 -translate-y-1/2 p-2"
+                  onclick="toggleLoginPassword(this)"
+                  style="color: var(--color-secondary-text);"
+                >
+                  <svg
+                    class="icon-show w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg
+                    class="icon-hide w-5 h-5 hidden"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Forgot Password Link -->
+            <div class="login-options flex justify-end mb-6">
+              <button
+                type="button"
+                onclick="showRecoverForm()"
+                class="text-sm font-medium transition-colors"
+                style="color: var(--color-accent);"
+              >
+                {{ 'customer.login_page.forgot_password' | t }}
+              </button>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="login-submit-btn btn btn--primary w-full"
+              style="
+                height: 56px;
+                color: var(--color-button-label);
+                background: var(--color-button);
+                border: none;
+              "
+            >
+              {{ section.settings.btn_text | default: 'تسجيل الدخول' }}
+            </button>
+          {%- endform -%}
+
+          <!-- Register Link -->
+          <p class="login-footer text-center mt-6" style="color: var(--color-secondary-text);">
+            {{ 'customer.login_page.no_account' | t }}
+            <a
+              href="{{ routes.account_register_url }}"
+              class="font-semibold transition-colors"
+              style="color: var(--color-accent);"
+            >
+              {{ 'customer.login_page.create_account' | t }}
+            </a>
+          </p>
+        </div>
+
+        <!-- Password Recovery Form -->
+        <div id="recoverFormContainer" style="display: none;">
+          <div class="login-header text-center mb-8">
+            <h2 class="login-title mb-2" style="color: var(--color-accent);">
+              {{ section.settings.recover_title | default: 'استعادة كلمة المرور' }}
+            </h2>
+            <p class="login-subtitle" style="color: var(--color-secondary-text);">
+              {{
+                section.settings.recover_subtitle
+                | default: 'أدخل بريدك الإلكتروني وسنرسل لك رابط استعادة كلمة المرور'
+              }}
+            </p>
+          </div>
+
+          {%- form 'recover_customer_password', class: 'login-form' -%}
+            {%- if form.posted_successfully? -%}
+              <div
+                class="login-alert login-alert--success mb-6"
+                style="background: color-mix(in srgb, var(--color-success) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent); color: var(--color-success); padding: 12px 16px; border-radius: var(--input-border-radius, 8px); display: flex; align-items: center; gap: 10px;"
+              >
+                <svg
+                  class="w-5 h-5 flex-shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <span>{{ 'customer.recover_password.success' | t }}</span>
+              </div>
+            {%- endif -%}
+
+            <!-- Email Field -->
+            <div class="login-field mb-6">
+              <label for="recoverEmail" class="login-label block mb-2 font-medium" style="color: var(--color-text);">
+                {{ 'customer.login_page.email' | t }}
+              </label>
+              <input
+                type="email"
+                id="recoverEmail"
+                name="email"
+                class="login-input w-full"
+                placeholder="your@email.com"
+                autocomplete="email"
+                autocapitalize="off"
+                required
+                style="
+                  height: 52px;
+                  direction: ltr;
+                  text-align: right;
+                "
+              >
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="login-submit-btn btn btn--primary w-full mb-4"
+              style="
+                height: 56px;
+                color: var(--color-button-label);
+                background: var(--color-button);
+                border: none;
+              "
+            >
+              {{ section.settings.recover_btn_text | default: 'إرسال رابط الاستعادة' }}
+            </button>
+
+            <!-- Back to Login -->
+            <button
+              type="button"
+              onclick="showLoginForm()"
+              class="w-full flex items-center justify-center gap-2 py-3 transition-colors"
+              style="color: var(--color-secondary-text);"
+            >
+              <svg class="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+              {{ 'customer.login_page.back_to_login' | t }}
+            </button>
+          {%- endform -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .main-login .login-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+
+  .main-login .login-input:hover:not(:focus) {
+    border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+
+  .main-login .login-submit-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px color-mix(in srgb, var(--color-button) 40%, transparent);
+  }
+
+  .main-login .login-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .main-login .login-password-toggle:hover {
+    color: var(--color-text);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .main-login .login-submit-btn,
+    .main-login .login-input {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  function showRecoverForm() {
+    document.getElementById('loginFormContainer').style.display = 'none';
+    document.getElementById('recoverFormContainer').style.display = 'block';
+  }
+
+  function showLoginForm() {
+    document.getElementById('loginFormContainer').style.display = 'block';
+    document.getElementById('recoverFormContainer').style.display = 'none';
+  }
+
+  function toggleLoginPassword(button) {
+    const input = button.previousElementSibling;
+    const iconShow = button.querySelector('.icon-show');
+    const iconHide = button.querySelector('.icon-hide');
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      iconShow.classList.add('hidden');
+      iconHide.classList.remove('hidden');
+    } else {
+      input.type = 'password';
+      iconShow.classList.remove('hidden');
+      iconHide.classList.add('hidden');
+    }
+  }
+
+  // Check for hash to show recover form
+  if (window.location.hash === '#recover') {
+    showRecoverForm();
+  }
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_login.name",
+  "tag": "section",
+  "class": "section-main-login",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_login.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_login.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "login_title",
+      "label": "t:sections.main_login.settings.login_title.label",
+      "default": "تسجيل الدخول"
+    },
+    {
+      "type": "text",
+      "id": "login_subtitle",
+      "label": "t:sections.main_login.settings.login_subtitle.label",
+      "default": "أهلاً بعودتك! سجل دخولك للمتابعة"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "t:sections.main_login.settings.btn_text.label",
+      "default": "تسجيل الدخول"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_login.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "recover_title",
+      "label": "t:sections.main_login.settings.recover_title.label",
+      "default": "استعادة كلمة المرور"
+    },
+    {
+      "type": "text",
+      "id": "recover_subtitle",
+      "label": "t:sections.main_login.settings.recover_subtitle.label",
+      "default": "أدخل بريدك الإلكتروني وسنرسل لك رابط استعادة كلمة المرور"
+    },
+    {
+      "type": "text",
+      "id": "recover_btn_text",
+      "label": "t:sections.main_login.settings.recover_btn_text.label",
+      "default": "إرسال رابط الاستعادة"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_login.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "t:sections.main_login.settings.card_radius.label",
+      "default": 24,
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

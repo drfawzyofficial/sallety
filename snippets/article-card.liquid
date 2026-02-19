@@ -1,0 +1,38 @@
+{%- comment -%}
+  Sallety Theme - Article Card Snippet
+  Add your custom article card design here.
+
+  Accepts:
+  - article: {Object} Article Liquid object
+
+  Usage:
+  {% render 'article-card', article: article %}
+{%- endcomment -%}
+
+<div class="article-card card">
+  <a href="{{ article.url }}" class="article-card__link">
+    {%- if article.image -%}
+      <div class="article-card__image card__image">
+        <img
+          src="{{ article.image | image_url: width: 600 }}"
+          alt="{{ article.image.alt | escape }}"
+          width="600"
+          height="{{ 600 | divided_by: article.image.aspect_ratio }}"
+          loading="lazy"
+        >
+      </div>
+    {%- endif -%}
+
+    <div class="article-card__info card__content">
+      <time class="article-card__date" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+        {{ article.published_at | date: format: 'date' }}
+      </time>
+      <h3 class="article-card__title">{{ article.title }}</h3>
+      {%- if article.excerpt != blank -%}
+        <p class="article-card__excerpt">{{ article.excerpt | strip_html | truncate: 120 }}</p>
+      {%- endif -%}
+      <span class="article-card__read-more">{{ 'blogs.article.read_more' | t }}</span>
+    </div>
+  </a>
+</div>
+

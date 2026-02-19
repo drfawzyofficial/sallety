@@ -1,0 +1,1386 @@
+{%- comment -%}
+  Sallety Theme - Quick View Modal Snippet
+  Modern quick view modal with full product details, variant picker,
+  quantity selector, add to cart, and buy now functionality.
+  Fully responsive with RTL support.
+
+  Usage:
+  {% render 'quick-view-modal' %}
+{%- endcomment -%}
+
+<style>
+  /* ================================================
+     QUICK VIEW MODAL - Core Styles
+     ================================================ */
+  .quick-view-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .quick-view-modal {
+      padding: 24px;
+    }
+  }
+
+  .quick-view-modal.is-open {
+    display: flex;
+  }
+
+  /* Overlay */
+  .quick-view-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* Modal Content */
+  .quick-view-modal__content {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    max-height: 90vh;
+    background-color: var(--color-background, #fff);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: quickViewFadeIn 0.3s ease-out;
+  }
+
+  @keyframes quickViewFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Close Button */
+  .quick-view-modal__close {
+    position: absolute;
+    top: 12px;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-border, #e5e7eb);
+    color: var(--color-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  /* RTL: Close button position */
+  [dir='ltr'] .quick-view-modal__close,
+  .quick-view-modal__close {
+    right: 12px;
+  }
+
+  [dir='rtl'] .quick-view-modal__close {
+    right: auto;
+    left: 12px;
+  }
+
+  .quick-view-modal__close:hover {
+    background-color: var(--color-border, #e5e7eb);
+    color: var(--color-foreground, #1f2937);
+  }
+
+  .quick-view-modal__close svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Loading State */
+  .quick-view-modal__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
+
+  .quick-view-modal__loading.hidden {
+    display: none;
+  }
+
+  .quick-view-modal__loading-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .quick-view-modal__spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--color-border, #e5e7eb);
+    border-top-color: var(--color-accent, #4f46e5);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .quick-view-modal__loading-text {
+    color: var(--color-secondary, #6b7280);
+    font-size: 14px;
+  }
+
+  /* Modal Body */
+  .quick-view-modal__body {
+    overflow-y: auto;
+    max-height: 90vh;
+  }
+
+  .quick-view-modal__body.is-visible {
+    display: block;
+  }
+
+  /* ================================================
+     QUICK VIEW PRODUCT - Layout
+     ================================================ */
+  .quick-view-product {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (min-width: 1024px) {
+    .quick-view-product {
+      flex-direction: row;
+    }
+
+    /* RTL: Reverse layout on desktop */
+    [dir='rtl'] .quick-view-product {
+      flex-direction: row-reverse;
+    }
+  }
+
+  /* Gallery */
+  .quick-view-product__gallery {
+    position: relative;
+    width: 100%;
+    background-color: var(--color-surface, #f9fafb);
+  }
+
+  @media (min-width: 1024px) {
+    .quick-view-product__gallery {
+      width: 50%;
+    }
+  }
+
+  /* --- Carousel Main Area --- */
+  .quick-view-product__carousel {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-surface, #f9fafb);
+  }
+
+  /* --- Carousel Track (holds slides) --- */
+  .quick-view-product__carousel-track {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+  }
+
+  /* --- Carousel Slide --- */
+  .quick-view-product__slide {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .quick-view-product__slide.is-active {
+    display: block;
+    position: relative;
+    opacity: 1;
+    transform: scale(1);
+    animation: qvSlideIn 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes qvSlideIn {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .quick-view-product__slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* --- Navigation Arrows --- */
+  .quick-view-product__nav-arrows {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 12px;
+    inset-inline-end: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  .quick-view-product__arrow {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    color: var(--color-foreground, #1a1a1a);
+    padding: 0;
+    pointer-events: auto;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+  }
+
+  .quick-view-product__carousel:hover .quick-view-product__arrow,
+  .quick-view-product__arrow:focus-visible {
+    opacity: 1;
+  }
+
+  .quick-view-product__arrow:hover {
+    background-color: var(--color-foreground, #1a1a1a);
+    color: var(--color-background, #fff);
+    border-color: var(--color-foreground, #1a1a1a);
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .quick-view-product__arrow:active {
+    transform: scale(0.96);
+  }
+
+  .quick-view-product__arrow svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* --- Dot Indicators --- */
+  .quick-view-product__dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 6;
+    padding: 5px 10px;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .quick-view-product__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .quick-view-product__dot.is-active {
+    width: 20px;
+    border-radius: 999px;
+    background-color: var(--color-foreground, #1a1a1a);
+  }
+
+  .quick-view-product__dot:hover:not(.is-active) {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+
+  /* --- Counter Badge --- */
+  .quick-view-product__counter {
+    position: absolute;
+    bottom: 14px;
+    inset-inline-end: 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-foreground, #1a1a1a);
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 10px;
+    border-radius: 999px;
+    z-index: 6;
+    letter-spacing: 0.02em;
+  }
+
+  /* Badge */
+  .quick-view-product__badge {
+    position: absolute;
+    top: 16px;
+    z-index: 7;
+  }
+
+  /* RTL: Badge position */
+  [dir='ltr'] .quick-view-product__badge,
+  .quick-view-product__badge {
+    left: 16px;
+  }
+
+  [dir='rtl'] .quick-view-product__badge {
+    left: auto;
+    right: 16px;
+  }
+
+  .quick-view-product__badge.hidden {
+    display: none;
+  }
+
+  .quick-view-product__badge-text {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: var(--color-sale, #ef4444);
+    color: #fff;
+  }
+
+  /* --- Thumbnails Strip --- */
+  .quick-view-product__thumbs-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .quick-view-product__thumbs-strip.hidden {
+    display: none;
+  }
+
+  .quick-view-product__thumb-scroll {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--color-background, #fff);
+    border: 1px solid var(--color-border, #e5e7eb);
+    cursor: pointer;
+    color: var(--color-foreground, #1a1a1a);
+    padding: 0;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .quick-view-product__thumb-scroll:hover:not(:disabled) {
+    background-color: var(--color-foreground, #1a1a1a);
+    border-color: var(--color-foreground, #1a1a1a);
+    color: var(--color-background, #fff);
+  }
+
+  .quick-view-product__thumb-scroll:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* RTL: flip scroll arrow icons */
+  [dir='rtl'] .quick-view-product__thumb-scroll svg {
+    transform: scaleX(-1);
+  }
+
+  .quick-view-product__thumbs-track {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 2px 0;
+    flex: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .quick-view-product__thumbs-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quick-view-thumb {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--color-surface, #f7f7f8);
+    padding: 0;
+    opacity: 0.55;
+  }
+
+  .quick-view-thumb:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .quick-view-thumb.is-active {
+    opacity: 1;
+    border-color: var(--color-primary, #4f46e5);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  }
+
+  .quick-view-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ================================================
+     QUICK VIEW PRODUCT - Info Section
+     ================================================ */
+  .quick-view-product__info {
+    width: 100%;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 50vh;
+  }
+
+  @media (min-width: 1024px) {
+    .quick-view-product__info {
+      width: 50%;
+      padding: 32px;
+      max-height: 90vh;
+    }
+  }
+
+  /* Vendor */
+  .quick-view-product__vendor {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-secondary, #6b7280);
+    margin-bottom: 8px;
+  }
+
+  .quick-view-product__vendor.hidden {
+    display: none;
+  }
+
+  /* Title */
+  .quick-view-product__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-foreground, #1f2937);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  @media (min-width: 1024px) {
+    .quick-view-product__title {
+      font-size: 24px;
+    }
+  }
+
+  /* Rating */
+  .quick-view-product__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .quick-view-product__rating.hidden {
+    display: none;
+  }
+
+  .quick-view-product__stars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: #fbbf24;
+  }
+
+  .quick-view-product__rating-count {
+    font-size: 14px;
+    color: var(--color-secondary, #6b7280);
+  }
+
+  /* Price */
+  .quick-view-product__price {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .quick-view-product__price-current {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-foreground, #1f2937);
+  }
+
+  @media (min-width: 1024px) {
+    .quick-view-product__price-current {
+      font-size: 28px;
+    }
+  }
+
+  .quick-view-product__price-compare {
+    font-size: 18px;
+    color: var(--color-secondary, #6b7280);
+    text-decoration: line-through;
+  }
+
+  .quick-view-product__price-compare.hidden {
+    display: none;
+  }
+
+  .quick-view-product__discount {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-sale, #ef4444);
+  }
+
+  .quick-view-product__discount.hidden {
+    display: none;
+  }
+
+  /* Availability */
+  .quick-view-product__availability {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .quick-view-product__availability-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-secondary, #6b7280);
+  }
+
+  .quick-view-product__availability.in-stock .quick-view-product__availability-dot {
+    background-color: #22c55e;
+  }
+
+  .quick-view-product__availability.low-stock .quick-view-product__availability-dot {
+    background-color: #f59e0b;
+  }
+
+  .quick-view-product__availability.out-of-stock .quick-view-product__availability-dot {
+    background-color: #ef4444;
+  }
+
+  .quick-view-product__availability-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground, #1f2937);
+  }
+
+  .quick-view-product__availability.in-stock .quick-view-product__availability-text {
+    color: #22c55e;
+  }
+
+  .quick-view-product__availability.low-stock .quick-view-product__availability-text {
+    color: #f59e0b;
+  }
+
+  .quick-view-product__availability.out-of-stock .quick-view-product__availability-text {
+    color: #ef4444;
+  }
+
+  /* Description */
+  .quick-view-product__description {
+    font-size: 14px;
+    color: var(--color-secondary, #6b7280);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .quick-view-product__description.hidden {
+    display: none;
+  }
+
+  /* ================================================
+     VARIANTS
+     ================================================ */
+  .quick-view-product__variants {
+    margin-bottom: 24px;
+  }
+
+  .quick-view-product__variants.hidden {
+    display: none;
+  }
+
+  .quick-view-variant-option {
+    margin-bottom: 16px;
+  }
+
+  .quick-view-variant-option__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .quick-view-variant-option__name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground, #1f2937);
+  }
+
+  .quick-view-variant-option__selected {
+    font-size: 14px;
+    color: var(--color-secondary, #6b7280);
+  }
+
+  .quick-view-variant-option__values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Color Swatch */
+  .quick-view-color-swatch {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .quick-view-color-swatch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .quick-view-color-swatch__visual {
+    display: block;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+
+  .quick-view-color-swatch input:checked + .quick-view-color-swatch__visual {
+    border-color: var(--color-primary, #4f46e5);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+  }
+
+  .quick-view-color-swatch input:disabled + .quick-view-color-swatch__visual {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .quick-view-color-swatch__check {
+    position: absolute;
+    bottom: -2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--color-primary, #4f46e5);
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* RTL: Check position */
+  [dir='ltr'] .quick-view-color-swatch__check,
+  .quick-view-color-swatch__check {
+    right: -2px;
+  }
+
+  [dir='rtl'] .quick-view-color-swatch__check {
+    right: auto;
+    left: -2px;
+  }
+
+  .quick-view-color-swatch input:checked ~ .quick-view-color-swatch__check {
+    display: flex;
+  }
+
+  /* Button Swatch */
+  .quick-view-button-swatch {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .quick-view-button-swatch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .quick-view-button-swatch__visual {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border, #e5e7eb);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground, #1f2937);
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .quick-view-button-swatch__visual:hover {
+    border-color: var(--color-primary, #4f46e5);
+  }
+
+  .quick-view-button-swatch input:checked + .quick-view-button-swatch__visual {
+    border-color: var(--color-primary, #4f46e5);
+    background-color: var(--color-primary, #4f46e5);
+    color: var(--color-primary-foreground, #fff);
+  }
+
+  .quick-view-button-swatch input:disabled + .quick-view-button-swatch__visual {
+    opacity: 0.5;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* ================================================
+     FORM & QUANTITY
+     ================================================ */
+  .quick-view-product__form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .quick-view-product__quantity {
+    margin-bottom: 24px;
+  }
+
+  .quick-view-product__quantity.hidden {
+    display: none;
+  }
+
+  .quick-view-product__quantity-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-foreground, #1f2937);
+    margin-bottom: 8px;
+  }
+
+  .quick-view-quantity-selector {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .quick-view-quantity-selector__btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .quick-view-quantity-selector__btn:hover:not(:disabled) {
+    background-color: var(--color-border, #e5e7eb);
+    color: var(--color-foreground, #1f2937);
+  }
+
+  .quick-view-quantity-selector__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .quick-view-quantity-selector__btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .quick-view-quantity-selector__input {
+    width: 64px;
+    height: 48px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-foreground, #1f2937);
+    background: transparent;
+    border: none;
+    border-inline-start: 1px solid var(--color-border, #e5e7eb);
+    border-inline-end: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .quick-view-quantity-selector__input:focus {
+    outline: none;
+  }
+
+  /* Remove number input arrows */
+  .quick-view-quantity-selector__input::-webkit-outer-spin-button,
+  .quick-view-quantity-selector__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .quick-view-quantity-selector__input[type='number'] {
+    -moz-appearance: textfield;
+  }
+
+  /* ================================================
+     ACTION BUTTONS
+     ================================================ */
+  .quick-view-product__actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .quick-view-product__btn {
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .quick-view-product__btn svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Add to Cart Button */
+  .quick-view-product__btn--add-to-cart {
+    background-color: var(--color-primary, #4f46e5);
+    color: var(--color-primary-foreground, #fff);
+  }
+
+  .quick-view-product__btn--add-to-cart:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .quick-view-product__btn--add-to-cart:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .quick-view-product__btn--add-to-cart.is-loading {
+    pointer-events: none;
+    position: relative;
+  }
+
+  .quick-view-product__btn--add-to-cart.is-loading svg,
+  .quick-view-product__btn--add-to-cart.is-loading [data-add-to-cart-text] {
+    visibility: hidden;
+  }
+
+  .quick-view-product__btn--add-to-cart.is-loading::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  /* Buy Now Button */
+  .quick-view-product__btn--buy-now {
+    background-color: transparent;
+    color: var(--color-primary, #4f46e5);
+    border: 2px solid var(--color-primary, #4f46e5);
+  }
+
+  .quick-view-product__btn--buy-now:hover:not(:disabled) {
+    background-color: var(--color-primary, #4f46e5);
+    color: var(--color-primary-foreground, #fff);
+  }
+
+  .quick-view-product__btn--buy-now:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* View Details Link */
+  .quick-view-product__view-details {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-accent, #4f46e5);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .quick-view-product__view-details:hover {
+    text-decoration: underline;
+  }
+
+  .quick-view-product__view-details svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  /* RTL: Rotate arrow */
+  [dir='rtl'] .quick-view-product__view-details svg {
+    transform: rotate(180deg);
+  }
+</style>
+
+<div
+  class="quick-view-modal"
+  id="quick-view-modal"
+  dir="{{ 'rtl' | default: 'ltr' }}"
+  aria-label="{{ 'products.product.quick_view' | t }}"
+  aria-modal="true"
+  role="dialog"
+>
+  {%- comment -%} Overlay {%- endcomment -%}
+  <div class="quick-view-modal__overlay" data-quick-view-close></div>
+
+  {%- comment -%} Modal Content {%- endcomment -%}
+  <div class="quick-view-modal__content">
+    {%- comment -%} Close Button {%- endcomment -%}
+    <button
+      type="button"
+      class="quick-view-modal__close"
+      data-quick-view-close
+      aria-label="{{ 'accessibility.close' | t }}"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    {%- comment -%} Loading State {%- endcomment -%}
+    <div class="quick-view-modal__loading" data-quick-view-loading>
+      <div class="quick-view-modal__loading-inner">
+        <div class="quick-view-modal__spinner"></div>
+        <span class="quick-view-modal__loading-text">{{ 'accessibility.loading' | t }}</span>
+      </div>
+    </div>
+
+    {%- comment -%} Product Content (loaded via JS) {%- endcomment -%}
+    <div class="quick-view-modal__body" data-quick-view-content>
+      {%- comment -%} Content will be injected here via JavaScript {%- endcomment -%}
+    </div>
+  </div>
+</div>
+
+{%- comment -%} Quick View Product Template (used by JS to render content) {%- endcomment -%}
+<template id="quick-view-template">
+  <div class="quick-view-product">
+    {%- comment -%} Product Gallery - Carousel {%- endcomment -%}
+    <div class="quick-view-product__gallery" data-qv-gallery>
+      <div class="quick-view-product__carousel" data-qv-carousel>
+        {%- comment -%} Carousel Track with slides {%- endcomment -%}
+        <div class="quick-view-product__carousel-track" data-qv-carousel-track>
+          {%- comment -%} Slides injected via JS {%- endcomment -%}
+        </div>
+
+        {%- comment -%} Sale Badge {%- endcomment -%}
+        <div class="quick-view-product__badge hidden" data-qv-badge>
+          <span class="quick-view-product__badge-text" data-qv-badge-text></span>
+        </div>
+
+        {%- comment -%} Navigation Arrows {%- endcomment -%}
+        <div class="quick-view-product__nav-arrows hidden" data-qv-nav-arrows>
+          <button
+            type="button"
+            class="quick-view-product__arrow quick-view-product__arrow--prev"
+            data-qv-prev
+            aria-label="{{ 'products.product.media.previous' | t | default: 'السابق' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="quick-view-product__arrow quick-view-product__arrow--next"
+            data-qv-next
+            aria-label="{{ 'products.product.media.next' | t | default: 'التالي' }}"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+        {%- comment -%} Dot Indicators {%- endcomment -%}
+        <div class="quick-view-product__dots hidden" data-qv-dots>
+          {%- comment -%} Dots injected via JS {%- endcomment -%}
+        </div>
+
+        {%- comment -%} Counter Badge {%- endcomment -%}
+        <div class="quick-view-product__counter hidden" data-qv-counter>
+          <span data-qv-counter-current>1</span> / <span data-qv-counter-total>1</span>
+        </div>
+      </div>
+
+      {%- comment -%} Thumbnails Strip {%- endcomment -%}
+      <div class="quick-view-product__thumbs-strip hidden" data-qv-thumbs-strip>
+        <button
+          type="button"
+          class="quick-view-product__thumb-scroll"
+          data-qv-thumb-prev
+          aria-label="{{ 'products.product.media.previous' | t | default: 'السابق' }}"
+          disabled
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div class="quick-view-product__thumbs-track" data-qv-thumbs-track>
+          {%- comment -%} Thumbnails injected via JS {%- endcomment -%}
+        </div>
+        <button
+          type="button"
+          class="quick-view-product__thumb-scroll"
+          data-qv-thumb-next
+          aria-label="{{ 'products.product.media.next' | t | default: 'التالي' }}"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {%- comment -%} Product Info {%- endcomment -%}
+    <div class="quick-view-product__info">
+      {%- comment -%} Vendor {%- endcomment -%}
+      <p class="quick-view-product__vendor hidden" data-qv-vendor></p>
+
+      {%- comment -%} Title {%- endcomment -%}
+      <h2 class="quick-view-product__title" data-qv-title></h2>
+
+      {%- comment -%} Rating {%- endcomment -%}
+      <div class="quick-view-product__rating hidden" data-qv-rating>
+        <div class="quick-view-product__stars" data-qv-stars></div>
+        <span class="quick-view-product__rating-count" data-qv-rating-count></span>
+      </div>
+
+      {%- comment -%} Price {%- endcomment -%}
+      <div class="quick-view-product__price" data-qv-price-wrapper>
+        <span class="quick-view-product__price-current" data-qv-price></span>
+        <span class="quick-view-product__price-compare hidden" data-qv-compare-price></span>
+        <span class="quick-view-product__discount hidden" data-qv-discount></span>
+      </div>
+
+      {%- comment -%} Availability {%- endcomment -%}
+      <div class="quick-view-product__availability" data-qv-availability>
+        <span class="quick-view-product__availability-dot" data-qv-availability-dot></span>
+        <span class="quick-view-product__availability-text" data-qv-availability-text></span>
+      </div>
+
+      {%- comment -%} Short Description {%- endcomment -%}
+      <div class="quick-view-product__description hidden" data-qv-description></div>
+
+      {%- comment -%} Variant Picker {%- endcomment -%}
+      <div class="quick-view-product__variants hidden" data-qv-variants>
+        {%- comment -%} Variants injected via JS {%- endcomment -%}
+      </div>
+
+      {%- comment -%} Product Form {%- endcomment -%}
+      <form class="quick-view-product__form" data-qv-form>
+        <input type="hidden" name="id" data-qv-variant-id>
+
+        {%- comment -%} Quantity Selector - Hidden by default, shown via JS when product has quantity > 1 {%- endcomment -%}
+        <div class="quick-view-product__quantity hidden" data-qv-quantity-wrapper>
+          <label class="quick-view-product__quantity-label">
+            {{ 'products.product.quantity' | t }}
+          </label>
+          <div class="quick-view-quantity-selector" data-quantity-selector>
+            <button
+              type="button"
+              class="quick-view-quantity-selector__btn"
+              data-quantity-minus
+              aria-label="{{ 'products.product.decrease_quantity' | t | default: 'تقليل الكمية' }}"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+            <input
+              type="number"
+              name="quantity"
+              value="1"
+              min="1"
+              class="quick-view-quantity-selector__input"
+              data-quantity-input
+              data-qv-quantity-input
+              aria-label="{{ 'products.product.quantity' | t }}"
+            >
+            <button
+              type="button"
+              class="quick-view-quantity-selector__btn"
+              data-quantity-plus
+              aria-label="{{ 'products.product.increase_quantity' | t | default: 'زيادة الكمية' }}"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {%- comment -%} Action Buttons {%- endcomment -%}
+        <div class="quick-view-product__actions">
+          {%- comment -%} Add to Cart Button {%- endcomment -%}
+          <button
+            type="submit"
+            class="quick-view-product__btn quick-view-product__btn--add-to-cart"
+            data-qv-add-to-cart
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span data-add-to-cart-text>{{ 'products.product.add_to_cart' | t }}</span>
+          </button>
+
+          {%- comment -%} Buy Now Button {%- endcomment -%}
+          <button
+            type="button"
+            class="quick-view-product__btn quick-view-product__btn--buy-now"
+            data-qv-buy-now
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+            <span>{{ 'products.product.buy_now' | t }}</span>
+          </button>
+        </div>
+      </form>
+
+      {%- comment -%} View Full Details Link {%- endcomment -%}
+      <a
+        href="#"
+        class="quick-view-product__view-details"
+        data-qv-view-details
+      >
+        <span>{{ 'products.product.view_full_details' | t }}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+  </div>
+</template>
+
+{%- comment -%} Variant Option Template {%- endcomment -%}
+<template id="quick-view-variant-option-template">
+  <div class="quick-view-variant-option" data-option data-option-index="">
+    <div class="quick-view-variant-option__header">
+      <label class="quick-view-variant-option__name" data-option-name></label>
+      <span class="quick-view-variant-option__selected" data-selected-value></span>
+    </div>
+    <div class="quick-view-variant-option__values" data-option-values></div>
+  </div>
+</template>
+
+{%- comment -%} Color Swatch Template {%- endcomment -%}
+<template id="quick-view-color-swatch-template">
+  <label class="quick-view-color-swatch" data-option-value="">
+    <input type="radio" name="" value="">
+    <span class="quick-view-color-swatch__visual" style="" title=""></span>
+    <span class="quick-view-color-swatch__check">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="10"
+        height="10"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+      >
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </span>
+  </label>
+</template>
+
+{%- comment -%} Size/Button Swatch Template {%- endcomment -%}
+<template id="quick-view-button-swatch-template">
+  <label class="quick-view-button-swatch" data-option-value="">
+    <input type="radio" name="" value="">
+    <span class="quick-view-button-swatch__visual"></span>
+  </label>
+</template>

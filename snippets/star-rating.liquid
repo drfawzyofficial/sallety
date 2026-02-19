@@ -1,0 +1,37 @@
+{%- comment -%}
+  Sallety Theme - Star Rating Snippet
+  Renders a star rating display.
+
+  Accepts:
+  - rating: {Number} Rating value (0-5)
+  - max: {Number} Maximum rating (default: 5)
+
+  Usage:
+  {% render 'star-rating', rating: 4.5 %}
+{%- endcomment -%}
+
+{%- liquid
+  assign rating_value = rating | default: 0
+  assign rating_max = max | default: 5
+  assign full_stars = rating_value | floor
+  assign half_star = rating_value | modulo: 1
+  assign empty_stars = rating_max | minus: full_stars
+  if half_star > 0
+    assign empty_stars = empty_stars | minus: 1
+  endif
+-%}
+
+<div class="star-rating" role="img" aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: rating_value, rating_max: rating_max }}">
+  {%- for i in (1..full_stars) -%}
+    <span class="star-rating__star star-rating__star--full">★</span>
+  {%- endfor -%}
+  
+  {%- if half_star > 0 -%}
+    <span class="star-rating__star star-rating__star--half">★</span>
+  {%- endif -%}
+  
+  {%- for i in (1..empty_stars) -%}
+    <span class="star-rating__star star-rating__star--empty">★</span>
+  {%- endfor -%}
+</div>
+

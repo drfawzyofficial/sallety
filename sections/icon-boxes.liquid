@@ -1,0 +1,858 @@
+{%- comment -%}
+  Sallety Theme — Icon Boxes Section
+  Feature/service boxes with built-in SVG icons, RTL/LTR support.
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign show_heading = section.settings.show_heading
+  assign section_heading = section.settings.heading | default: 'لماذا تختارنا'
+  assign section_subheading = section.settings.subheading
+  assign text_alignment = section.settings.text_alignment | default: 'center'
+  assign columns_desktop = section.settings.columns_desktop | default: 4
+  assign columns_tablet = section.settings.columns_tablet | default: 2
+  assign columns_mobile = section.settings.columns_mobile | default: 1
+  assign card_style = section.settings.card_style | default: 'bordered'
+  assign icon_size = section.settings.icon_size | default: 48
+  assign icon_color = section.settings.icon_color
+  assign corner_radius = section.settings.corner_radius | default: 12
+  assign gap = section.settings.gap | default: 24
+  assign show_shapes = section.settings.show_shapes
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="icon-boxes-{{ section.id }}"
+  class="ib-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --ib-pt: {{ padding_top }}px;
+    --ib-pb: {{ padding_bottom }}px;
+    --ib-cols-d: {{ columns_desktop }};
+    --ib-cols-t: {{ columns_tablet }};
+    --ib-cols-m: {{ columns_mobile }};
+    --ib-gap: {{ gap }}px;
+    --ib-radius: {{ corner_radius }}px;
+    --ib-icon-size: {{ icon_size }}px;
+    --ib-icon-color: {{ icon_color | default: 'var(--color-primary, #1a2744)' }};
+    --ib-heading-weight: {{ heading_weight }};
+    font-family: var(--font-body-family);
+  "
+>
+  {%- if show_shapes -%}
+    <div class="ib-shapes" aria-hidden="true">
+      <div class="ib-shape ib-shape-1"></div>
+      <div class="ib-shape ib-shape-2"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="ib-container">
+    {%- if show_heading -%}
+      <header class="ib-header ib-align--{{ text_alignment }}">
+        <h2 class="ib-section-heading">{{ section_heading }}</h2>
+        {%- if section_subheading != blank -%}
+          <p class="ib-section-sub">{{ section_subheading }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="ib-grid">
+      {%- for block in section.blocks -%}
+        <div class="ib-card ib-card--{{ card_style }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != 'none' -%}
+            <div class="ib-card__icon">
+              {%- case block.settings.icon -%}
+                {%- when 'shipping' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                  </svg>
+                {%- when 'shield' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                {%- when 'clock' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                {%- when 'heart' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                {%- when 'star' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                {%- when 'cart' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                  </svg>
+                {%- when 'tag' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                  </svg>
+                {%- when 'gift' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                  </svg>
+                {%- when 'phone' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                {%- when 'mail' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                {%- when 'map' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                {%- when 'award' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                  </svg>
+                {%- when 'zap' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                  </svg>
+                {%- when 'check-circle' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                {%- when 'users' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                {%- when 'refresh' -%}
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                  </svg>
+              {%- endcase -%}
+            </div>
+          {%- endif -%}
+
+          <div class="ib-card__content">
+            {%- if block.settings.title != blank -%}
+              <h3 class="ib-card__title">{{ block.settings.title }}</h3>
+            {%- endif -%}
+            {%- if block.settings.description != blank -%}
+              <p class="ib-card__desc">{{ block.settings.description }}</p>
+            {%- endif -%}
+            {%- if block.settings.link != blank and block.settings.link_text != blank -%}
+              <a href="{{ block.settings.link }}" class="ib-card__link">
+                {{ block.settings.link_text }}
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .ib-section {
+    padding-block-start: var(--ib-pt);
+    padding-block-end: var(--ib-pb);
+    position: relative;
+    overflow: hidden;
+  }
+  .ib-container {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+  @media (min-width: 768px) {
+    .ib-container {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ib-container {
+      padding-inline: 4rem;
+    }
+  }
+
+  .ib-header {
+    margin-block-end: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .ib-align--center {
+    text-align: center;
+    align-items: center;
+  }
+  .ib-align--start {
+    text-align: start;
+    align-items: flex-start;
+  }
+  .ib-align--end {
+    text-align: end;
+    align-items: flex-end;
+  }
+
+  .ib-section-heading {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--ib-heading-weight);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .ib-section-sub {
+    font-size: var(--font-body-size, 16px);
+    color: var(--color-secondary-text);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .ib-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ib-cols-d), 1fr);
+    gap: var(--ib-gap);
+  }
+  @media (max-width: 1024px) {
+    .ib-grid {
+      grid-template-columns: repeat(var(--ib-cols-t), 1fr);
+    }
+  }
+  @media (max-width: 639px) {
+    .ib-grid {
+      grid-template-columns: repeat(var(--ib-cols-m), 1fr);
+    }
+  }
+
+  .ib-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-radius: var(--ib-radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .ib-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .ib-card--minimal {
+    background: transparent;
+  }
+  .ib-card--minimal:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+  .ib-card--bordered {
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+    background: transparent;
+  }
+  .ib-card--bordered:hover {
+    border-color: var(--ib-icon-color);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+  .ib-card--filled {
+    background: var(--color-card-background, rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
+  .ib-card--filled:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .ib-card__icon {
+    width: var(--ib-icon-size);
+    height: var(--ib-icon-size);
+    color: var(--ib-icon-color);
+    margin-block-end: 1.25rem;
+    flex-shrink: 0;
+  }
+  .ib-card__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ib-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .ib-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.4;
+  }
+  .ib-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-secondary-text);
+    margin: 0;
+    line-height: 1.65;
+    opacity: 0.85;
+  }
+  .ib-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ib-icon-color);
+    text-decoration: none;
+    margin-block-start: 0.5rem;
+    transition: gap 0.3s ease;
+  }
+  .ib-card__link:hover {
+    gap: 0.75rem;
+  }
+  [dir='rtl'] .ib-card__link svg {
+    transform: scaleX(-1);
+  }
+
+  /* Shapes */
+  .ib-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .ib-shape {
+    position: absolute;
+    opacity: 0.06;
+  }
+  .ib-shape-1 {
+    width: 250px;
+    height: 250px;
+    top: -80px;
+    inset-inline-end: -60px;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: ib-float 18s ease-in-out infinite;
+  }
+  .ib-shape-2 {
+    width: 70px;
+    height: 70px;
+    bottom: 10%;
+    inset-inline-start: 5%;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: ib-float 14s ease-in-out infinite reverse;
+  }
+  @keyframes ib-float {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-15px, 20px);
+    }
+  }
+  @media (max-width: 768px) {
+    .ib-shape-1 {
+      width: 140px;
+      height: 140px;
+    }
+    .ib-shape-2 {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ib-card {
+      transition: none !important;
+    }
+    .ib-shape {
+      animation: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.icon_boxes.name",
+  "tag": "section",
+  "class": "section-icon-boxes",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.icon_boxes.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.icon_boxes.settings.heading.label",
+      "default": "لماذا تختارنا"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:sections.icon_boxes.settings.subheading.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.icon_boxes.settings.text_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.icon_boxes.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.icon_boxes.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.icon_boxes.settings.text_alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.icon_boxes.settings.columns_desktop.label",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "t:sections.icon_boxes.settings.columns_tablet.label",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "label": "t:sections.icon_boxes.settings.columns_mobile.label",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:sections.icon_boxes.settings.gap.label",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.icon_boxes.settings.card_style.label",
+      "default": "bordered",
+      "options": [
+        {
+          "value": "minimal",
+          "label": "t:sections.icon_boxes.settings.card_style.options.minimal"
+        },
+        {
+          "value": "bordered",
+          "label": "t:sections.icon_boxes.settings.card_style.options.bordered"
+        },
+        {
+          "value": "filled",
+          "label": "t:sections.icon_boxes.settings.card_style.options.filled"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.icon_boxes.settings.corner_radius.label",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "t:sections.icon_boxes.settings.icon_size.label",
+      "min": 24,
+      "max": 80,
+      "step": 4,
+      "default": 48,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "t:sections.icon_boxes.settings.icon_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.icon_boxes.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.icon_boxes.settings.show_shapes.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.icon_boxes.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.icon_boxes.settings.heading_weight.options.400"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.icon_boxes.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.icon_boxes.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.icon_boxes.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.icon_boxes.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.icon_boxes.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.icon_boxes.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "icon_box",
+      "name": "t:sections.icon_boxes.blocks.icon_box.name",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.label",
+          "default": "shield",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.none"
+            },
+            {
+              "value": "shipping",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.shipping"
+            },
+            {
+              "value": "shield",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.shield"
+            },
+            {
+              "value": "clock",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.clock"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.heart"
+            },
+            {
+              "value": "star",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.star"
+            },
+            {
+              "value": "cart",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.cart"
+            },
+            {
+              "value": "tag",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.tag"
+            },
+            {
+              "value": "gift",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.gift"
+            },
+            {
+              "value": "phone",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.phone"
+            },
+            {
+              "value": "mail",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.mail"
+            },
+            {
+              "value": "map",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.map"
+            },
+            {
+              "value": "award",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.award"
+            },
+            {
+              "value": "zap",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.zap"
+            },
+            {
+              "value": "check-circle",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.check-circle"
+            },
+            {
+              "value": "users",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.users"
+            },
+            {
+              "value": "refresh",
+              "label": "t:sections.icon_boxes.blocks.icon_box.settings.icon.options.refresh"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.icon_boxes.blocks.icon_box.settings.title.label",
+          "default": "شحن مجاني"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.icon_boxes.blocks.icon_box.settings.description.label",
+          "default": "شحن مجاني لجميع الطلبات فوق 200 ريال"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.icon_boxes.blocks.icon_box.settings.link.label"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "t:sections.icon_boxes.blocks.icon_box.settings.link_text.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.icon_boxes.name",
+      "blocks": [
+        {
+          "type": "icon_box",
+          "settings": {
+            "icon": "shipping",
+            "title": "شحن مجاني",
+            "description": "شحن مجاني لجميع الطلبات فوق 200 ريال"
+          }
+        },
+        {
+          "type": "icon_box",
+          "settings": {
+            "icon": "shield",
+            "title": "ضمان الجودة",
+            "description": "جميع منتجاتنا أصلية 100% مع ضمان"
+          }
+        },
+        {
+          "type": "icon_box",
+          "settings": {
+            "icon": "refresh",
+            "title": "إرجاع سهل",
+            "description": "استرداد خلال 30 يوم بدون أسئلة"
+          }
+        },
+        {
+          "type": "icon_box",
+          "settings": {
+            "icon": "phone",
+            "title": "دعم مستمر",
+            "description": "فريق الدعم متاح على مدار الساعة"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

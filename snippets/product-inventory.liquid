@@ -1,0 +1,42 @@
+{%- comment -%}
+  Sallety Theme - Product Inventory Snippet
+  Displays product inventory status.
+
+  Accepts:
+  - product: {Object} Product Liquid object
+
+  Usage:
+  {% render 'product-inventory', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign inventory_threshold = 10
+-%}
+
+{%- if variant.available -%}
+  {%- if variant.inventory_management and variant.inventory_quantity > 0 -%}
+    {%- if variant.inventory_quantity <= inventory_threshold -%}
+      <p class="product-inventory product-inventory--low">
+        {% render 'icon-warning' %}
+        {{ 'products.product.inventory_low_stock_show_count' | t: quantity: variant.inventory_quantity }}
+      </p>
+    {%- else -%}
+      <p class="product-inventory product-inventory--in-stock">
+        {% render 'icon-check' %}
+        {{ 'products.product.inventory_in_stock_show_count' | t: quantity: variant.inventory_quantity }}
+      </p>
+    {%- endif -%}
+  {%- elsif variant.inventory_policy == 'continue' -%}
+    <p class="product-inventory product-inventory--in-stock">
+      {% render 'icon-check' %}
+      {{ 'products.product.inventory_in_stock' | t }}
+    </p>
+  {%- endif -%}
+{%- else -%}
+  <p class="product-inventory product-inventory--out-of-stock">
+    {% render 'icon-x' %}
+    {{ 'products.product.inventory_out_of_stock' | t }}
+  </p>
+{%- endif -%}
+

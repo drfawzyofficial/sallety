@@ -1,0 +1,362 @@
+{%- comment -%}
+  Sallety Theme - Product Card Snippet
+  Premium product card design inspired by Salla
+  Features: Wishlist, Quick View, Rating, Add to Cart
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - image_ratio: {String} Image aspect ratio (adapt, portrait, square, landscape)
+  - show_vendor: {Boolean} Show product vendor
+  - content_alignment: {String} Text alignment (start, center)
+
+  Usage:
+  {% render 'product-card', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign image_ratio = image_ratio | default: 'adapt'
+  assign content_alignment = content_alignment | default: 'center'
+
+  case image_ratio
+    when 'portrait'
+      assign ratio_value = '2 / 3'
+    when 'square'
+      assign ratio_value = '1 / 1'
+    when 'landscape'
+      assign ratio_value = '4 / 3'
+    else
+      assign ratio_value = ''
+  endcase
+
+  assign show_secondary_image = settings.show_secondary_image
+  assign show_vendor_setting = settings.show_vendor
+  if show_vendor != blank
+    assign show_vendor_setting = show_vendor
+  endif
+
+  assign first_available_variant = product.selected_or_first_available_variant
+
+  assign has_secondary_image = false
+  if show_secondary_image
+    if product.media.size > 1
+      assign has_secondary_image = true
+    endif
+  endif
+
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+-%}
+
+<div
+  class="product-card group relative flex flex-col bg-[var(--color-background)] overflow-hidden"
+  data-product-card
+  data-product-id="{{ product.id }}"
+  {% unless has_secondary_image %}
+    data-no-secondary-image
+  {% endunless %}
+>
+  {%- comment -%} ===== IMAGE AREA ===== {%- endcomment -%}
+  <div class="product-card__media relative overflow-hidden rounded-2xl bg-[#f5f5f7]">
+    <a
+      href="{{ product.url }}"
+      class="product-card__image-link block relative overflow-hidden {% unless has_secondary_image %}product-card__image-link--no-swap{% endunless %}"
+      tabindex="-1"
+      aria-hidden="true"
+      {% if ratio_value != '' %}
+        style="aspect-ratio: {{ ratio_value }};"
+      {% else %}
+        style="aspect-ratio: 3 / 4;"
+      {% endif %}
+    >
+      {%- if product.featured_media -%}
+        <img
+          src="{{ product.featured_media | image_url: width: 720 }}"
+          alt="{{ product.featured_media.alt | escape }}"
+          width="720"
+          height="{{ 720 | divided_by: product.featured_media.aspect_ratio | round }}"
+          loading="lazy"
+          class="product-card__img product-card__img--primary absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out z-[1] {% unless has_secondary_image %}group-hover:scale-105{% endunless %}"
+        >
+        {%- if has_secondary_image -%}
+          <img
+            src="{{ product.media[1] | image_url: width: 720 }}"
+            alt="{{ product.media[1].alt | escape }}"
+            width="720"
+            height="{{ 720 | divided_by: product.media[1].aspect_ratio | round }}"
+            loading="lazy"
+            class="product-card__img product-card__img--secondary absolute inset-0 w-full h-full object-cover transition-all duration-500 ease-out opacity-0 z-[2] group-hover:opacity-100 group-hover:scale-[1.02]"
+          >
+        {%- endif -%}
+      {%- else -%}
+        <div class="product-card__placeholder flex items-center justify-center w-full h-full bg-[#f5f5f7]">
+          {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder-svg w-1/2 h-1/2 text-[#c0c0c5]' }}
+        </div>
+      {%- endif -%}
+    </a>
+
+    {%- comment -%} ===== QUICK ACTIONS (top-start, vertical stack) ===== {%- endcomment -%}
+    <div class="product-card__actions absolute top-3 start-3 z-[6] flex flex-col gap-2">
+      {%- comment -%} Wishlist Button - Always visible, white background {%- endcomment -%}
+      {%- if settings.enable_wishlist -%}
+        <button
+          type="button"
+          class="product-card__action-btn product-card__wishlist-btn w-10 h-10 flex items-center justify-center rounded-full bg-white text-[var(--color-foreground)] shadow-md border border-black/5 transition-all duration-200 ease-out hover:scale-110 active:scale-95"
+          data-wishlist-add="{{ product.id }}"
+          data-product-handle="{{ product.handle }}"
+          data-product-title="{{ product.title | escape }}"
+          data-product-image="{{ product.featured_media | image_url: width: 400 }}"
+          data-product-price="{{ first_available_variant.price }}"
+          data-product-url="{{ product.url }}"
+          aria-label="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+          title="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="pointer-events-none flex-shrink-0 wishlist-icon"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+      {%- endif -%}
+
+      {%- comment -%} Quick View Button - Dark background {%- endcomment -%}
+      {%- if settings.enable_quick_view and product.handle != blank -%}
+        <button
+          type="button"
+          class="product-card__action-btn product-card__quickview-btn w-10 h-10 flex items-center justify-center rounded-full bg-[var(--color-primary,#1a2744)] text-white shadow-md transition-all duration-200 ease-out hover:scale-110 active:scale-95"
+          data-quick-view="{{ product.handle }}"
+          aria-label="{{ 'products.product.quick_view' | t | default: 'عرض سريع' }}"
+          title="{{ 'products.product.quick_view' | t | default: 'عرض سريع' }}"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="pointer-events-none flex-shrink-0"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} ===== CONTENT ===== {%- endcomment -%}
+  <div class="product-card__info flex flex-col items-center py-4 px-2 text-center">
+    {%- comment -%} Star Rating — calculated from custom.product_reviews metafield {%- endcomment -%}
+    {%- if settings.show_rating -%}
+      {%- liquid
+        assign pr_raw = product.metafields.custom.product_reviews
+        assign card_rating_total = 0
+        assign card_rating_count = 0
+        assign card_avg_rating = 0
+
+        if pr_raw != blank
+          assign pr_entries = pr_raw | split: 'Name'
+          for entry in pr_entries
+            assign stars_check = entry | downcase
+            if stars_check contains 'star'
+              assign stars_parts = entry | split: ':'
+              for part in stars_parts
+                assign part_lower = part | strip | downcase
+                if part_lower contains 'star'
+                  assign next_index = forloop.index
+                  if next_index < stars_parts.size
+                    assign star_val_raw = stars_parts[next_index] | strip | split: ',' | first | split: '،' | first | strip | plus: 0
+                    if star_val_raw > 0 and star_val_raw <= 5
+                      assign card_rating_total = card_rating_total | plus: star_val_raw
+                      assign card_rating_count = card_rating_count | plus: 1
+                    endif
+                  endif
+                endif
+              endfor
+            endif
+          endfor
+        endif
+
+        if card_rating_count > 0
+          assign card_avg_rating = card_rating_total | times: 10 | divided_by: card_rating_count | round | divided_by: 10.0
+        endif
+
+        assign card_full_stars = card_avg_rating | floor
+        assign card_half_check = card_avg_rating | minus: card_full_stars
+        assign card_has_half = false
+        if card_half_check >= 0.3 and card_half_check < 0.8
+          assign card_has_half = true
+        endif
+        assign card_half_star_pos = -1
+        if card_has_half
+          assign card_half_star_pos = card_full_stars | plus: 1
+        endif
+        if card_half_check >= 0.8
+          assign card_full_stars = card_full_stars | plus: 1
+        endif
+      -%}
+      {%- if card_rating_count > 0 -%}
+        <div class="product-card__rating flex items-center justify-center gap-0.5 mb-2">
+          {%- for i in (1..5) -%}
+            {%- if i <= card_full_stars -%}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="#f59e0b"
+                stroke="#f59e0b"
+                stroke-width="1"
+                class="flex-shrink-0"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            {%- elsif i == card_half_star_pos -%}
+              <svg width="16" height="16" viewBox="0 0 24 24" class="flex-shrink-0">
+                <defs>
+                  <linearGradient id="pc-half-{{ product.id }}-{{ i }}">
+                    <stop offset="50%" stop-color="#f59e0b"/>
+                    <stop offset="50%" stop-color="transparent"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="url(#pc-half-{{ product.id }}-{{ i }})" stroke="#f59e0b" stroke-width="1"/>
+              </svg>
+            {%- else -%}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#d1d5db"
+                stroke-width="1"
+                class="flex-shrink-0"
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            {%- endif -%}
+          {%- endfor -%}
+          <span class="text-[0.75rem] text-[var(--color-secondary-text,#6b7280)] ms-1">({{ card_rating_count }})</span>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- comment -%} Product Title {%- endcomment -%}
+    <h3 class="product-card__title text-[0.95rem] font-semibold leading-snug mb-1">
+      <a
+        href="{{ product.url }}"
+        class="text-[var(--color-foreground)] no-underline line-clamp-2 hover:text-[var(--color-primary)] transition-colors"
+      >
+        {{ product.title }}
+      </a>
+    </h3>
+
+    {%- comment -%} Vendor {%- endcomment -%}
+    {%- if show_vendor_setting and product.vendor != blank -%}
+      <p class="product-card__vendor text-[0.8rem] text-[var(--color-secondary-text,#6b7280)] mb-2">
+        {{ product.vendor }}
+      </p>
+    {%- endif -%}
+
+    {%- comment -%} Price {%- endcomment -%}
+    <div class="product-card__price flex items-center justify-center gap-2 flex-wrap mb-3">
+      {%- if on_sale -%}
+        <span
+          class="product-card__price-sale text-[1.1rem] font-bold text-[var(--color-error,#dc2626)]"
+          data-product-price
+        >
+          {{ product.price | money }}
+        </span>
+        <span
+          class="product-card__price-compare text-[0.85rem] text-[var(--color-secondary-text,#9ca3af)] line-through"
+          data-product-compare-price
+        >
+          {{ product.compare_at_price | money }}
+        </span>
+      {%- else -%}
+        <span
+          class="product-card__price-regular text-[1.1rem] font-bold text-[var(--color-foreground)]"
+          data-product-price
+        >
+          {{ product.price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Add to Cart Button {%- endcomment -%}
+    <div class="product-card__atc-wrapper w-full">
+      {%- if product.available -%}
+        {%- if product.has_only_default_variant -%}
+          <form method="post" action="{{ routes.cart_add_url }}" data-product-form class="w-full">
+            <input type="hidden" name="id" value="{{ first_available_variant.id }}">
+            <button
+              type="submit"
+              class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-primary,#1a2744)] text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="flex-shrink-0 pointer-events-none"
+              >
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span class="product-card__atc-label">
+                {{- 'products.product.add_to_cart' | t | default: 'إضافة للسلة' -}}
+              </span>
+            </button>
+          </form>
+        {%- else -%}
+          <button
+            type="button"
+            class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-primary,#1a2744)] text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
+            data-quick-add="{{ product.handle }}"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="flex-shrink-0 pointer-events-none"
+            >
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span class="product-card__atc-label">
+              {{- 'products.product.add_to_cart' | t | default: 'إضافة للسلة' -}}
+            </span>
+          </button>
+        {%- endif -%}
+      {%- else -%}
+        <button
+          type="button"
+          class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-secondary-text,#9ca3af)] text-white font-semibold text-sm cursor-not-allowed opacity-70"
+          disabled
+        >
+          <span class="product-card__atc-label">{{ 'products.product.sold_out' | t | default: 'نفذت الكمية' }}</span>
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,966 @@
+{%- comment -%}
+  Sallety Theme — Newsletter Section
+  Premium newsletter signup with RTL/LTR support, responsive design,
+  and comprehensive customizer settings.
+{%- endcomment -%}
+
+{%- comment -%} ── Direction helper ── {%- endcomment -%}
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+{%- assign section_dir = section_dir | strip -%}
+
+{%- comment -%} ── Settings aliases ── {%- endcomment -%}
+{%- liquid
+  assign nl_layout = section.settings.layout | default: 'stacked'
+  assign nl_heading = section.settings.heading
+  assign nl_subheading = section.settings.subheading
+  if section.settings.button_text != blank
+    assign nl_btn_text = section.settings.button_text
+  else
+    assign nl_btn_text = 'newsletter.submit' | t
+  endif
+  if section.settings.placeholder != blank
+    assign nl_placeholder = section.settings.placeholder
+  else
+    assign nl_placeholder = 'newsletter.placeholder' | t
+  endif
+  assign nl_text_align = section.settings.text_alignment | default: 'center'
+  assign nl_heading_size = section.settings.heading_size | default: 'medium'
+  assign nl_full_width = section.settings.full_width
+  assign nl_show_icon = section.settings.show_icon
+  assign nl_show_decor = section.settings.show_decoration
+  assign nl_show_wave = section.settings.show_wave
+  assign nl_bg_style = section.settings.background_style | default: 'gradient'
+  assign nl_bg_color = section.settings.background_color | default: ''
+  assign nl_bg_color2 = section.settings.background_color_2 | default: ''
+  assign nl_text_color = section.settings.text_color | default: '#ffffff'
+  assign nl_btn_bg = section.settings.button_bg_color | default: ''
+  assign nl_btn_text_clr = section.settings.button_text_color | default: '#ffffff'
+  assign nl_input_bg = section.settings.input_bg_color | default: 'rgba(255,255,255,0.15)'
+  assign nl_input_text = section.settings.input_text_color | default: '#ffffff'
+  assign nl_overlay = section.settings.overlay_opacity | default: 0
+  assign nl_corner = section.settings.corner_radius | default: 16
+  assign nl_pt = section.settings.padding_top | default: 60
+  assign nl_pb = section.settings.padding_bottom | default: 60
+  assign nl_bg_image = section.settings.background_image
+  assign nl_consent = section.settings.show_consent_text
+  assign nl_consent_text = section.settings.consent_text
+-%}
+
+{%- comment -%} ── Heading size map ── {%- endcomment -%}
+{%- case nl_heading_size -%}
+  {%- when 'small' -%}
+    {%- assign hs_class = 'nl-heading--sm' -%}
+  {%- when 'large' -%}
+    {%- assign hs_class = 'nl-heading--lg' -%}
+  {%- when 'xlarge' -%}
+    {%- assign hs_class = 'nl-heading--xl' -%}
+  {%- else -%}
+    {%- assign hs_class = 'nl-heading--md' -%}
+{%- endcase -%}
+
+<section
+  id="newsletter-{{ section.id }}"
+  class="nl-section nl-section--{{ nl_layout }}{% if nl_full_width %} nl-section--full{% endif %}{% if nl_bg_style == 'image' and nl_bg_image != blank %} nl-section--has-image{% endif %}"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="newsletter"
+  style="
+    --nl-pt: {{ nl_pt }}px;
+    --nl-pb: {{ nl_pb }}px;
+    --nl-text-color: {{ nl_text_color }};
+    --nl-btn-bg: {{ nl_btn_bg | default: 'var(--color-primary)' }};
+    --nl-btn-text: {{ nl_btn_text_clr }};
+    --nl-input-bg: {{ nl_input_bg }};
+    --nl-input-text: {{ nl_input_text }};
+    --nl-corner: {{ nl_corner }}px;
+    {%- if nl_bg_style == 'solid' and nl_bg_color != blank -%}
+      --nl-bg: {{ nl_bg_color }};
+    {%- elsif nl_bg_style == 'gradient' -%}
+      --nl-bg: linear-gradient(
+        135deg,
+        {{ nl_bg_color | default: 'color-mix(in srgb, var(--color-primary) 85%, #000 15%)' }} 0%,
+        {{ nl_bg_color2 | default: 'color-mix(in srgb, var(--color-primary) 40%, #1a1a2e 60%)' }} 50%,
+        #0f3460 100%
+      );
+    {%- else -%}
+      --nl-bg: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-primary) 85%, #000 15%) 0%,
+        color-mix(in srgb, var(--color-primary) 40%, #1a1a2e 60%) 50%,
+        #0f3460 100%
+      );
+    {%- endif -%}
+  "
+>
+  {%- comment -%} ── Background layer ── {%- endcomment -%}
+  <div class="nl-bg" aria-hidden="true">
+    {%- if nl_bg_style == 'image' and nl_bg_image != blank -%}
+      <img
+        src="{{ nl_bg_image | image_url: width: 1920 }}"
+        srcset="
+          {{ nl_bg_image | image_url: width: 600 }} 600w,
+          {{ nl_bg_image | image_url: width: 1000 }} 1000w,
+          {{ nl_bg_image | image_url: width: 1920 }} 1920w
+        "
+        sizes="100vw"
+        alt=""
+        width="1920"
+        height="{{ 1920 | divided_by: nl_bg_image.aspect_ratio | round }}"
+        loading="lazy"
+        class="nl-bg__img"
+      >
+    {%- endif -%}
+
+    {%- comment -%} Overlay {%- endcomment -%}
+    {%- if nl_overlay > 0 -%}
+      <div class="nl-bg__overlay" style="opacity: {{ nl_overlay | divided_by: 100.0 }};"></div>
+    {%- endif -%}
+
+    {%- comment -%} Decorative SVG (gradient / solid bg only) {%- endcomment -%}
+    {%- if nl_show_decor -%}
+      <div class="nl-bg__decor">
+        <svg
+          viewBox="0 0 1440 500"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid slice"
+          class="nl-bg__decor-svg"
+        >
+          <circle cx="150" cy="120" r="100" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+          <circle cx="150" cy="120" r="60" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+          <circle cx="1300" cy="350" r="130" stroke="rgba(255,255,255,0.05)" stroke-width="1.5" fill="none"/>
+          <circle cx="1300" cy="350" r="80" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/>
+          <circle cx="300" cy="50" r="4" fill="rgba(255,255,255,0.08)"/>
+          <circle cx="500" cy="400" r="3" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="900" cy="80" r="5" fill="rgba(255,255,255,0.07)"/>
+          <circle cx="1100" cy="200" r="3.5" fill="rgba(255,255,255,0.05)"/>
+          <circle cx="1400" cy="100" r="4" fill="rgba(255,255,255,0.07)"/>
+          <circle cx="700" cy="450" r="3" fill="rgba(255,255,255,0.05)"/>
+          <line x1="80" y1="250" x2="300" y2="200" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="1200" y1="120" x2="1400" y2="170" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <polygon points="450,160 490,100 530,160" stroke="rgba(255,255,255,0.05)" stroke-width="1" fill="none"/>
+          <polygon points="1050,300 1100,240 1150,300" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+          <defs>
+            <radialGradient id="nl-blob1-{{ section.id }}" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+            <radialGradient id="nl-blob2-{{ section.id }}" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.04)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="280" cy="260" rx="160" ry="110" fill="url(#nl-blob1-{{ section.id }})"/>
+          <ellipse cx="1200" cy="200" rx="200" ry="130" fill="url(#nl-blob2-{{ section.id }})"/>
+          <rect x="700" y="60" width="50" height="50" rx="4" stroke="rgba(255,255,255,0.05)" stroke-width="1" fill="none" transform="rotate(45 725 85)"/>
+        </svg>
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} ── Content ── {%- endcomment -%}
+  <div class="nl-container{% unless nl_full_width %} nl-container--constrained{% endunless %}">
+    <div class="nl-inner nl-inner--{{ nl_layout }} nl-align--{{ nl_text_align }}">
+      {%- comment -%} Text column {%- endcomment -%}
+      <div class="nl-content">
+        {%- if nl_show_icon -%}
+          <div class="nl-icon" aria-hidden="true">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M22 4L12 13L2 4"/>
+            </svg>
+          </div>
+        {%- endif -%}
+
+        {%- if nl_heading != blank -%}
+          <h2 class="nl-heading {{ hs_class }}">{{ nl_heading }}</h2>
+        {%- endif -%}
+
+        {%- if nl_subheading != blank -%}
+          <p class="nl-subheading">{{ nl_subheading }}</p>
+        {%- endif -%}
+
+        {%- comment -%} Render blocks (e.g. feature list) {%- endcomment -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'feature' -%}
+            <div class="nl-feature" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                <span class="nl-feature__icon">{{ block.settings.icon }}</span>
+              {%- else -%}
+                <span class="nl-feature__icon" aria-hidden="true">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </span>
+              {%- endif -%}
+              <span class="nl-feature__text">{{ block.settings.text }}</span>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Form column {%- endcomment -%}
+      <div class="nl-form-wrap">
+        {%- assign nl_form_id = 'nl-form-' | append: section.id -%}
+        {%- form 'customer', id: nl_form_id, class: 'nl-form' -%}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+
+          {%- if form.posted_successfully? -%}
+            <div class="nl-alert nl-alert--success" role="status">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <span>{{ 'newsletter.success' | t }}</span>
+            </div>
+          {%- else -%}
+            <div class="nl-field-group">
+              <label for="nl-email-{{ section.id }}" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+              <input
+                type="email"
+                id="nl-email-{{ section.id }}"
+                name="contact[email]"
+                class="nl-input"
+                placeholder="{{ nl_placeholder }}"
+                autocomplete="email"
+                autocorrect="off"
+                autocapitalize="off"
+                required
+                aria-required="true"
+              >
+              <button type="submit" class="nl-btn" aria-label="{{ nl_btn_text }}">
+                <span class="nl-btn__text">{{ nl_btn_text }}</span>
+                <span class="nl-btn__icon" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+
+            {%- if form.errors -%}
+              <div class="nl-alert nl-alert--error" role="alert">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>{{ form.errors.messages.email | default: 'newsletter.error' | t }}</span>
+              </div>
+            {%- endif -%}
+
+            {%- if nl_consent and nl_consent_text != blank -%}
+              <p class="nl-consent">{{ nl_consent_text }}</p>
+            {%- endif -%}
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} ── Bottom wave ── {%- endcomment -%}
+  {%- if nl_show_wave -%}
+    <div class="nl-wave" aria-hidden="true">
+      <svg
+        viewBox="0 0 1440 60"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none"
+        class="nl-wave__svg"
+      >
+        <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" style="fill: var(--color-background);"/>
+      </svg>
+    </div>
+  {%- endif -%}
+</section>
+
+{%- comment -%} ── Styles ── {%- endcomment -%}
+<style>
+  /* ===== Base ===== */
+  .nl-section {
+    position: relative;
+    overflow: hidden;
+    padding-block-start: var(--nl-pt);
+    padding-block-end: var(--nl-pb);
+    color: var(--nl-text-color);
+  }
+
+  /* ===== Background ===== */
+  .nl-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .nl-section:not(.nl-section--has-image) .nl-bg {
+    background: var(--nl-bg);
+  }
+  .nl-bg__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .nl-bg__overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+  }
+  .nl-bg__decor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    animation: nl-float 22s ease-in-out infinite alternate;
+  }
+  .nl-bg__decor-svg {
+    width: 100%;
+    height: 100%;
+  }
+  @keyframes nl-float {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+    100% {
+      transform: scale(1.03) translateY(-6px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nl-bg__decor {
+      animation: none;
+    }
+  }
+
+  /* ===== Container ===== */
+  .nl-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding-inline: 1rem;
+  }
+  .nl-container--constrained {
+    max-width: var(--page-width, 1320px);
+    margin-inline: auto;
+  }
+
+  /* ===== Inner layout ===== */
+  .nl-inner {
+    display: flex;
+    gap: 2rem;
+  }
+
+  /* Stacked (vertical) */
+  .nl-inner--stacked {
+    flex-direction: column;
+    align-items: center;
+  }
+  .nl-inner--stacked .nl-content,
+  .nl-inner--stacked .nl-form-wrap {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  /* Side-by-side */
+  .nl-inner--side_by_side {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .nl-inner--side_by_side .nl-content {
+    flex: 1 1 340px;
+    min-width: 0;
+  }
+  .nl-inner--side_by_side .nl-form-wrap {
+    flex: 1 1 380px;
+    min-width: 0;
+  }
+
+  /* Card layout */
+  .nl-inner--card {
+    flex-direction: column;
+    align-items: center;
+  }
+  .nl-inner--card .nl-content,
+  .nl-inner--card .nl-form-wrap {
+    width: 100%;
+    max-width: 700px;
+  }
+  .nl-section--card-inner {
+    /* handled below via separate wrapper inside container */
+  }
+
+  /* ===== Alignment ===== */
+  .nl-align--center {
+    text-align: center;
+  }
+  .nl-align--center .nl-content {
+    align-items: center;
+  }
+  .nl-align--start {
+    text-align: start;
+  }
+  .nl-align--start .nl-content {
+    align-items: flex-start;
+  }
+  .nl-align--end {
+    text-align: end;
+  }
+  .nl-align--end .nl-content {
+    align-items: flex-end;
+  }
+
+  /* ===== Content ===== */
+  .nl-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* Icon */
+  .nl-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--nl-text-color);
+    margin-block-end: 0.25rem;
+  }
+
+  /* Heading */
+  .nl-heading {
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--nl-text-color);
+    margin: 0;
+  }
+  .nl-heading--sm {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  }
+  .nl-heading--md {
+    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+  }
+  .nl-heading--lg {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+  }
+  .nl-heading--xl {
+    font-size: clamp(2rem, 5vw, 3.75rem);
+  }
+
+  /* Subheading */
+  .nl-subheading {
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+    color: var(--nl-text-color);
+    opacity: 0.78;
+    line-height: 1.65;
+    max-width: 560px;
+    margin: 0;
+  }
+  .nl-align--center .nl-subheading {
+    margin-inline: auto;
+  }
+
+  /* Feature items */
+  .nl-feature {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--nl-text-color);
+    opacity: 0.85;
+  }
+  .nl-feature__icon {
+    display: inline-flex;
+    color: var(--nl-text-color);
+    opacity: 0.9;
+  }
+
+  /* ===== Form ===== */
+  .nl-form-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nl-field-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .nl-input {
+    flex: 1 1 220px;
+    min-width: 0;
+    padding-inline: 1.25rem;
+    padding-block: 0.875rem;
+    background: var(--nl-input-bg);
+    color: var(--nl-input-text);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--nl-corner);
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .nl-input::placeholder {
+    color: var(--nl-input-text);
+    opacity: 0.55;
+  }
+  .nl-input:focus {
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .nl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding-inline: 1.75rem;
+    padding-block: 0.875rem;
+    background: var(--nl-btn-bg);
+    color: var(--nl-btn-text);
+    border: none;
+    border-radius: var(--nl-corner);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  }
+  .nl-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+  .nl-btn:active {
+    transform: translateY(0);
+  }
+  .nl-btn:focus-visible {
+    outline: 2px solid var(--nl-btn-text);
+    outline-offset: 2px;
+  }
+
+  /* RTL arrow flip */
+  [dir='rtl'] .nl-btn__icon svg {
+    transform: scaleX(-1);
+  }
+
+  /* ===== Alerts ===== */
+  .nl-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: calc(var(--nl-corner) * 0.6);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .nl-alert--success {
+    background: rgba(34, 197, 94, 0.18);
+    color: #bbf7d0;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .nl-alert--error {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fecaca;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  /* Consent */
+  .nl-consent {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    opacity: 0.6;
+    color: var(--nl-text-color);
+    margin: 0;
+    max-width: 480px;
+  }
+  .nl-align--center .nl-consent {
+    margin-inline: auto;
+  }
+
+  /* ===== Wave ===== */
+  .nl-wave {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    line-height: 0;
+  }
+  .nl-wave__svg {
+    width: 100%;
+    height: 30px;
+    display: block;
+  }
+
+  /* ===== Tablet (≤ 991px) ===== */
+  @media (max-width: 991px) {
+    .nl-inner--side_by_side {
+      flex-direction: column;
+      text-align: center;
+    }
+    .nl-inner--side_by_side .nl-content {
+      align-items: center;
+    }
+    .nl-inner--side_by_side .nl-subheading {
+      margin-inline: auto;
+    }
+    .nl-container {
+      padding-inline: 1.25rem;
+    }
+  }
+
+  /* ===== Mobile (≤ 639px) ===== */
+  @media (max-width: 639px) {
+    .nl-section {
+      padding-block-start: calc(var(--nl-pt) * 0.65);
+      padding-block-end: calc(var(--nl-pb) * 0.65);
+    }
+    .nl-icon {
+      width: 52px;
+      height: 52px;
+    }
+    .nl-icon svg {
+      width: 36px;
+      height: 36px;
+    }
+    .nl-field-group {
+      flex-direction: column;
+    }
+    .nl-input {
+      width: 100%;
+      flex: unset;
+    }
+    .nl-btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .nl-inner--stacked .nl-content,
+    .nl-inner--stacked .nl-form-wrap,
+    .nl-inner--card .nl-content,
+    .nl-inner--card .nl-form-wrap {
+      max-width: 100%;
+    }
+    .nl-wave__svg {
+      height: 20px;
+    }
+  }
+
+  /* ===== Large screens (≥ 1200px) ===== */
+  @media (min-width: 1200px) {
+    .nl-container {
+      padding-inline: 2rem;
+    }
+  }
+
+  /* ===== Print ===== */
+  @media print {
+    .nl-section {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.newsletter.name",
+  "tag": "section",
+  "class": "section-newsletter",
+  "settings": [
+    {
+      "type": "header",
+      "content": "المحتوى"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.newsletter.settings.heading.label",
+      "default": "اشترك في نشرتنا البريدية"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:sections.newsletter.settings.subheading.label",
+      "default": "احصل على آخر التحديثات حول المنتجات الجديدة والعروض القادمة."
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "نص حقل الإدخال",
+      "default": "أدخل بريدك الإلكتروني"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "نص الزر",
+      "default": "اشترك الآن"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "إظهار أيقونة البريد",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "التخطيط"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "نمط التخطيط",
+      "options": [
+        { "value": "stacked", "label": "عمودي (مكدّس)" },
+        { "value": "side_by_side", "label": "جنباً إلى جنب" },
+        { "value": "card", "label": "بطاقة" }
+      ],
+      "default": "stacked"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "محاذاة النص",
+      "options": [
+        { "value": "start", "label": "بداية" },
+        { "value": "center", "label": "وسط" },
+        { "value": "end", "label": "نهاية" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "حجم العنوان",
+      "options": [
+        { "value": "small", "label": "صغير" },
+        { "value": "medium", "label": "متوسط" },
+        { "value": "large", "label": "كبير" },
+        { "value": "xlarge", "label": "كبير جداً" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "عرض كامل",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "الخلفية"
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "نمط الخلفية",
+      "options": [
+        { "value": "gradient", "label": "تدرّج لوني" },
+        { "value": "solid", "label": "لون ثابت" },
+        { "value": "image", "label": "صورة" }
+      ],
+      "default": "gradient"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "لون الخلفية الأول"
+    },
+    {
+      "type": "color",
+      "id": "background_color_2",
+      "label": "لون الخلفية الثاني (للتدرّج)"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "صورة الخلفية"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "شفافية طبقة التعتيم",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "الزخرفة"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_decoration",
+      "label": "إظهار الزخرفة الخلفية",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wave",
+      "label": "إظهار الموجة السفلية",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "الألوان"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "لون النص",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "لون خلفية الزر"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "لون نص الزر",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_bg_color",
+      "label": "لون خلفية حقل الإدخال"
+    },
+    {
+      "type": "color",
+      "id": "input_text_color",
+      "label": "لون نص حقل الإدخال",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "الشكل"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "انحناء الزوايا",
+      "default": 16,
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "الموافقة والخصوصية"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_consent_text",
+      "label": "إظهار نص الموافقة",
+      "default": false
+    },
+    {
+      "type": "textarea",
+      "id": "consent_text",
+      "label": "نص الموافقة",
+      "default": "بالاشتراك، أنت توافق على استلام رسائل تسويقية منا. يمكنك إلغاء الاشتراك في أي وقت."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "ميزة",
+      "limit": 4,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "النص",
+          "default": "بدون رسائل مزعجة"
+        },
+        {
+          "type": "text",
+          "id": "icon",
+          "label": "أيقونة (رمز تعبيري - اختياري)",
+          "info": "مثال: ✓ أو 🎁 أو اتركه فارغاً لاستخدام علامة ✓"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.newsletter.name"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,33 @@
+{
+  "sections": {
+    "page-banner": {
+      "type": "page-banner",
+      "settings": {
+        "show_banner": true,
+        "banner_height": 300,
+        "overlay_opacity": 40,
+        "banner_title": "من نحن",
+        "banner_subtitle": "تعرف على قصتنا ورؤيتنا وقيمنا التي تميزنا",
+        "breadcrumb_label": "من نحن",
+        "text_alignment": "center",
+        "show_breadcrumbs": true,
+        "show_wave": true
+      }
+    },
+    "main-page": {
+      "type": "main-page",
+      "settings": {}
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "settings": {
+        "heading": "ماذا يقول عملاؤنا"
+      }
+    }
+  },
+  "order": [
+    "page-banner",
+    "main-page",
+    "testimonials"
+  ]
+}

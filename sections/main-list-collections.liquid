@@ -1,0 +1,810 @@
+{%- comment -%}
+  Sallety Theme - Main List Collections Section
+  Premium collections listing page with hero banner, responsive grid,
+  animated collection cards, RTL/LTR support, and comprehensive Shopify settings.
+  Built with TailwindCSS V4 for maximum quality.
+{%- endcomment -%}
+
+{%- liquid
+  comment
+    ====== Banner Settings ======
+  endcomment
+  assign show_banner = section.settings.show_banner
+  assign banner_image = section.settings.banner_image
+  assign banner_height = section.settings.banner_height
+  assign overlay_opacity = section.settings.overlay_opacity
+  assign banner_title = section.settings.banner_title
+  assign banner_subtitle = section.settings.banner_subtitle
+  assign show_breadcrumbs = section.settings.show_breadcrumbs
+  assign show_collection_count = section.settings.show_collection_count
+  assign text_alignment = section.settings.text_alignment
+
+  comment
+    ====== Grid Settings ======
+  endcomment
+  assign columns_desktop = section.settings.columns_desktop
+  assign columns_tablet = section.settings.columns_tablet
+  assign columns_mobile = section.settings.columns_mobile
+  assign grid_gap = section.settings.grid_gap
+
+  comment
+    ====== Card Settings ======
+  endcomment
+  assign card_style = section.settings.card_style
+  assign image_ratio = section.settings.image_ratio
+  assign show_card_count = section.settings.show_card_count
+  assign card_border_radius = section.settings.card_border_radius
+  assign card_shadow = section.settings.card_shadow
+  assign hover_effect = section.settings.hover_effect
+
+  comment
+    ====== Section Settings ======
+  endcomment
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+  assign sort_collections = section.settings.sort_collections
+  assign hide_empty = section.settings.hide_empty
+  assign max_collections = section.settings.max_collections
+
+  comment
+    ====== Dynamic counts ======
+  endcomment
+  assign collection_count = 0
+  for collection in collections
+    if hide_empty and collection.products_count == 0
+      continue
+    endif
+    assign collection_count = collection_count | plus: 1
+  endfor
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  class="lc-section"
+  data-section-id="{{ section.id }}"
+  data-section-type="list-collections"
+  dir="{{ section_dir }}"
+  style="--lc-padding-top: {{ padding_top }}px; --lc-padding-bottom: {{ padding_bottom }}px; --lc-grid-gap: {{ grid_gap }}px; --lc-card-radius: {{ card_border_radius }}px; --lc-cols-desktop: {{ columns_desktop }}; --lc-cols-tablet: {{ columns_tablet }}; --lc-cols-mobile: {{ columns_mobile }}; --lc-banner-height: {{ banner_height }}px;"
+>
+  {%- comment -%} ===== HERO BANNER (via reusable snippet) ===== {%- endcomment -%}
+  {%- if show_banner -%}
+    {%- capture badge_content -%}{{ collection_count }} {{ 'collections.general.collections_count' | t | default: 'مجموعة' }}{%- endcapture -%}
+    {% render 'page-banner',
+      banner_image: banner_image,
+      banner_title: banner_title,
+      banner_subtitle: banner_subtitle,
+      banner_height: banner_height,
+      overlay_opacity: overlay_opacity,
+      text_alignment: text_alignment,
+      show_breadcrumbs: show_breadcrumbs,
+      breadcrumb_label: banner_title,
+      show_badge: show_collection_count,
+      badge_text: badge_content,
+      show_wave: true
+    %}
+  {%- endif -%}
+
+  {%- comment -%} ===== COLLECTIONS GRID ===== {%- endcomment -%}
+  <div
+    class="lc-content mx-auto px-4 lg:px-6"
+    style="max-width: var(--page-width, 1320px); padding-top: var(--lc-padding-top); padding-bottom: var(--lc-padding-bottom);"
+  >
+    {%- comment -%} Page title when banner is hidden {%- endcomment -%}
+    {%- unless show_banner -%}
+      <div class="mb-8 md:mb-10">
+        {%- if show_breadcrumbs -%}
+          <nav
+            class="lc-breadcrumb--inline mb-3"
+            aria-label="{{ 'general.breadcrumbs.breadcrumbs' | t | default: 'Breadcrumb' }}"
+          >
+            <ol class="flex flex-wrap items-center gap-2 text-sm" style="color: var(--color-secondary-text);">
+              <li>
+                <a
+                  href="{{ routes.root_url }}"
+                  class="hover:underline transition-colors"
+                  style="color: var(--color-secondary-text);"
+                >
+                  {{ 'general.breadcrumbs.home' | t }}
+                </a>
+              </li>
+              <li aria-hidden="true">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </li>
+              <li>
+                <span class="font-semibold" style="color: var(--color-foreground);">
+                  {{- 'collections.general.title' | t -}}
+                </span>
+              </li>
+            </ol>
+          </nav>
+        {%- endif -%}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h1 class="font-heading font-bold" style="font-size: var(--h1-font-size); color: var(--color-foreground);">
+            {%- if banner_title != blank -%}
+              {{ banner_title }}
+            {%- else -%}
+              {{ 'collections.general.title' | t }}
+            {%- endif -%}
+          </h1>
+          {%- if show_collection_count -%}
+            {%- capture collections_label -%}{{ 'collections.general.collections_count' | t }}{%- endcapture -%}
+            {%- if collections_label contains 'translation missing' -%}
+              {%- assign collections_label = 'مجموعة' -%}
+            {%- endif -%}
+            <span
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
+              style="background: var(--color-primary); color: var(--color-button-label);"
+            >
+              {{ collection_count }}
+              {{ collections_label }}
+            </span>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endunless -%}
+
+    {%- if collection_count > 0 -%}
+      <div
+        class="lc-grid"
+        data-card-style="{{ card_style }}"
+        data-hover="{{ hover_effect }}"
+        style="display: grid; grid-template-columns: repeat(var(--lc-cols-mobile), 1fr); gap: var(--lc-grid-gap);"
+      >
+        {%- assign displayed = 0 -%}
+        {%- for collection in collections -%}
+          {%- if hide_empty and collection.products_count == 0 -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- if max_collections > 0 and displayed >= max_collections -%}
+            {%- break -%}
+          {%- endif -%}
+          {%- assign displayed = displayed | plus: 1 -%}
+
+          {%- comment -%} ===== COLLECTION CARD ===== {%- endcomment -%}
+          <div class="lc-card group" data-card-index="{{ forloop.index }}">
+            <a
+              href="{{ collection.url }}"
+              class="lc-card__link block relative overflow-hidden rounded-[var(--lc-card-radius)]{% if card_shadow == 'small' %} lc-card--shadow-sm{% elsif card_shadow == 'medium' %} lc-card--shadow-md{% elsif card_shadow == 'large' %} lc-card--shadow-lg{% endif %}"
+              aria-label="{{ collection.title | escape }}"
+              style="text-decoration: none;"
+            >
+              {%- comment -%} Image Container {%- endcomment -%}
+              <div class="lc-card__image-wrap relative overflow-hidden{% if image_ratio == 'portrait' %} lc-ratio--portrait{% elsif image_ratio == 'square' %} lc-ratio--square{% elsif image_ratio == 'landscape' %} lc-ratio--landscape{% elsif image_ratio == 'wide' %} lc-ratio--wide{% else %} lc-ratio--portrait{% endif %}">
+                {%- if collection.featured_image -%}
+                  <img
+                    src="{{ collection.featured_image | image_url: width: 800 }}"
+                    srcset="{{ collection.featured_image | image_url: width: 400 }} 400w, {{ collection.featured_image | image_url: width: 600 }} 600w, {{ collection.featured_image | image_url: width: 800 }} 800w"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    alt="{{ collection.title | escape }}"
+                    width="800"
+                    height="{{ 800 | divided_by: collection.featured_image.aspect_ratio | round }}"
+                    loading="lazy"
+                    class="lc-card__image w-full h-full object-cover transition-transform duration-500 ease-out{% if hover_effect == 'zoom' %} group-hover:scale-110{% elsif hover_effect == 'zoom-rotate' %} group-hover:scale-110 group-hover:rotate-2{% endif %}"
+                  >
+                {%- else -%}
+                  {%- comment -%} Default SVG Placeholder {%- endcomment -%}
+                  <div
+                    class="lc-card__placeholder w-full h-full flex items-center justify-center"
+                    style="background: linear-gradient(135deg, var(--color-border) 0%, rgba(0,0,0,0.05) 100%);"
+                  >
+                    <svg
+                      class="lc-card__placeholder-svg"
+                      width="80"
+                      height="80"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="0.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="color: var(--color-secondary-text); opacity: 0.35;"
+                    >
+                      <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                      <line x1="7" y1="2" x2="7" y2="22"/>
+                      <line x1="17" y1="2" x2="17" y2="22"/>
+                      <line x1="2" y1="12" x2="22" y2="12"/>
+                      <line x1="2" y1="7" x2="7" y2="7"/>
+                      <line x1="2" y1="17" x2="7" y2="17"/>
+                      <line x1="17" y1="7" x2="22" y2="7"/>
+                      <line x1="17" y1="17" x2="22" y2="17"/>
+                    </svg>
+                  </div>
+                {%- endif -%}
+
+                {%- comment -%} Overlay gradient {%- endcomment -%}
+                <div class="lc-card__overlay absolute inset-0 transition-opacity duration-300"></div>
+
+                {%- comment -%} Card Content - Overlay Style {%- endcomment -%}
+                {%- if card_style == 'overlay' -%}
+                  <div class="lc-card__content absolute inset-x-0 bottom-0 p-4 md:p-5 flex flex-col justify-end z-10">
+                    <h3 class="lc-card__title text-white font-heading font-semibold text-base md:text-lg lg:text-xl leading-tight mb-1 line-clamp-2">
+                      {{ collection.title }}
+                    </h3>
+                    {%- if show_card_count -%}
+                      <p class="lc-card__count text-white/75 text-xs md:text-sm font-medium">
+                        {{ collection.products_count }}
+                        {{ 'collections.general.products' | t | default: 'منتج' }}
+                      </p>
+                    {%- endif -%}
+
+                    {%- comment -%} Animated arrow on hover {%- endcomment -%}
+                    <div class="lc-card__arrow mt-2 inline-flex items-center gap-1 text-white/60 text-xs opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+                      <span>{{ 'collections.general.view_collection' | t | default: 'تصفح المجموعة' }}</span>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
+                      >
+                        <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                {%- endif -%}
+              </div>
+
+              {%- comment -%} Card Content - Below Style {%- endcomment -%}
+              {%- if card_style == 'below' or card_style == 'minimal' -%}
+                <div class="lc-card__content-below p-3 md:p-4">
+                  <h3
+                    class="lc-card__title font-heading font-semibold text-sm md:text-base lg:text-lg leading-tight mb-1 line-clamp-2 transition-colors duration-200"
+                    style="color: var(--color-foreground);"
+                  >
+                    {{ collection.title }}
+                  </h3>
+                  {%- if show_card_count -%}
+                    <div class="flex items-center justify-between">
+                      <p class="lc-card__count text-xs md:text-sm" style="color: var(--color-secondary-text);">
+                        {{ collection.products_count }}
+                        {{ 'collections.general.products' | t | default: 'منتج' }}
+                      </p>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="transition-transform duration-300 group-hover:translate-x-1 rtl:group-hover:-translate-x-1"
+                        style="color: var(--color-primary);"
+                      >
+                        <line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </a>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      {%- comment -%} ===== EMPTY STATE ===== {%- endcomment -%}
+      <div class="lc-empty flex flex-col items-center justify-center py-16 md:py-24 text-center">
+        <div
+          class="lc-empty__icon mb-6 p-6 rounded-full"
+          style="background: linear-gradient(135deg, var(--color-border), rgba(0,0,0,0.03));"
+        >
+          <svg
+            width="56"
+            height="56"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="color: var(--color-secondary-text); opacity: 0.5;"
+          >
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/>
+            <line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+          </svg>
+        </div>
+        <h2 class="text-xl md:text-2xl font-heading font-bold mb-2" style="color: var(--color-foreground);">
+          {{ 'collections.general.no_collections' | t | default: 'لا توجد مجموعات حالياً' }}
+        </h2>
+        <p class="text-sm md:text-base mb-6 max-w-md" style="color: var(--color-secondary-text);">
+          {{
+            'collections.general.no_collections_description'
+            | t
+            | default: 'تابعنا لمعرفة آخر المجموعات والمنتجات الجديدة'
+          }}
+        </p>
+        <a
+          href="{{ routes.root_url }}"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-btn font-semibold text-sm transition-all duration-300 hover:shadow-lg"
+          style="background: var(--color-primary); color: var(--color-button-label);"
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>{{ 'general.continue_shopping' | t | default: 'العودة للتسوق' }}</span>
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{%- comment -%} ===== SCOPED STYLES ===== {%- endcomment -%}
+<style>
+  /* Banner styles are now handled by the page-banner snippet */
+
+  /* ====== Grid Responsive ====== */
+  @media (min-width: 640px) {
+    .lc-grid {
+      grid-template-columns: repeat(var(--lc-cols-tablet), 1fr) !important;
+    }
+  }
+  @media (min-width: 1024px) {
+    .lc-grid {
+      grid-template-columns: repeat(var(--lc-cols-desktop), 1fr) !important;
+    }
+  }
+
+  /* ====== Card Base ====== */
+  .lc-card {
+    animation: lcFadeInUp 0.5s ease both;
+  }
+  .lc-card:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .lc-card:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .lc-card:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+  .lc-card:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  .lc-card:nth-child(5) {
+    animation-delay: 0.25s;
+  }
+  .lc-card:nth-child(6) {
+    animation-delay: 0.3s;
+  }
+  .lc-card:nth-child(7) {
+    animation-delay: 0.35s;
+  }
+  .lc-card:nth-child(8) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes lcFadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .lc-card__link {
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .lc-card__link:hover {
+    transform: translateY(-4px);
+  }
+
+  /* ====== Card Shadows ====== */
+  .lc-card--shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .lc-card--shadow-sm:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+  .lc-card--shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  .lc-card--shadow-md:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  }
+  .lc-card--shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  .lc-card--shadow-lg:hover {
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* ====== Image Aspect Ratios ====== */
+  .lc-ratio--portrait {
+    aspect-ratio: 3 / 4;
+  }
+  .lc-ratio--square {
+    aspect-ratio: 1 / 1;
+  }
+  .lc-ratio--landscape {
+    aspect-ratio: 4 / 3;
+  }
+  .lc-ratio--wide {
+    aspect-ratio: 16 / 9;
+  }
+
+  .lc-card__image-wrap {
+    background-color: var(--color-border);
+  }
+
+  /* ====== Overlay Gradient ====== */
+  .lc-card__overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.65) 0%,
+      rgba(0, 0, 0, 0.25) 40%,
+      rgba(0, 0, 0, 0.05) 70%,
+      transparent 100%
+    );
+    opacity: 0.8;
+  }
+  .lc-card:hover .lc-card__overlay {
+    opacity: 1;
+  }
+
+  /* ====== Card Content - Below Style ====== */
+  [data-card-style='below'] .lc-card__link,
+  [data-card-style='minimal'] .lc-card__link {
+    background: var(--color-card-background, var(--color-background));
+    border: 1px solid var(--color-border);
+  }
+  [data-card-style='below'] .lc-card__overlay,
+  [data-card-style='minimal'] .lc-card__overlay {
+    display: none;
+  }
+  [data-card-style='minimal'] .lc-card__link {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
+  [data-card-style='minimal'] .lc-card__link:hover {
+    box-shadow: none;
+    transform: none;
+  }
+  [data-card-style='minimal'] .lc-card__title:hover {
+    color: var(--color-primary) !important;
+  }
+  .lc-card__content-below {
+    border-top: 1px solid var(--color-border);
+  }
+  [data-card-style='minimal'] .lc-card__content-below {
+    border-top: none;
+    padding-inline: 0;
+  }
+
+  /* ====== Placeholder SVG ====== */
+  .lc-card__placeholder {
+    background: linear-gradient(135deg, var(--color-border) 0%, rgba(0, 0, 0, 0.02) 100%);
+  }
+
+  /* ====== RTL Arrow Flip ====== */
+  [dir='rtl'] .lc-card__arrow svg,
+  [dir='rtl'] .lc-card__content-below svg:last-child {
+    transform: scaleX(-1);
+  }
+
+  /* ====== Focus States ====== */
+  .lc-card__link:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+  }
+  .lc-breadcrumb__link:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ====== Print Styles ====== */
+  @media print {
+    .lc-card__overlay {
+      display: none;
+    }
+    .lc-card__link {
+      box-shadow: none;
+      border: 1px solid #ccc;
+    }
+  }
+
+  /* ====== Reduced Motion ====== */
+  @media (prefers-reduced-motion: reduce) {
+    .lc-card {
+      animation: none;
+    }
+    .lc-card__link,
+    .lc-card__image,
+    .lc-card__overlay,
+    .lc-card__arrow {
+      transition: none;
+    }
+  }
+
+  /* ====== Mobile Polish ====== */
+  @media (max-width: 639px) {
+    .lc-card__content {
+      padding: 0.75rem;
+    }
+    .lc-card__title {
+      font-size: 0.875rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.main_list_collections.name",
+  "class": "section-main-list-collections",
+  "settings": [
+    {
+      "type": "header",
+      "content": "بانر الصفحة"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner",
+      "label": "إظهار البانر",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "صورة البانر",
+      "info": "يُنصح بصورة بعرض 1920 بكسل. إذا لم تُحدد صورة ستظهر خلفية متدرجة"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "ارتفاع البانر (بكسل)",
+      "default": 320,
+      "min": 150,
+      "max": 600,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "شفافية التعتيم",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "text",
+      "id": "banner_title",
+      "label": "عنوان البانر",
+      "default": "المجموعات"
+    },
+    {
+      "type": "textarea",
+      "id": "banner_subtitle",
+      "label": "وصف البانر",
+      "default": "تصفح مجموعاتنا المميزة واكتشف أحدث المنتجات"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "إظهار مسار التنقل",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_count",
+      "label": "إظهار عدد المجموعات",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "محاذاة النص في البانر",
+      "default": "center",
+      "options": [
+        { "value": "start", "label": "بداية" },
+        { "value": "center", "label": "وسط" },
+        { "value": "end", "label": "نهاية" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "شبكة المجموعات"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "أعمدة سطح المكتب",
+      "default": "4",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" },
+        { "value": "6", "label": "6" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "أعمدة الجهاز اللوحي",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "أعمدة الجوال",
+      "default": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "المسافة بين العناصر",
+      "default": 20,
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "بطاقة المجموعة"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "نمط البطاقة",
+      "default": "overlay",
+      "options": [
+        { "value": "overlay", "label": "عنوان فوق الصورة" },
+        { "value": "below", "label": "عنوان أسفل الصورة" },
+        { "value": "minimal", "label": "مبسط" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "نسبة أبعاد الصورة",
+      "default": "portrait",
+      "options": [
+        { "value": "portrait", "label": "طولي (3:4)" },
+        { "value": "square", "label": "مربع (1:1)" },
+        { "value": "landscape", "label": "عرضي (4:3)" },
+        { "value": "wide", "label": "عريض (16:9)" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_card_count",
+      "label": "إظهار عدد المنتجات في البطاقة",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "انحناء زوايا البطاقة",
+      "default": 12,
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "card_shadow",
+      "label": "ظل البطاقة",
+      "default": "medium",
+      "options": [
+        { "value": "none", "label": "بدون ظل" },
+        { "value": "small", "label": "خفيف" },
+        { "value": "medium", "label": "متوسط" },
+        { "value": "large", "label": "قوي" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "hover_effect",
+      "label": "تأثير عند التمرير",
+      "default": "zoom",
+      "options": [
+        { "value": "none", "label": "بدون تأثير" },
+        { "value": "zoom", "label": "تكبير" },
+        { "value": "zoom-rotate", "label": "تكبير مع دوران" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "خيارات متقدمة"
+    },
+    {
+      "type": "select",
+      "id": "sort_collections",
+      "label": "ترتيب المجموعات",
+      "default": "alphabetical",
+      "options": [
+        { "value": "alphabetical", "label": "أبجدي" },
+        { "value": "products_count", "label": "عدد المنتجات (الأكثر أولاً)" },
+        { "value": "date", "label": "تاريخ الإنشاء" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_empty",
+      "label": "إخفاء المجموعات الفارغة",
+      "default": true,
+      "info": "إخفاء المجموعات التي لا تحتوي على منتجات"
+    },
+    {
+      "type": "range",
+      "id": "max_collections",
+      "label": "الحد الأقصى للمجموعات المعروضة",
+      "default": 0,
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "info": "0 يعني عرض الكل"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

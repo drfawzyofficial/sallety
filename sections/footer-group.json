@@ -1,0 +1,56 @@
+{
+  "type": "footer",
+  "name": "t:sections.footer.name",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {},
+      "blocks": {
+        "back_to_top": {
+          "type": "back_to_top",
+          "settings": {
+            "enabled": true,
+            "position": "left",
+            "bottom_offset": 24,
+            "scroll_threshold": 400
+          }
+        },
+        "floating_menu": {
+          "type": "floating_menu",
+          "settings": {
+            "desktop_enabled": true,
+            "desktop_show_cart": true,
+            "desktop_show_search": true,
+            "desktop_show_account": true,
+            "mobile_enabled": true,
+            "mobile_show_home": true,
+            "mobile_show_cart": true,
+            "mobile_show_search": true,
+            "mobile_show_account": true,
+            "mobile_show_labels": true
+          }
+        },
+        "whatsapp": {
+          "type": "whatsapp",
+          "settings": {
+            "enabled": true,
+            "whatsapp_number": "+201027706834",
+            "welcome_message": "مرحباً، أحتاج للمساعدة",
+            "position": "right",
+            "show_badge": true,
+            "badge_number": 1
+          }
+        }
+      },
+      "block_order": [
+        "back_to_top",
+        "floating_menu",
+        "whatsapp"
+      ]
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}
+

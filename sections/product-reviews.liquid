@@ -1,0 +1,1225 @@
+{%- comment -%}
+  Sallety Theme - Product Reviews Section
+  Reads reviews from product metafield: custom.product_reviews (multi-line text)
+  Format per line:
+    1- Name: أحمد عدل, comment: المنتج قوي جدا..., stars: 4
+    2- Name: شيماء محمد, comment: المنتج عظيم..., stars: 5
+  The metafield should be added via Shopify dashboard > Products > Metafields.
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme | default: 'scheme-1' | remove: 'scheme-'
+  assign heading = section.settings.heading | default: 'آراء العملاء'
+  assign subheading = section.settings.subheading
+  assign reviews_per_page = section.settings.reviews_per_page | default: 5
+  assign show_summary = section.settings.show_summary
+  assign show_verified_badge = section.settings.show_verified_badge
+  assign show_date = section.settings.show_date
+  assign show_avatar = section.settings.show_avatar
+  assign card_style = section.settings.card_style | default: 'bordered'
+  assign star_color = section.settings.star_color | default: '#fbbf24'
+  assign verified_color = section.settings.verified_color | default: '#10b981'
+  assign corner_radius = section.settings.corner_radius | default: 12
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign layout = section.settings.layout | default: 'list'
+  assign sort_by = section.settings.sort_by | default: 'newest'
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
+      break
+    endif
+  endfor
+  assign section_dir = 'ltr'
+  if settings.enable_rtl and is_rtl_lang
+    assign section_dir = 'rtl'
+  endif
+-%}
+
+<section
+  class="pr-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  id="ProductReviews-{{ section.id }}"
+  dir="{{ section_dir }}"
+  style="
+    --pr-star-color: {{ star_color }};
+    --pr-verified-color: {{ verified_color }};
+    --pr-corner-radius: {{ corner_radius }}px;
+    --pr-heading-weight: {{ heading_weight }};
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+    font-family: var(--font-body-family);
+  "
+>
+  <div class="w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+    <product-reviews
+      class="block w-full"
+      data-product-id="{{ product.id }}"
+      data-product-handle="{{ product.handle }}"
+      data-reviews-per-page="{{ reviews_per_page }}"
+      data-show-summary="{{ show_summary }}"
+      data-show-verified="{{ show_verified_badge }}"
+      data-show-date="{{ show_date }}"
+      data-show-avatar="{{ show_avatar }}"
+      data-sort-by="{{ sort_by }}"
+      data-layout="{{ layout }}"
+      data-card-style="{{ card_style }}"
+    >
+      {%- comment -%} Section Header {%- endcomment -%}
+      <div class="text-center mb-6 sm:mb-8 lg:mb-10 animate-on-scroll aos-fade-up">
+        {%- if subheading != blank -%}
+          <span class="pr-subheading">{{ subheading }}</span>
+        {%- endif -%}
+        <h2 class="pr-heading" style="font-weight: var(--pr-heading-weight);">
+          {{ heading }}
+          <span class="pr-heading__count" data-reviews-count></span>
+        </h2>
+      </div>
+
+      {%- comment -%} Rating Summary {%- endcomment -%}
+      {%- if show_summary -%}
+        <div
+          class="pr-summary w-full mb-6 sm:mb-8 animate-on-scroll aos-fade-up"
+          data-reviews-summary
+          style="display: none;"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+            <div class="flex flex-col items-center gap-2 sm:min-w-[140px] shrink-0">
+              <span class="pr-summary__number" data-average-rating>0</span>
+              <div class="pr-summary__stars flex gap-1" data-summary-stars></div>
+              <span class="pr-summary__total text-xs sm:text-sm">
+                {{ 'sections.product_reviews.based_on' | t | default: 'بناءً على' }}
+                <span data-total-reviews>0</span>
+                {{ 'sections.product_reviews.reviews' | t | default: 'تقييم' }}
+              </span>
+            </div>
+            <div class="flex-1 w-full">
+              {%- for i in (1..5) -%}
+                {%- assign star_num = 6 | minus: i -%}
+                <div class="pr-bar">
+                  <span class="pr-bar__label">
+                    {{- star_num }}
+                    <svg width="14" height="14" viewBox="0 0 20 20" fill="var(--pr-star-color)">
+                      <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/>
+                    </svg>
+                  </span>
+                  <div class="pr-bar__track">
+                    <div class="pr-bar__fill" data-bar-fill="{{ star_num }}" style="width: 0%"></div>
+                  </div>
+                  <span class="pr-bar__count" data-bar-count="{{ star_num }}">0</span>
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Sort Controls {%- endcomment -%}
+      <div
+        class="pr-controls flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-5 sm:mb-6 pb-4 border-b border-[var(--color-border,rgba(0,0,0,0.06))] animate-on-scroll aos-fade-up"
+        data-reviews-controls
+        style="display: none;"
+      >
+        <div class="flex items-center gap-2">
+          <label for="pr-sort-{{ section.id }}" class="pr-sort__label whitespace-nowrap text-sm">
+            {{ 'sections.product_reviews.sort_by' | t | default: 'ترتيب حسب' }}:
+          </label>
+          <select id="pr-sort-{{ section.id }}" class="pr-sort__select text-sm" data-sort-select>
+            <option
+              value="newest"
+              {% if sort_by == 'newest' %}
+                selected
+              {% endif %}
+            >
+              {{ 'sections.product_reviews.newest' | t | default: 'الأحدث' }}
+            </option>
+            <option
+              value="oldest"
+              {% if sort_by == 'oldest' %}
+                selected
+              {% endif %}
+            >
+              {{ 'sections.product_reviews.oldest' | t | default: 'الأقدم' }}
+            </option>
+            <option
+              value="highest"
+              {% if sort_by == 'highest' %}
+                selected
+              {% endif %}
+            >
+              {{ 'sections.product_reviews.highest' | t | default: 'الأعلى تقييماً' }}
+            </option>
+            <option
+              value="lowest"
+              {% if sort_by == 'lowest' %}
+                selected
+              {% endif %}
+            >
+              {{ 'sections.product_reviews.lowest' | t | default: 'الأقل تقييماً' }}
+            </option>
+          </select>
+        </div>
+        <div
+          class="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:mx-0 sm:px-0 sm:overflow-visible sm:flex-wrap"
+          data-filter-buttons
+        >
+          <button class="pr-filter__btn active whitespace-nowrap shrink-0" data-filter="all">
+            {{ 'sections.product_reviews.all' | t | default: 'الكل' }}
+          </button>
+          {%- for i in (1..5) -%}
+            {%- assign star_num = 6 | minus: i -%}
+            <button class="pr-filter__btn whitespace-nowrap shrink-0" data-filter="{{ star_num }}">
+              {{ star_num }}
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="var(--pr-star-color)">
+                <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/>
+              </svg>
+            </button>
+          {%- endfor -%}
+        </div>
+      </div>
+
+      {%- comment -%} Reviews List {%- endcomment -%}
+      <div class="pr-list pr-list--{{ layout }}" data-reviews-list></div>
+
+      {%- comment -%} Load More {%- endcomment -%}
+      <div class="text-center mt-6 sm:mt-8" data-load-more style="display: none;">
+        <button type="button" class="btn btn--outline pr-load-more-btn" data-load-more-btn>
+          {{ 'sections.product_reviews.load_more' | t | default: 'عرض المزيد' }}
+        </button>
+      </div>
+
+      {%- comment -%} Empty State {%- endcomment -%}
+      <div class="pr-empty" data-reviews-empty style="display: none;">
+        <svg
+          class="pr-empty__icon"
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+        <h3 class="pr-empty__title">
+          {{ 'sections.product_reviews.no_reviews' | t | default: 'لا توجد تقييمات بعد' }}
+        </h3>
+        <p class="pr-empty__desc">
+          {{ 'sections.product_reviews.no_reviews_desc' | t | default: 'كن أول من يقيّم هذا المنتج' }}
+        </p>
+      </div>
+
+      {%- comment -%} Pass raw product_reviews metafield text to JS for parsing {%- endcomment -%}
+      {%- assign reviews_raw = product.metafields.custom.product_reviews -%}
+      {%- if reviews_raw != blank -%}
+        <script type="text/plain" data-reviews-raw>
+          {
+            {
+              reviews_raw;
+            }
+          }
+        </script>
+      {%- endif -%}
+
+      {%- comment -%} Review card template {%- endcomment -%}
+      <template data-review-template>
+        <div class="pr-review pr-review--CARD_STYLE">
+          <div class="pr-review__header">
+            <div class="pr-review__author-wrap">
+              <div class="pr-review__avatar" data-tmpl-avatar>
+                <span data-tmpl-initials></span>
+              </div>
+              <div class="pr-review__author-info">
+                <span class="pr-review__name" data-tmpl-name></span>
+                <span class="pr-review__verified" data-tmpl-verified style="display: none;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--pr-verified-color)" stroke="none">
+                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 12c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                  {{ 'sections.product_reviews.verified' | t | default: 'مشتري موثق' }}
+                </span>
+              </div>
+            </div>
+            <div class="pr-review__meta">
+              <span class="pr-review__date" data-tmpl-date></span>
+            </div>
+          </div>
+          <div class="pr-review__stars" data-tmpl-stars></div>
+          <h4 class="pr-review__title" data-tmpl-title></h4>
+          <p class="pr-review__body" data-tmpl-body></p>
+        </div>
+      </template>
+    </product-reviews>
+  </div>
+</section>
+
+<style>
+  /* ===== Header ===== */
+  .pr-subheading {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-accent, var(--color-primary));
+    margin-bottom: 8px;
+  }
+
+  .pr-heading {
+    font-size: clamp(1.25rem, 3.5vw, 2.25rem);
+    color: var(--color-text);
+    line-height: 1.3;
+    margin: 0;
+    font-family: var(--font-heading-family, var(--font-body-family));
+  }
+
+  .pr-heading__count {
+    font-weight: 400;
+    font-size: 0.6em;
+    color: var(--color-secondary-text);
+  }
+
+  /* ===== Summary ===== */
+  .pr-summary {
+    background: var(--color-card-background, rgba(0, 0, 0, 0.03));
+    border-radius: var(--pr-corner-radius);
+    padding: 16px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.06));
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 640px) {
+    .pr-summary {
+      padding: 24px 32px;
+    }
+  }
+
+  .pr-summary__number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 640px) {
+    .pr-summary__number {
+      font-size: 3rem;
+    }
+  }
+
+  .pr-summary__total {
+    color: var(--color-secondary-text);
+  }
+
+  /* ===== Rating Bars ===== */
+  .pr-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  @media (min-width: 640px) {
+    .pr-bar {
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+  }
+
+  .pr-bar__label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-width: 32px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  @media (min-width: 640px) {
+    .pr-bar__label {
+      min-width: 36px;
+      font-size: 0.85rem;
+      gap: 4px;
+    }
+  }
+
+  .pr-bar__track {
+    flex: 1;
+    height: 6px;
+    background: var(--color-border, rgba(0, 0, 0, 0.08));
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .pr-bar__track {
+      height: 8px;
+    }
+  }
+
+  .pr-bar__fill {
+    height: 100%;
+    background: var(--pr-star-color);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .pr-bar__count {
+    min-width: 20px;
+    font-size: 0.75rem;
+    color: var(--color-secondary-text);
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (min-width: 640px) {
+    .pr-bar__count {
+      min-width: 24px;
+      font-size: 0.8rem;
+    }
+  }
+
+  /* ===== Controls ===== */
+  .pr-sort__label {
+    font-weight: 500;
+    color: var(--color-secondary-text);
+  }
+
+  .pr-sort__select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-background);
+    color: var(--color-text);
+    cursor: pointer;
+    max-width: 100%;
+  }
+
+  .pr-filter__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .pr-filter__btn:hover,
+  .pr-filter__btn.active {
+    background: var(--color-button, var(--color-primary));
+    color: var(--color-button-label, #fff);
+    border-color: var(--color-button, var(--color-primary));
+  }
+
+  /* Hide scrollbar for filter buttons on mobile */
+  [data-filter-buttons] {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  [data-filter-buttons]::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ===== Review List ===== */
+  .pr-list--list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .pr-list--list {
+      gap: 16px;
+    }
+  }
+
+  .pr-list--grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .pr-list--grid {
+      gap: 16px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .pr-list--grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ===== Review Card ===== */
+  .pr-review {
+    padding: 16px;
+    border-radius: var(--pr-corner-radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review {
+      padding: 24px;
+    }
+  }
+
+  .pr-review:hover {
+    transform: translateY(-2px);
+  }
+
+  .pr-review--bordered {
+    background: var(--color-card-background, transparent);
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  }
+
+  .pr-review--bordered:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .pr-review--filled {
+    background: var(--color-card-background, rgba(0, 0, 0, 0.03));
+  }
+
+  .pr-review--filled:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .pr-review--minimal {
+    background: transparent;
+    border-bottom: 1px solid var(--color-border, rgba(0, 0, 0, 0.06));
+    border-radius: 0;
+    padding: 16px 0;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review--minimal {
+      padding: 24px 0;
+    }
+  }
+
+  .pr-review--glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .pr-review--glass:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  .pr-review__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .pr-review__author-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__author-wrap {
+      gap: 12px;
+    }
+  }
+
+  .pr-review__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-accent, var(--color-primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__avatar {
+      width: 40px;
+      height: 40px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .pr-review__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pr-review__author-info {
+    min-width: 0;
+  }
+
+  .pr-review__name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__name {
+      font-size: 0.95rem;
+    }
+  }
+
+  .pr-review__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    color: var(--pr-verified-color);
+    font-weight: 500;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__verified {
+      font-size: 0.75rem;
+    }
+  }
+
+  .pr-review__date {
+    font-size: 0.75rem;
+    color: var(--color-secondary-text);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__date {
+      font-size: 0.8rem;
+    }
+  }
+
+  .pr-review__stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+
+  .pr-review__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 8px;
+    line-height: 1.4;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__title {
+      font-size: 1rem;
+    }
+  }
+
+  .pr-review__body {
+    font-size: 0.85rem;
+    color: var(--color-secondary-text);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .pr-review__body {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* ===== Empty State ===== */
+  .pr-empty {
+    text-align: center;
+    padding: 32px 16px;
+  }
+
+  @media (min-width: 640px) {
+    .pr-empty {
+      padding: 48px 24px;
+    }
+  }
+
+  .pr-empty__icon {
+    color: var(--color-secondary-text);
+    margin: 0 auto 16px;
+    opacity: 0.4;
+  }
+
+  .pr-empty__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 8px;
+  }
+
+  @media (min-width: 640px) {
+    .pr-empty__title {
+      font-size: 1.25rem;
+    }
+  }
+
+  .pr-empty__desc {
+    font-size: 0.85rem;
+    color: var(--color-secondary-text);
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .pr-empty__desc {
+      font-size: 0.9rem;
+    }
+  }
+
+  /* ===== Load More ===== */
+  .pr-load-more-btn {
+    padding: 10px 24px;
+    border-radius: var(--pr-corner-radius);
+    font-size: 0.85rem;
+  }
+
+  @media (min-width: 640px) {
+    .pr-load-more-btn {
+      padding: 12px 32px;
+      font-size: 0.9rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pr-review,
+    .pr-bar__fill {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  if (!customElements.get('product-reviews')) {
+    class ProductReviews extends HTMLElement {
+      constructor() {
+        super();
+        this.reviews = [];
+        this.filteredReviews = [];
+        this.currentPage = 1;
+        this.perPage = parseInt(this.dataset.reviewsPerPage) || 5;
+        this.sortBy = this.dataset.sortBy || 'newest';
+        this.currentFilter = 'all';
+        this.layout = this.dataset.layout || 'list';
+        this.cardStyle = this.dataset.cardStyle || 'bordered';
+        this.showSummary = this.dataset.showSummary === 'true';
+        this.showVerified = this.dataset.showVerified === 'true';
+        this.showDate = this.dataset.showDate === 'true';
+        this.showAvatar = this.dataset.showAvatar === 'true';
+      }
+
+      connectedCallback() {
+        this.loadReviews();
+        this.bindEvents();
+      }
+
+      loadReviews() {
+        const rawEl = this.querySelector('[data-reviews-raw]');
+        if (rawEl) {
+          try {
+            const rawText = rawEl.textContent;
+            this.reviews = this.parseReviewsText(rawText);
+          } catch (e) {
+            this.reviews = [];
+          }
+        }
+
+        if (this.reviews.length > 0) {
+          this.filteredReviews = [...this.reviews];
+          this.sortReviews();
+          this.renderSummary();
+          this.renderReviews();
+          this.showControls();
+        } else {
+          this.showEmpty();
+        }
+      }
+
+      /**
+       * Parse multi-line text metafield into review objects.
+       * Expected format per entry (can span multiple lines):
+       *   1- Name: أحمد عدل, comment: المنتج قوي جدا وله الكثير من الأسباب التي تجعل قوي, stars: 4
+       *   2- Name: شيماء محمد, comment: المنتج عظيم ولا يمكن الاستغناء عنه, stars: 5
+       */
+      parseReviewsText(text) {
+        if (!text || !text.trim()) return [];
+
+        const reviews = [];
+        /* Split into individual review entries using the numbered pattern */
+        const entries = text.split(/(?=\d+\s*[-–]\s*Name\s*:)/i).filter((s) => s.trim());
+
+        for (const entry of entries) {
+          const review = { name: '', body: '', rating: 5, verified: true };
+
+          /* Extract Name */
+          const nameMatch = entry.match(/Name\s*:\s*(.+?)\s*[,،]\s*(?:review|comment)\s*:/i);
+          if (nameMatch) {
+            review.name = nameMatch[1].trim();
+          }
+
+          /* Extract review body */
+          const reviewMatch = entry.match(/(?:review|comment)\s*:\s*(.+?)\s*[,،]\s*(?:stars?|starts?)\s*:/i);
+          if (reviewMatch) {
+            review.body = reviewMatch[1].trim();
+          }
+
+          /* Extract stars */
+          const starsMatch = entry.match(/(?:stars?|starts?)\s*:\s*(\d+)/i);
+          if (starsMatch) {
+            review.rating = Math.min(5, Math.max(1, parseInt(starsMatch[1])));
+          }
+
+          /* Only add if we got at least a name */
+          if (review.name) {
+            reviews.push(review);
+          }
+        }
+
+        return reviews;
+      }
+
+      bindEvents() {
+        const sortSelect = this.querySelector('[data-sort-select]');
+        if (sortSelect) {
+          sortSelect.addEventListener('change', (e) => {
+            this.sortBy = e.target.value;
+            this.currentPage = 1;
+            this.sortReviews();
+            this.renderReviews();
+          });
+        }
+
+        const filterBtns = this.querySelectorAll('[data-filter]');
+        filterBtns.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            filterBtns.forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.currentFilter = btn.dataset.filter;
+            this.currentPage = 1;
+            this.filterReviews();
+            this.sortReviews();
+            this.renderReviews();
+          });
+        });
+
+        const loadMoreBtn = this.querySelector('[data-load-more-btn]');
+        if (loadMoreBtn) {
+          loadMoreBtn.addEventListener('click', () => {
+            this.currentPage++;
+            this.renderReviews(true);
+          });
+        }
+      }
+
+      filterReviews() {
+        if (this.currentFilter === 'all') {
+          this.filteredReviews = [...this.reviews];
+        } else {
+          const rating = parseInt(this.currentFilter);
+          this.filteredReviews = this.reviews.filter((r) => Math.round(r.rating) === rating);
+        }
+      }
+
+      sortReviews() {
+        this.filteredReviews.sort((a, b) => {
+          switch (this.sortBy) {
+            case 'newest':
+              return new Date(b.date || 0) - new Date(a.date || 0);
+            case 'oldest':
+              return new Date(a.date || 0) - new Date(b.date || 0);
+            case 'highest':
+              return (b.rating || 0) - (a.rating || 0);
+            case 'lowest':
+              return (a.rating || 0) - (b.rating || 0);
+            default:
+              return 0;
+          }
+        });
+      }
+
+      renderSummary() {
+        const summaryEl = this.querySelector('[data-reviews-summary]');
+        if (!summaryEl || !this.showSummary) return;
+
+        const total = this.reviews.length;
+        if (total === 0) return;
+
+        summaryEl.style.display = '';
+
+        const avgRating = (this.reviews.reduce((s, r) => s + (r.rating || 0), 0) / total).toFixed(1);
+        const countEl = this.querySelector('[data-reviews-count]');
+        const avgEl = this.querySelector('[data-average-rating]');
+        const totalEl = this.querySelector('[data-total-reviews]');
+        const starsEl = this.querySelector('[data-summary-stars]');
+
+        if (countEl) countEl.textContent = `(${total})`;
+        if (avgEl) avgEl.textContent = avgRating;
+        if (totalEl) totalEl.textContent = total;
+        if (starsEl) starsEl.innerHTML = this.generateStars(parseFloat(avgRating));
+
+        /* Bar counts */
+        const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        this.reviews.forEach((r) => {
+          const rounded = Math.min(5, Math.max(1, Math.round(r.rating || 0)));
+          counts[rounded]++;
+        });
+
+        for (let i = 1; i <= 5; i++) {
+          const fillEl = this.querySelector(`[data-bar-fill="${i}"]`);
+          const countBarEl = this.querySelector(`[data-bar-count="${i}"]`);
+          if (fillEl) fillEl.style.width = `${(counts[i] / total) * 100}%`;
+          if (countBarEl) countBarEl.textContent = counts[i];
+        }
+      }
+
+      renderReviews(append = false) {
+        const listEl = this.querySelector('[data-reviews-list]');
+        const loadMoreEl = this.querySelector('[data-load-more]');
+        const emptyEl = this.querySelector('[data-reviews-empty]');
+        if (!listEl) return;
+
+        if (!append) listEl.innerHTML = '';
+
+        const start = append ? (this.currentPage - 1) * this.perPage : 0;
+        const end = this.currentPage * this.perPage;
+        const visibleReviews = this.filteredReviews.slice(start, end);
+
+        if (this.filteredReviews.length === 0) {
+          emptyEl.style.display = '';
+          if (loadMoreEl) loadMoreEl.style.display = 'none';
+          return;
+        } else {
+          emptyEl.style.display = 'none';
+        }
+
+        const fragment = document.createDocumentFragment();
+        visibleReviews.forEach((review) => {
+          fragment.appendChild(this.createReviewCard(review));
+        });
+        listEl.appendChild(fragment);
+
+        if (loadMoreEl) {
+          loadMoreEl.style.display = end < this.filteredReviews.length ? '' : 'none';
+        }
+      }
+
+      createReviewCard(review) {
+        const template = this.querySelector('[data-review-template]');
+        const clone = template.content.cloneNode(true);
+        const card = clone.querySelector('.pr-review');
+
+        card.className = `pr-review pr-review--${this.cardStyle}`;
+
+        /* Avatar */
+        const avatarEl = clone.querySelector('[data-tmpl-avatar]');
+        const initialsEl = clone.querySelector('[data-tmpl-initials]');
+        if (this.showAvatar && avatarEl) {
+          if (review.avatar_url) {
+            avatarEl.innerHTML = `<img src="${review.avatar_url}" alt="${review.name || ''}" loading="lazy">`;
+          } else if (initialsEl) {
+            initialsEl.textContent = (review.name || '?').charAt(0).toUpperCase();
+          }
+        } else if (avatarEl) {
+          avatarEl.style.display = 'none';
+        }
+
+        /* Name */
+        const nameEl = clone.querySelector('[data-tmpl-name]');
+        if (nameEl) nameEl.textContent = review.name || '';
+
+        /* Verified */
+        const verifiedEl = clone.querySelector('[data-tmpl-verified]');
+        if (verifiedEl && this.showVerified && review.verified) {
+          verifiedEl.style.display = '';
+        }
+
+        /* Date */
+        const dateEl = clone.querySelector('[data-tmpl-date]');
+        if (dateEl && this.showDate && review.date) {
+          dateEl.textContent = this.formatDate(review.date);
+        } else if (dateEl) {
+          dateEl.style.display = 'none';
+        }
+
+        /* Stars */
+        const starsEl = clone.querySelector('[data-tmpl-stars]');
+        if (starsEl) starsEl.innerHTML = this.generateStars(review.rating || 0);
+
+        /* Title */
+        const titleEl = clone.querySelector('[data-tmpl-title]');
+        if (titleEl) {
+          if (review.title) {
+            titleEl.textContent = review.title;
+          } else {
+            titleEl.style.display = 'none';
+          }
+        }
+
+        /* Body */
+        const bodyEl = clone.querySelector('[data-tmpl-body]');
+        if (bodyEl) bodyEl.textContent = review.body || '';
+
+        return clone;
+      }
+
+      generateStars(rating) {
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+          if (i <= Math.floor(rating)) {
+            html += `<svg width="16" height="16" viewBox="0 0 20 20" fill="var(--pr-star-color)"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>`;
+          } else if (i - 0.5 <= rating) {
+            html += `<svg width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient id="half${i}"><stop offset="50%" stop-color="var(--pr-star-color)"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z" fill="url(#half${i})" stroke="var(--pr-star-color)" stroke-width="1"/></svg>`;
+          } else {
+            html += `<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="var(--pr-star-color)" stroke-width="1"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>`;
+          }
+        }
+        return html;
+      }
+
+      formatDate(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          return date.toLocaleDateString(document.documentElement.lang || 'ar', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          });
+        } catch {
+          return dateStr;
+        }
+      }
+
+      showControls() {
+        const controls = this.querySelector('[data-reviews-controls]');
+        if (controls) controls.style.display = '';
+      }
+
+      showEmpty() {
+        const emptyEl = this.querySelector('[data-reviews-empty]');
+        if (emptyEl) emptyEl.style.display = '';
+      }
+    }
+    customElements.define('product-reviews', ProductReviews);
+  }
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.product_reviews.name",
+  "tag": "section",
+  "class": "section section-product-reviews",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_content.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "لتفعيل التقييمات، أضف حقل ميتا (Metafield) للمنتج باسم custom.product_reviews من نوع نص متعدد الأسطر (Multi-line text). أدخل البيانات بالتنسيق التالي: 1- Name: أحمد, comment: منتج رائع, stars: 5 — سطر لكل تقييم."
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.product_reviews.settings.subheading.label"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.product_reviews.settings.heading.label",
+      "default": "آراء العملاء"
+    },
+
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_display.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_summary",
+      "label": "t:sections.product_reviews.settings.show_summary.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_verified_badge",
+      "label": "t:sections.product_reviews.settings.show_verified_badge.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:sections.product_reviews.settings.show_date.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_avatar",
+      "label": "t:sections.product_reviews.settings.show_avatar.label",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "reviews_per_page",
+      "label": "t:sections.product_reviews.settings.reviews_per_page.label",
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "select",
+      "id": "sort_by",
+      "label": "t:sections.product_reviews.settings.sort_by.label",
+      "options": [
+        { "value": "newest", "label": "t:sections.product_reviews.settings.sort_by.options.newest" },
+        { "value": "oldest", "label": "t:sections.product_reviews.settings.sort_by.options.oldest" },
+        { "value": "highest", "label": "t:sections.product_reviews.settings.sort_by.options.highest" },
+        { "value": "lowest", "label": "t:sections.product_reviews.settings.sort_by.options.lowest" }
+      ],
+      "default": "newest"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_layout.content"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.product_reviews.settings.layout.label",
+      "options": [
+        { "value": "list", "label": "t:sections.product_reviews.settings.layout.options.list" },
+        { "value": "grid", "label": "t:sections.product_reviews.settings.layout.options.grid" }
+      ],
+      "default": "list"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.product_reviews.settings.card_style.label",
+      "options": [
+        { "value": "bordered", "label": "t:sections.product_reviews.settings.card_style.options.bordered" },
+        { "value": "filled", "label": "t:sections.product_reviews.settings.card_style.options.filled" },
+        { "value": "minimal", "label": "t:sections.product_reviews.settings.card_style.options.minimal" },
+        { "value": "glass", "label": "t:sections.product_reviews.settings.card_style.options.glass" }
+      ],
+      "default": "bordered"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_typography.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.product_reviews.settings.heading_weight.label",
+      "options": [
+        { "value": "400", "label": "t:sections.product_reviews.settings.heading_weight.options.400" },
+        { "value": "500", "label": "t:sections.product_reviews.settings.heading_weight.options.500" },
+        { "value": "600", "label": "t:sections.product_reviews.settings.heading_weight.options.600" },
+        { "value": "700", "label": "t:sections.product_reviews.settings.heading_weight.options.700" },
+        { "value": "800", "label": "t:sections.product_reviews.settings.heading_weight.options.800" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.product_reviews.settings.corner_radius.label",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_colors.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.product_reviews.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "star_color",
+      "label": "t:sections.product_reviews.settings.star_color.label",
+      "default": "#fbbf24"
+    },
+    {
+      "type": "color",
+      "id": "verified_color",
+      "label": "t:sections.product_reviews.settings.verified_color.label",
+      "default": "#10b981"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product_reviews.settings.header_spacing.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.product_reviews.settings.padding_top.label",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.product_reviews.settings.padding_bottom.label",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.product_reviews.name",
+      "settings": {
+        "heading": "آراء العملاء"
+      }
+    }
+  ]
+}
+{% endschema %}

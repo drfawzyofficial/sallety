@@ -1,0 +1,182 @@
+{%- comment -%}
+  Sallety Theme - Collection Banner Section
+  Premium hero banner with collection image, centered breadcrumb trail,
+  title, and optional description. Fully responsive.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_banner = section.settings.show_collection_image
+  assign show_breadcrumbs = section.settings.show_breadcrumbs
+  assign show_title = section.settings.show_title
+  assign show_description = section.settings.show_description
+  assign overlay_opacity = section.settings.overlay_opacity
+  assign banner_height = section.settings.banner_height
+  assign custom_image = section.settings.custom_image
+  assign has_image = false
+
+  if custom_image != blank
+    assign has_image = true
+  elsif collection.image != blank
+    assign has_image = true
+  endif
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section
+  class="cb {% if show_banner %}cb--has-image{% else %}cb--no-image{% endif %}"
+  data-section-id="{{ section.id }}"
+  dir="{{ section_dir }}"
+  {% if show_banner %}style="--cb-height: {{ banner_height }}px;"{% endif %}
+>
+  {%- comment -%} ===== Background ===== {%- endcomment -%}
+  {%- if show_banner -%}
+    <div class="cb__image-wrap">
+      {%- if custom_image != blank -%}
+        <img
+          src="{{ custom_image | image_url: width: 1920 }}"
+          srcset="{{ custom_image | image_url: width: 800 }} 800w, {{ custom_image | image_url: width: 1200 }} 1200w, {{ custom_image | image_url: width: 1920 }} 1920w"
+          sizes="100vw"
+          alt="{{ collection.title | escape }}"
+          width="1920"
+          height="{{ 1920 | divided_by: custom_image.aspect_ratio | round }}"
+          loading="eager"
+          fetchpriority="high"
+          class="cb__image"
+        >
+      {%- elsif collection.image != blank -%}
+        <img
+          src="{{ collection.image | image_url: width: 1920 }}"
+          srcset="{{ collection.image | image_url: width: 800 }} 800w, {{ collection.image | image_url: width: 1200 }} 1200w, {{ collection.image | image_url: width: 1920 }} 1920w"
+          sizes="100vw"
+          alt="{{ collection.title | escape }}"
+          width="1920"
+          height="{{ 1920 | divided_by: collection.image.aspect_ratio | round }}"
+          loading="eager"
+          fetchpriority="high"
+          class="cb__image"
+        >
+      {%- else -%}
+        {%- comment -%} Default Shopify placeholder SVG when no image is set {%- endcomment -%}
+        <div class="cb__placeholder">
+          {{ 'collection-1' | placeholder_svg_tag: 'cb__placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      <div class="cb__overlay" style="--cb-overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};"></div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} ===== Content ===== {%- endcomment -%}
+  <div class="cb__content">
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    {%- if show_breadcrumbs -%}
+      <nav class="cb__breadcrumb" aria-label="مسار التنقل">
+        <ol class="cb__breadcrumb-list">
+          <li class="cb__breadcrumb-item">
+            <a href="{{ routes.root_url }}" class="cb__breadcrumb-link">
+              {{ 'general.breadcrumbs.home' | t }}
+            </a>
+          </li>
+          <li class="cb__breadcrumb-sep" aria-hidden="true">
+            <span class="cb__breadcrumb-dash">-</span>
+          </li>
+          {%- if current_tags -%}
+            <li class="cb__breadcrumb-item">
+              <a href="{{ collection.url }}" class="cb__breadcrumb-link">
+                {{ collection.title }}
+              </a>
+            </li>
+            <li class="cb__breadcrumb-sep" aria-hidden="true">
+              <span class="cb__breadcrumb-dash">-</span>
+            </li>
+            <li class="cb__breadcrumb-item">
+              <span class="cb__breadcrumb-current">{{ current_tags | join: ' + ' }}</span>
+            </li>
+          {%- else -%}
+            <li class="cb__breadcrumb-item">
+              <span class="cb__breadcrumb-current">{{ collection.title }}</span>
+            </li>
+          {%- endif -%}
+        </ol>
+      </nav>
+    {%- endif -%}
+
+    {%- comment -%} Title {%- endcomment -%}
+    {%- if show_title -%}
+      <h1 class="cb__title">{{ collection.title }}</h1>
+    {%- endif -%}
+
+    {%- comment -%} Description {%- endcomment -%}
+    {%- if show_description and collection.description != blank -%}
+      <div class="cb__description rte">
+        {{ collection.description }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Product count pill {%- endcomment -%}
+    {%- if collection.products_count > 0 -%}
+      <span class="cb__count">
+        {{ collection.products_count }} {{ 'collections.general.products' | t }}
+      </span>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.main_collection.banner.name",
+  "class": "section-collection-banner",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "إظهار صورة البانر",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "custom_image",
+      "label": "صورة بانر مخصصة",
+      "info": "تستبدل صورة المجموعة إذا تم تعيينها"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.main_collection.banner.settings.overlay_opacity.label",
+      "default": 45,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "ارتفاع البانر (بكسل)",
+      "default": 300,
+      "min": 150,
+      "max": 500,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "إظهار عنوان المجموعة",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "إظهار مسار التنقل",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "إظهار الوصف في البانر",
+      "default": false,
+      "info": "عرض وصف المجموعة داخل البانر"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,16 @@
+{%- comment -%}
+  Footer Block - App Download
+  Displays app download buttons
+
+  Parameters:
+  - block: The block object from section
+{%- endcomment -%}
+
+<div class="footer-block footer-block--app text-right" {{ block.shopify_attributes }}>
+  {% render 'footer-app-download',
+    heading: block.settings.heading,
+    app_store_link: block.settings.app_store_link,
+    google_play_link: block.settings.google_play_link
+  %}
+</div>
+

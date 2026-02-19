@@ -1,0 +1,50 @@
+{%- comment -%}
+  Sallety Theme - Localization Form Snippet
+  Renders country and language selectors.
+
+  Accepts:
+  - show_country: {Boolean} Show country selector
+  - show_language: {Boolean} Show language selector
+
+  Usage:
+  {% render 'localization-form', show_country: true, show_language: true %}
+{%- endcomment -%}
+
+<div class="localization-form">
+  {%- if show_language and localization.available_languages.size > 1 -%}
+    <div class="localization-form__item">
+      {% form 'localization', id: 'language-form', class: 'localization-form__form' %}
+        <label for="language-selector" class="visually-hidden">{{ 'localization.language_label' | t }}</label>
+        <select id="language-selector" name="locale_code" class="localization-form__select" onchange="this.form.submit()">
+          {%- for language in localization.available_languages -%}
+            <option value="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+              {{ language.endonym_name | capitalize }}
+            </option>
+          {%- endfor -%}
+        </select>
+        <noscript>
+          <button type="submit" class="button button--secondary">{{ 'localization.update_language' | t }}</button>
+        </noscript>
+      {% endform %}
+    </div>
+  {%- endif -%}
+
+  {%- if show_country and localization.available_countries.size > 1 -%}
+    <div class="localization-form__item">
+      {% form 'localization', id: 'country-form', class: 'localization-form__form' %}
+        <label for="country-selector" class="visually-hidden">{{ 'localization.country_label' | t }}</label>
+        <select id="country-selector" name="country_code" class="localization-form__select" onchange="this.form.submit()">
+          {%- for country in localization.available_countries -%}
+            <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+              {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+            </option>
+          {%- endfor -%}
+        </select>
+        <noscript>
+          <button type="submit" class="button button--secondary">{{ 'localization.update_country' | t }}</button>
+        </noscript>
+      {% endform %}
+    </div>
+  {%- endif -%}
+</div>
+

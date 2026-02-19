@@ -1,0 +1,66 @@
+{%- comment -%}
+  Sallety Theme - Quantity Input Snippet
+  Renders a quantity selector.
+
+  Accepts:
+  - id: {String} Unique identifier
+  - value: {Number} Current quantity value (default: 1)
+  - name: {String} Input name attribute
+  - min: {Number} Minimum value (default: 1)
+  - max: {Number} Maximum value (optional)
+  - variant: {Object} Product variant for inventory-based max (optional)
+
+  Usage:
+  {% render 'quantity-input', id: product.id %}
+  {% render 'quantity-input', id: product.id, max: 10, min: 1 %}
+{%- endcomment -%}
+
+{%- liquid
+  assign input_value = value | default: 1
+  assign input_min = min | default: 1
+  assign input_name = name | default: 'quantity'
+  
+  # Calculate max based on variant inventory if provided
+  assign input_max = max
+  if variant != blank and variant.inventory_management != blank
+    if variant.inventory_policy != 'continue' and variant.inventory_quantity > 0
+      if input_max == blank or variant.inventory_quantity < input_max
+        assign input_max = variant.inventory_quantity
+      endif
+    endif
+  endif
+-%}
+
+<div class="quantity-selector" data-quantity-selector {% if input_max %}data-max-quantity="{{ input_max }}"{% endif %}>
+  <button
+    type="button"
+    class="quantity-selector__button"
+    data-quantity-minus
+    aria-label="{{ 'products.product.quantity' | t }} {{ 'general.minus' | t }}"
+    {% if input_value <= input_min %}disabled{% endif %}
+  >
+    {% render 'icon-minus' %}
+  </button>
+  
+  <input
+    type="number"
+    class="quantity-selector__input"
+    data-quantity-input
+    name="{{ input_name }}"
+    value="{{ input_value }}"
+    min="{{ input_min }}"
+    {% if input_max %}max="{{ input_max }}"{% endif %}
+    aria-label="{{ 'products.product.quantity' | t }}"
+  >
+  
+  <button
+    type="button"
+    class="quantity-selector__button"
+    data-quantity-plus
+    aria-label="{{ 'products.product.quantity' | t }} {{ 'general.plus' | t }}"
+    {% if input_max and input_value >= input_max %}disabled{% endif %}
+  >
+    {% render 'icon-plus' %}
+  </button>
+</div>
+

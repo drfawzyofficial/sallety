@@ -1,0 +1,3310 @@
+{%- comment -%}
+  Footer Section - Dynamic Shopify Settings
+  Fully connected with Shopify settings, color schemes, and typography
+  RTL layout with Arabic labels
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme assignment (native Shopify color_scheme)
+  assign scheme_settings = section.settings.color_scheme.settings
+
+  # Typography - Desktop
+  assign heading_size_desktop = section.settings.heading_size_desktop | default: 22
+  assign body_size_desktop = section.settings.body_size_desktop | default: 18
+
+  # Typography - Tablet
+  assign heading_size_tablet = section.settings.heading_size_tablet | default: 18
+  assign body_size_tablet = section.settings.body_size_tablet | default: 16
+
+  # Typography - Mobile
+  assign heading_size_mobile = section.settings.heading_size_mobile | default: 16
+  assign body_size_mobile = section.settings.body_size_mobile | default: 14
+
+  # Typography - Weights
+  assign heading_weight = section.settings.footer_heading_weight | default: '700'
+  assign body_weight = section.settings.footer_body_weight | default: '400'
+
+  # Colors from selected color scheme (native Shopify approach)
+  assign bg_color = scheme_settings.background
+  assign text_color = scheme_settings.text
+  assign muted_color = scheme_settings.secondary_text
+  assign border_color = scheme_settings.border
+
+  # Section-specific color (newsletter background)
+  assign newsletter_bg = section.settings.footer_newsletter_bg | default: '#cbd5e1'
+
+  # Section settings
+  assign store_name = section.settings.store_name | default: shop.name
+  assign store_description = section.settings.store_description | default: 'متجرك الإلكتروني المميز لتجربة تسوق فريدة'
+
+  # Contact info
+  assign contact_title = section.settings.contact_title | default: 'تواصل معنا'
+  assign phone = section.settings.phone
+  assign mobile = section.settings.mobile
+  assign email = section.settings.email
+  assign telegram = section.settings.telegram
+
+  # Newsletter
+  assign newsletter_title = section.settings.newsletter_title | default: 'اشترك في النشرة البريدية ليصلك كل جديد!'
+  assign newsletter_placeholder = section.settings.newsletter_placeholder | default: 'ادخل البريد الإلكتروني'
+  assign newsletter_button = section.settings.newsletter_button | default: 'اشترك'
+
+  # App links
+  assign app_section_title = section.settings.app_section_title | default: 'تحميل تطبيق الجوال'
+  assign google_play_link = section.settings.google_play_link
+  assign app_store_link = section.settings.app_store_link
+  assign show_app_badge = section.settings.show_app_badge
+
+  # Links menu
+  assign links_title = section.settings.links_title | default: 'روابط مهمة'
+  assign footer_menu = section.settings.footer_menu
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<footer
+  class="footer-section"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="footer"
+  style="
+    --footer-bg: {{ bg_color }};
+    --footer-text: {{ text_color }};
+    --footer-muted: {{ muted_color }};
+    --footer-border: {{ border_color }};
+    --footer-newsletter-bg: {{ newsletter_bg }};
+    --footer-heading-desktop: {{ heading_size_desktop }}px;
+    --footer-body-desktop: {{ body_size_desktop }}px;
+    --footer-heading-tablet: {{ heading_size_tablet }}px;
+    --footer-body-tablet: {{ body_size_tablet }}px;
+    --footer-heading-mobile: {{ heading_size_mobile }}px;
+    --footer-body-mobile: {{ body_size_mobile }}px;
+    --footer-heading-weight: {{ heading_weight }};
+    --footer-body-weight: {{ body_weight }};
+    font-family: var(--font-body-family);
+  "
+>
+  <!-- Parallax Decorative Shapes -->
+  {%- if section.settings.show_parallax_shapes -%}
+    <div class="footer-shapes">
+      <div class="footer-shape footer-shape--1"></div>
+      <div class="footer-shape footer-shape--2"></div>
+      <div class="footer-shape footer-shape--3"></div>
+      <div class="footer-shape footer-shape--4"></div>
+      <div class="footer-shape footer-shape--5"></div>
+      <div class="footer-shape footer-shape--6"></div>
+      <div class="footer-shape footer-shape--7"></div>
+      <div class="footer-shape footer-shape--dots"></div>
+    </div>
+  {%- endif -%}
+
+  <!-- Main Footer Content -->
+  <div class="footer-main">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <!-- Column 1: Logo & Description -->
+        <div class="footer-column footer-column--logo">
+          <div class="footer-logo-wrapper">
+            {%- if section.settings.logo != blank -%}
+              <div class="footer-logo-box">
+                <img
+                  src="{{ section.settings.logo | image_url: width: 120 }}"
+                  alt="{{ store_name }}"
+                  width="60"
+                  height="60"
+                  loading="lazy"
+                  class="footer-logo-img"
+                >
+              </div>
+            {%- else -%}
+              <div class="footer-logo-box footer-logo-box--default">
+                <svg viewBox="0 0 60 60" class="footer-logo-icon">
+                  <rect x="15" y="8" width="30" height="44" rx="3" fill="var(--footer-bg)"/>
+                  <path d="M22 18 L38 18 L38 24 L22 24 Z" fill="white"/>
+                  <path d="M18 28 L42 28 L42 48 L18 48 Z" fill="white"/>
+                  <ellipse cx="30" cy="38" rx="8" ry="10" fill="var(--footer-bg)"/>
+                </svg>
+              </div>
+            {%- endif -%}
+            <h2 class="footer-store-name">{{ store_name }}</h2>
+          </div>
+          <p class="footer-description">{{ store_description }}</p>
+        </div>
+
+        <!-- Column 2: Important Links -->
+        <div class="footer-column footer-column--links">
+          <h3 class="footer-heading">{{ links_title }}</h3>
+          <ul class="footer-link-list">
+            {%- if footer_menu != blank and linklists[footer_menu].links.size > 0 -%}
+              {%- for link in linklists[footer_menu].links -%}
+                <li>
+                  <a href="{{ link.url }}" class="footer-link">{{ link.title }}</a>
+                </li>
+              {%- endfor -%}
+            {%- else -%}
+              <!-- Fallback links when no menu is selected -->
+              <li><a href="/pages/about" class="footer-link">عن المتجر</a></li>
+              <li><a href="/pages/contact" class="footer-link">تواصل معنا</a></li>
+              <li><a href="/pages/privacy-policy" class="footer-link">سياسة الخصوصية</a></li>
+              <li><a href="/pages/terms-of-service" class="footer-link">الشروط والأحكام</a></li>
+              <li><a href="/pages/shipping-policy" class="footer-link">سياسة الشحن</a></li>
+              <li><a href="/pages/refund-policy" class="footer-link">سياسة الاسترجاع</a></li>
+            {%- endif -%}
+          </ul>
+        </div>
+
+        <!-- Column 3: Contact Info -->
+        <div class="footer-column footer-column--contact">
+          <h3 class="footer-heading">{{ contact_title }}</h3>
+          <ul class="footer-contact-list">
+            {%- if mobile != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="7" y="2" width="10" height="20" rx="2" />
+                    <line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <a href="tel:{{ mobile }}" class="footer-contact-text" dir="ltr">{{ mobile }}</a>
+              </li>
+            {%- endif -%}
+
+            {%- if phone != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
+                </div>
+                <a href="tel:{{ phone }}" class="footer-contact-text" dir="ltr">{{ phone }}</a>
+              </li>
+            {%- endif -%}
+
+            {%- if email != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M22 6l-10 7L2 6"/>
+                  </svg>
+                </div>
+                <a href="mailto:{{ email }}" class="footer-contact-text" dir="ltr">{{ email }}</a>
+              </li>
+            {%- endif -%}
+
+            {%- if telegram != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                  </svg>
+                </div>
+                <a
+                  href="https://t.me/{{ telegram }}"
+                  class="footer-contact-text"
+                  dir="ltr"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {{- telegram -}}
+                </a>
+              </li>
+            {%- endif -%}
+
+            {%- comment %} Show placeholder if no contact info {%- endcomment %}
+            {%- if mobile == blank and phone == blank and email == blank and telegram == blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="7" y="2" width="10" height="20" rx="2" />
+                    <line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <span class="footer-contact-text" dir="ltr">أضف رقم الهاتف</span>
+              </li>
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M22 6l-10 7L2 6"/>
+                  </svg>
+                </div>
+                <span class="footer-contact-text" dir="ltr">أضف البريد الإلكتروني</span>
+              </li>
+            {%- endif -%}
+          </ul>
+
+          <!-- Social Icons from General Settings -->
+          {%- if section.settings.show_social_icons -%}
+            <div class="footer-social">
+              {%- if settings.social_instagram_link != blank -%}
+                <a
+                  href="{{ settings.social_instagram_link }}"
+                  class="footer-social-link"
+                  aria-label="Instagram"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_twitter_link != blank -%}
+                <a
+                  href="{{ settings.social_twitter_link }}"
+                  class="footer-social-link"
+                  aria-label="X (Twitter)"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_facebook_link != blank -%}
+                <a
+                  href="{{ settings.social_facebook_link }}"
+                  class="footer-social-link"
+                  aria-label="Facebook"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_youtube_link != blank -%}
+                <a
+                  href="{{ settings.social_youtube_link }}"
+                  class="footer-social-link"
+                  aria-label="YouTube"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_tiktok_link != blank -%}
+                <a
+                  href="{{ settings.social_tiktok_link }}"
+                  class="footer-social-link"
+                  aria-label="TikTok"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_snapchat_link != blank -%}
+                <a
+                  href="{{ settings.social_snapchat_link }}"
+                  class="footer-social-link"
+                  aria-label="Snapchat"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.217-.937 1.407-5.965 1.407-5.965s-.359-.72-.359-1.781c0-1.669.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641 0 12.017 0z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_whatsapp_link != blank -%}
+                <a
+                  href="{{ settings.social_whatsapp_link }}"
+                  class="footer-social-link"
+                  aria-label="WhatsApp"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+
+              {%- if settings.social_telegram_link != blank -%}
+                <a
+                  href="{{ settings.social_telegram_link }}"
+                  class="footer-social-link"
+                  aria-label="Telegram"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        <!-- Column 4: App Download -->
+        {%- if section.settings.show_app_section -%}
+          <div class="footer-column footer-column--app">
+            <!-- Saudi Business Authentication Badge -->
+            {%- if section.settings.show_saudi_auth -%}
+              {%- if section.settings.saudi_auth_url != blank -%}
+                <a
+                  href="{{ section.settings.saudi_auth_url }}"
+                  class="footer-saudi-auth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="موثّق في منصة الأعمال السعودية"
+                >
+              {%- else -%}
+                <div class="footer-saudi-auth">
+              {%- endif -%}
+              <div class="footer-saudi-auth-content">
+                <div class="footer-saudi-auth-logo">
+                  <img
+                    src="{{ 'saudia_auth.png' | asset_url }}"
+                    alt="موثّق في منصة الأعمال"
+                    loading="lazy"
+                    width="48"
+                    height="48"
+                  >
+                </div>
+                <span class="footer-saudi-auth-text">موثّق في منصة الأعمال</span>
+              </div>
+              {%- if section.settings.saudi_auth_url != blank -%}
+                </a>
+              {%- else -%}
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+
+            <h3 class="footer-heading">{{ app_section_title }}</h3>
+
+            <div class="footer-app-buttons">
+              {%- if google_play_link != blank -%}
+                <a href="{{ google_play_link }}" class="app-store-btn" target="_blank" rel="noopener">
+                  <div class="app-store-btn-content">
+                    <div class="app-store-btn-text">
+                      <span class="app-store-btn-label">GET IT ON</span>
+                      <span class="app-store-btn-store">Google Play</span>
+                    </div>
+                    <svg class="app-store-btn-icon" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594z"/>
+                      <path fill="#34A853" d="M1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924z"/>
+                      <path fill="#FBBC04" d="M12.504 12.022l3.086-3.086L3.196.258A1.5 1.5 0 0 0 1.337.924l11.167 11.098z"/>
+                      <path fill="#EA4335" d="M12.504 12.022L1.349 23.109c.195.177.454.291.747.291.213 0 .438-.056.652-.169l12.392-7.015-2.636-2.194z"/>
+                    </svg>
+                  </div>
+                </a>
+              {%- endif -%}
+
+              {%- if app_store_link != blank -%}
+                <a href="{{ app_store_link }}" class="app-store-btn" target="_blank" rel="noopener">
+                  <div class="app-store-btn-content">
+                    <div class="app-store-btn-text">
+                      <span class="app-store-btn-label">Download on the</span>
+                      <span class="app-store-btn-store">App Store</span>
+                    </div>
+                    <svg class="app-store-btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
+                  </div>
+                </a>
+              {%- endif -%}
+            </div>
+
+            {%- if show_app_badge -%}
+              <div class="footer-app-badge">
+                <p class="footer-app-badge-text">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                  </svg>
+                  <span>متوفر على iOS و Android</span>
+                </p>
+              </div>
+            {%- endif -%}
+
+            <!-- Language/Currency Selector -->
+            {%- if section.settings.show_localization -%}
+              <div class="footer-localization">
+                <h4 class="footer-localization-title">لغة المتجر - عملة المتجر</h4>
+                <div class="footer-localization-selectors">
+                  {%- form 'localization', id: 'FooterLocalizationForm', class: 'footer-localization-form' -%}
+                    <div class="footer-localization-item">
+                      <div class="footer-language-selector">
+                        <svg
+                          class="footer-localization-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <circle cx="12" cy="12" r="10"/>
+                          <path d="M2 12h20"/>
+                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        {%- if localization.available_languages.size > 1 -%}
+                          <select name="locale_code" class="footer-select" onchange="this.form.submit()">
+                            {%- for language in localization.available_languages -%}
+                              <option
+                                value="{{ language.iso_code }}"
+                                {% if language.iso_code == localization.language.iso_code %}
+                                  selected
+                                {% endif %}
+                              >
+                                {{ language.endonym_name | capitalize }}
+                              </option>
+                            {%- endfor -%}
+                          </select>
+                        {%- else -%}
+                          <span class="footer-language-text">
+                            {{- localization.language.endonym_name | capitalize -}}
+                          </span>
+                        {%- endif -%}
+                      </div>
+
+                      {%- if localization.available_countries.size > 1 -%}
+                        <span class="footer-localization-divider">|</span>
+                        <div class="footer-currency-selector">
+                          <select name="country_code" class="footer-select" onchange="this.form.submit()">
+                            {%- for country in localization.available_countries -%}
+                              <option
+                                value="{{ country.iso_code }}"
+                                {% if country.iso_code == localization.country.iso_code %}
+                                  selected
+                                {% endif %}
+                              >
+                                {{ country.currency.iso_code }}
+                                {{ country.currency.symbol }}
+                              </option>
+                            {%- endfor -%}
+                          </select>
+                        </div>
+                      {%- else -%}
+                        <span class="footer-localization-divider">|</span>
+                        <div class="footer-currency-display">
+                          <span>
+                            {{- localization.country.currency.iso_code }}
+                            {{ localization.country.currency.symbol -}}
+                          </span>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  {%- endform -%}
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- Newsletter Section -->
+    {%- if section.settings.show_newsletter -%}
+      <div class="footer-newsletter-wrapper">
+        <div class="footer-newsletter">
+          <div class="footer-newsletter-content">
+            {%- form 'customer', class: 'footer-newsletter-form' -%}
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <button type="submit" class="footer-newsletter-btn">{{ newsletter_button }}</button>
+              <input
+                type="email"
+                name="contact[email]"
+                class="footer-newsletter-input"
+                placeholder="{{ newsletter_placeholder }}"
+                autocomplete="email"
+                dir="{{ section_dir }}"
+                required
+              >
+            {%- endform -%}
+            <div class="footer-newsletter-text">
+              <h3 class="footer-newsletter-heading">{{ newsletter_title }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p class="footer-copyright">
+          {{ section.settings.copyright_text | default: 'صنع باتقان على' }} |
+          <a href="{{ shop.url }}">{{ shop.name }}</a>
+          {{ 'now' | date: '%Y' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Render Footer Blocks: Back to Top & Floating Menu {%- endcomment -%}
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when 'back_to_top' -%}
+        {%- if block.settings.enabled -%}
+          <button
+            type="button"
+            class="back-to-top"
+            data-back-to-top
+            data-scroll-threshold="{{ block.settings.scroll_threshold | default: 400 }}"
+            aria-label="{{ 'accessibility.scroll_to_top' | t | default: 'العودة للأعلى' }}"
+            style="
+              {{ block.settings.position }}: {{ block.settings.bottom_offset | default: 24 }}px;
+              {%- if block.settings.position == 'right' -%}
+                left: auto;
+              {%- else -%}
+                right: auto;
+              {%- endif -%}
+            "
+            {{ block.shopify_attributes }}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 15l-6-6-6 6"/>
+              <path d="M18 9l-6-6-6 6"/>
+            </svg>
+          </button>
+        {%- endif -%}
+
+      {%- when 'floating_menu' -%}
+        {%- liquid
+          assign current_path = request.path
+        -%}
+
+        {%- comment -%} Mobile Bottom Navigation {%- endcomment -%}
+        {%- if block.settings.mobile_enabled -%}
+          <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="التنقل السريع">
+            {%- if block.settings.mobile_show_cart -%}
+              {%- assign is_cart_active = false -%}
+              {%- if current_path == '/cart' -%}{%- assign is_cart_active = true -%}{%- endif -%}
+              <a
+                href="{{ routes.cart_url }}"
+                class="mobile-nav-item{% if is_cart_active %} is-active{% endif %}"
+                aria-label="سلة التسوق"
+                data-nav-type="cart"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 6h15l-1.5 9h-12z"/>
+                    <circle cx="9" cy="20" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="20" r="1.5" fill="currentColor"/>
+                    <path d="M3 3h3l1 3"/>
+                  </svg>
+                  {%- if cart.item_count > 0 -%}
+                    <span class="mobile-nav-badge">{{ cart.item_count }}</span>
+                  {%- endif -%}
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">السلة</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.mobile_show_search -%}
+              {%- assign is_search_active = false -%}
+              {%- if current_path contains '/search' -%}{%- assign is_search_active = true -%}{%- endif -%}
+              <a
+                href="{{ routes.search_url }}"
+                class="mobile-nav-item{% if is_search_active %} is-active{% endif %}"
+                aria-label="البحث"
+                data-nav-type="search"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="7"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                  </svg>
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">البحث</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.mobile_show_account -%}
+              {%- assign is_account_active = false -%}
+              {%- if current_path contains '/account' -%}{%- assign is_account_active = true -%}{%- endif -%}
+              <a
+                href="{{ routes.account_url }}"
+                class="mobile-nav-item{% if is_account_active %} is-active{% endif %}"
+                aria-label="حسابي"
+                data-nav-type="account"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                  </svg>
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">حسابي</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.mobile_show_wishlist -%}
+              {%- assign is_wishlist_active = false -%}
+              {%- if current_path contains '/wishlist' -%}{%- assign is_wishlist_active = true -%}{%- endif -%}
+              <a
+                href="{{ routes.root_url }}pages/wishlist"
+                class="mobile-nav-item{% if is_wishlist_active %} is-active{% endif %}"
+                aria-label="المفضلة"
+                data-nav-type="wishlist"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                  <span class="mobile-nav-badge" data-wishlist-count data-count="0">0</span>
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">المفضلة</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.mobile_show_home -%}
+              {%- assign is_products_active = false -%}
+              {%- if current_path contains '/collections/all' or current_path contains '/products' -%}
+                {%- assign is_products_active = true -%}
+              {%- endif -%}
+              <a
+                href="{{ routes.all_products_collection_url | default: '/collections/all' }}"
+                class="mobile-nav-item mobile-nav-item--home{% if is_products_active %} is-active{% endif %}"
+                aria-label="المنتجات"
+                data-nav-type="products"
+              >
+                <div class="mobile-nav-icon-wrapper mobile-nav-icon--home">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 3h7v7H3z"/>
+                    <path d="M14 3h7v7h-7z"/>
+                    <path d="M14 14h7v7h-7z"/>
+                    <path d="M3 14h7v7H3z"/>
+                  </svg>
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">المنتجات</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- comment -%} Custom Links {%- endcomment -%}
+            {%- if block.settings.custom_link_1_url != blank -%}
+              <a
+                href="{{ block.settings.custom_link_1_url }}"
+                class="mobile-nav-item"
+                aria-label="{{ block.settings.custom_link_1_label | default: 'رابط' }}"
+                data-nav-type="custom"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  {%- case block.settings.custom_link_1_icon -%}
+                    {%- when 'heart' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    {%- when 'star' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    {%- when 'gift' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                      </svg>
+                    {%- when 'tag' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                      </svg>
+                    {%- when 'phone' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                    {%- else -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                      </svg>
+                  {%- endcase -%}
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">{{ block.settings.custom_link_1_label | default: 'رابط' }}</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+
+            {%- if block.settings.custom_link_2_url != blank -%}
+              <a
+                href="{{ block.settings.custom_link_2_url }}"
+                class="mobile-nav-item"
+                aria-label="{{ block.settings.custom_link_2_label | default: 'رابط' }}"
+                data-nav-type="custom"
+              >
+                <div class="mobile-nav-icon-wrapper">
+                  {%- case block.settings.custom_link_2_icon -%}
+                    {%- when 'heart' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    {%- when 'star' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    {%- when 'gift' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+                      </svg>
+                    {%- when 'tag' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                      </svg>
+                    {%- when 'phone' -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                    {%- else -%}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                      </svg>
+                  {%- endcase -%}
+                </div>
+                {%- if block.settings.mobile_show_labels -%}
+                  <span class="mobile-nav-label">{{ block.settings.custom_link_2_label | default: 'رابط' }}</span>
+                {%- endif -%}
+              </a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+
+      {%- when 'whatsapp' -%}
+        {%- if block.settings.enabled -%}
+          <button
+            type="button"
+            class="whatsapp-float"
+            data-whatsapp-chat
+            data-whatsapp-number="{{ block.settings.whatsapp_number | default: '+201027706834' }}"
+            data-whatsapp-message="{{ block.settings.welcome_message | default: '' }}"
+            aria-label="تواصل معنا عبر واتساب"
+            style="
+              {{ block.settings.position | default: 'left' }}: 24px;
+              {%- if block.settings.position == 'right' -%}
+                left: auto;
+              {%- else -%}
+                right: auto;
+              {%- endif -%}
+            "
+            {{ block.shopify_attributes }}
+          >
+            <span class="whatsapp-float-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+            </span>
+            {%- if block.settings.show_badge and block.settings.badge_number > 0 -%}
+              <span class="whatsapp-float-badge">{{ block.settings.badge_number }}</span>
+            {%- endif -%}
+            <span class="whatsapp-float-pulse"></span>
+          </button>
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+</footer>
+
+<style>
+  /* Footer Base Styles with CSS Variables */
+  .footer-section {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ================================
+     PARALLAX SHAPES & ANIMATIONS
+     ================================ */
+  .footer-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .footer-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.08;
+    filter: blur(1px);
+  }
+
+  .footer-shape--1 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    top: -100px;
+    right: 5%;
+    animation: floatShape1 15s ease-in-out infinite;
+  }
+
+  .footer-shape--2 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, #06b6d4, #3b82f6);
+    bottom: 20%;
+    left: -50px;
+    animation: floatShape2 12s ease-in-out infinite;
+  }
+
+  .footer-shape--3 {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(180deg, #f59e0b, #ef4444);
+    top: 40%;
+    left: 30%;
+    animation: floatShape3 10s ease-in-out infinite;
+  }
+
+  .footer-shape--4 {
+    width: 60px;
+    height: 60px;
+    background: #22d3ee;
+    top: 25%;
+    right: 25%;
+    animation: pulseGlow 4s ease-in-out infinite;
+    filter: blur(2px);
+  }
+
+  .footer-shape--5 {
+    width: 180px;
+    height: 180px;
+    background: transparent;
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    top: 15%;
+    left: 15%;
+    animation: rotateRing 20s linear infinite;
+  }
+
+  .footer-shape--6 {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    bottom: 30%;
+    right: 15%;
+    animation: floatShape1 8s ease-in-out infinite reverse;
+  }
+
+  .footer-shape--7 {
+    width: 400px;
+    height: 400px;
+    background: transparent;
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    bottom: -200px;
+    right: -100px;
+    animation: rotateRing 30s linear infinite reverse;
+  }
+
+  .footer-shape--dots {
+    width: 200px;
+    height: 200px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    top: 20%;
+    right: 40%;
+    border-radius: 0;
+    animation: floatDots 18s ease-in-out infinite;
+    opacity: 0.3;
+    filter: none;
+  }
+
+  @keyframes floatShape1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(20px, -30px) scale(1.05);
+    }
+    50% {
+      transform: translate(-10px, -50px) scale(1);
+    }
+    75% {
+      transform: translate(30px, -20px) scale(0.95);
+    }
+  }
+
+  @keyframes floatShape2 {
+    0%,
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    33% {
+      transform: translate(40px, -20px) rotate(5deg);
+    }
+    66% {
+      transform: translate(20px, 30px) rotate(-5deg);
+    }
+  }
+
+  @keyframes floatShape3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.08;
+    }
+    50% {
+      transform: translate(-30px, 20px) scale(1.2);
+      opacity: 0.12;
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.1;
+    }
+    50% {
+      transform: scale(1.3);
+      opacity: 0.2;
+    }
+  }
+
+  @keyframes rotateRing {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes floatDots {
+    0%,
+    100% {
+      transform: translate(0, 0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translate(30px, -30px);
+      opacity: 0.5;
+    }
+  }
+
+  /* Main Footer */
+  .footer-main {
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 64px 32px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1.2fr;
+    gap: 48px;
+  }
+
+  /* Footer Columns */
+  .footer-column {
+    text-align: right;
+  }
+
+  .footer-heading {
+    font-size: var(--footer-heading-desktop);
+    font-weight: var(--footer-heading-weight);
+    margin-bottom: 24px;
+    color: var(--footer-text);
+  }
+
+  /* Logo Column */
+  .footer-logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .footer-logo-box {
+    width: 70px;
+    height: 70px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+
+  .footer-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 8px;
+  }
+
+  .footer-logo-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .footer-store-name {
+    font-size: 28px;
+    font-weight: var(--footer-heading-weight);
+    color: var(--footer-text);
+    margin: 0;
+  }
+
+  .footer-description {
+    font-size: var(--footer-body-desktop);
+    font-weight: var(--footer-body-weight);
+    line-height: 1.9;
+    color: var(--footer-muted);
+    max-width: 280px;
+    margin: 0;
+  }
+
+  /* Links Column */
+  .footer-link-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-link-list li {
+    margin-bottom: 16px;
+  }
+
+  .footer-link {
+    color: var(--footer-muted);
+    font-size: var(--footer-body-desktop);
+    font-weight: var(--footer-body-weight);
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+  }
+
+  .footer-link:hover {
+    color: var(--footer-text);
+    transform: translateX(-4px);
+  }
+
+  /* Contact Column */
+  .footer-contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .footer-contact-text {
+    color: var(--footer-muted);
+    font-size: var(--footer-body-desktop);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer-contact-text:hover {
+    color: var(--footer-text);
+  }
+
+  .footer-contact-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--footer-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .footer-contact-icon:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  }
+
+  .footer-contact-icon svg {
+    width: 16px;
+    height: 16px;
+    color: var(--footer-text);
+  }
+
+  /* Social Icons */
+  .footer-social {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-social-link {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--footer-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--footer-text);
+    transition: all 0.3s ease;
+  }
+
+  .footer-social-link:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-social-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* App Download Column */
+  .footer-app-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .app-store-btn {
+    display: block;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .app-store-btn:hover {
+    transform: scale(1.03) translateY(-2px);
+  }
+
+  .app-store-btn-content {
+    background-color: #000000;
+    border: 1px solid var(--footer-border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 12px;
+    min-width: 155px;
+    transition: all 0.3s ease;
+  }
+
+  .app-store-btn:hover .app-store-btn-content {
+    border-color: #4b5563;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .app-store-btn-text {
+    text-align: right;
+    color: #ffffff;
+  }
+
+  .app-store-btn-label {
+    display: block;
+    font-size: 9px;
+    color: #9ca3af;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .app-store-btn-store {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .app-store-btn-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .footer-app-badge {
+    margin-top: 16px;
+  }
+
+  .footer-app-badge-text {
+    font-size: 12px;
+    color: var(--footer-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .footer-app-badge-text svg {
+    width: 14px;
+    height: 14px;
+    color: #22c55e;
+  }
+
+  /* Saudi Business Authentication Badge */
+  .footer-saudi-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .footer-saudi-auth:hover {
+    transform: translateY(-2px);
+  }
+
+  .footer-saudi-auth-content {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--footer-border);
+    border-radius: 16px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+  }
+
+  .footer-saudi-auth:hover .footer-saudi-auth-content {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #4d8eff;
+    box-shadow: 0 4px 20px rgba(77, 142, 255, 0.2);
+  }
+
+  .footer-saudi-auth-logo {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .footer-saudi-auth-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .footer-saudi-auth-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--footer-text);
+    white-space: nowrap;
+  }
+
+  /* Localization Selector */
+  .footer-localization {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--footer-border);
+  }
+
+  .footer-localization-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--footer-text);
+    margin: 0 0 12px 0;
+  }
+
+  .footer-localization-selectors {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .footer-localization-form {
+    width: 100%;
+  }
+
+  .footer-localization-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--footer-border);
+    border-radius: 50px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+  }
+
+  .footer-localization-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .footer-language-selector,
+  .footer-currency-selector,
+  .footer-language-display,
+  .footer-currency-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .footer-localization-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--footer-muted);
+  }
+
+  .footer-localization-divider {
+    color: var(--footer-border);
+    margin: 0 4px;
+  }
+
+  .footer-select {
+    background: transparent;
+    border: none;
+    color: var(--footer-text);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+  }
+
+  .footer-select option {
+    background: #1a2744;
+    color: #ffffff;
+  }
+
+  .footer-language-display span,
+  .footer-currency-display span {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--footer-text);
+  }
+
+  /* Newsletter Section */
+  .footer-newsletter-wrapper {
+    padding: 0 48px;
+    margin-bottom: 24px;
+  }
+
+  .footer-newsletter {
+    background-color: var(--footer-newsletter-bg);
+    border-radius: 24px;
+    padding: 24px 40px;
+    max-width: 1304px;
+    margin: 0 auto;
+  }
+
+  .footer-newsletter-content {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .footer-newsletter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    max-width: 480px;
+  }
+
+  .footer-newsletter-input {
+    flex: 1;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 24px;
+    font-size: var(--footer-body-desktop);
+    color: #374151;
+    text-align: right;
+    outline: none;
+    min-width: 280px;
+    font-family: inherit;
+  }
+
+  .footer-newsletter-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .footer-newsletter-input:focus {
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+  }
+
+  .footer-newsletter-btn {
+    background-color: var(--footer-bg);
+    color: var(--footer-text);
+    border: none;
+    border-radius: 50px;
+    padding: var(--button-padding-vertical, 14px) var(--button-padding-horizontal, 32px);
+    font-size: var(--button-font-size, 16px);
+    font-weight: var(--button-font-weight, 600);
+    cursor: pointer;
+    transition: all var(--button-transition-duration, 200ms) ease;
+    white-space: nowrap;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Hover shine effect */
+  .footer-newsletter-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .footer-newsletter-btn:hover::before {
+    left: 100%;
+  }
+
+  .footer-newsletter-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Responsive font size for newsletter button */
+  @media (max-width: 1024px) {
+    .footer-newsletter-btn {
+      font-size: var(--button-font-size-tablet, 15px);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer-newsletter-btn {
+      font-size: var(--button-font-size-mobile, 14px);
+    }
+  }
+
+  .footer-newsletter-text {
+    text-align: right;
+  }
+
+  .footer-newsletter-heading {
+    font-size: 22px;
+    font-weight: var(--footer-heading-weight);
+    color: var(--footer-bg);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Footer Bottom */
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px 64px;
+  }
+
+  .footer-bottom-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .footer-copyright {
+    font-size: var(--footer-body-desktop);
+    color: var(--footer-muted);
+    margin: 0;
+  }
+
+  .footer-copyright a {
+    color: var(--footer-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer-copyright a:hover {
+    color: var(--footer-text);
+  }
+
+  /* ================================
+     RESPONSIVE STYLES
+     ================================ */
+  @media (max-width: 1280px) {
+    .footer-container {
+      padding: 40px 48px 28px;
+    }
+
+    .footer-grid {
+      gap: 36px;
+    }
+
+    .footer-newsletter-wrapper {
+      padding: 0 32px;
+    }
+
+    .footer-bottom {
+      padding: 16px 48px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .footer-section {
+      --footer-heading-current: var(--footer-heading-tablet);
+      --footer-body-current: var(--footer-body-tablet);
+    }
+
+    .footer-container {
+      padding: 36px 32px 24px;
+    }
+
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px 32px;
+    }
+
+    .footer-column--logo {
+      order: 1;
+    }
+    .footer-column--links {
+      order: 2;
+    }
+    .footer-column--contact {
+      order: 3;
+    }
+    .footer-column--app {
+      order: 4;
+    }
+
+    .footer-heading {
+      font-size: var(--footer-heading-tablet);
+    }
+
+    .footer-description,
+    .footer-link,
+    .footer-contact-text,
+    .footer-newsletter-input,
+    .footer-newsletter-btn,
+    .footer-copyright {
+      font-size: var(--footer-body-tablet);
+    }
+
+    .footer-newsletter-wrapper {
+      padding: 0 24px;
+    }
+
+    .footer-newsletter {
+      padding: 20px 32px;
+    }
+
+    .footer-newsletter-heading {
+      font-size: calc(var(--footer-heading-tablet) + 4px);
+    }
+
+    .footer-bottom {
+      padding: 14px 32px;
+    }
+
+    .footer-description {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .footer-section {
+      --footer-heading-current: var(--footer-heading-mobile);
+      --footer-body-current: var(--footer-body-mobile);
+    }
+
+    .footer-shapes {
+      opacity: 0.5;
+    }
+
+    .footer-container {
+      padding: 32px 24px 20px;
+    }
+
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 24px;
+    }
+
+    .footer-column--logo {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+
+    .footer-column--links,
+    .footer-column--contact {
+      text-align: right;
+    }
+
+    .footer-column--app {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+
+    .footer-heading {
+      font-size: var(--footer-heading-mobile);
+      margin-bottom: 20px;
+    }
+
+    .footer-logo-wrapper {
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-logo-box {
+      width: 60px;
+      height: 60px;
+    }
+
+    .footer-store-name {
+      font-size: calc(var(--footer-heading-mobile) + 10px);
+      text-align: center;
+    }
+
+    .footer-description {
+      max-width: 300px;
+      margin: 0 auto;
+      font-size: var(--footer-body-mobile);
+      text-align: center;
+    }
+
+    .footer-link-list {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .footer-link-list li {
+      margin-bottom: 12px;
+    }
+
+    .footer-link {
+      font-size: var(--footer-body-mobile);
+    }
+
+    .footer-contact-list {
+      align-items: flex-start;
+    }
+
+    .footer-contact-item {
+      justify-content: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .footer-contact-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .footer-contact-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .footer-contact-text {
+      font-size: var(--footer-body-mobile);
+    }
+
+    .footer-social {
+      justify-content: flex-start;
+      margin-top: 20px;
+    }
+
+    .footer-social-link {
+      width: 32px;
+      height: 32px;
+    }
+
+    .footer-social-link svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .footer-app-buttons {
+      justify-content: center;
+    }
+
+    .app-store-btn-content {
+      padding: 8px 14px;
+      min-width: 145px;
+    }
+
+    .footer-app-badge {
+      text-align: center;
+    }
+
+    .footer-app-badge-text {
+      justify-content: center;
+    }
+
+    .footer-saudi-auth {
+      justify-content: center;
+    }
+
+    .footer-saudi-auth-content {
+      padding: 10px 16px;
+    }
+
+    .footer-saudi-auth-logo {
+      width: 40px;
+      height: 40px;
+    }
+
+    .footer-saudi-auth-text {
+      font-size: 13px;
+    }
+
+    .footer-localization {
+      margin-top: 20px;
+      padding-top: 16px;
+    }
+
+    .footer-localization-title {
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .footer-localization-selectors {
+      justify-content: center;
+    }
+
+    .footer-localization-item {
+      padding: 8px 16px;
+    }
+
+    .footer-select,
+    .footer-language-display span,
+    .footer-currency-display span {
+      font-size: 12px;
+    }
+
+    .footer-newsletter-wrapper {
+      padding: 0 16px;
+      margin-bottom: 20px;
+    }
+
+    .footer-newsletter {
+      padding: 20px 24px;
+      border-radius: 20px;
+    }
+
+    .footer-newsletter-content {
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .footer-newsletter-form {
+      width: 100%;
+      max-width: 100%;
+      flex-direction: column-reverse;
+    }
+
+    .footer-newsletter-input {
+      width: 100%;
+      min-width: auto;
+      padding: 12px 20px;
+      font-size: var(--footer-body-mobile);
+    }
+
+    .footer-newsletter-btn {
+      width: 100%;
+      padding: 12px 24px;
+      font-size: var(--footer-body-mobile);
+    }
+
+    .footer-newsletter-heading {
+      font-size: calc(var(--footer-heading-mobile) + 4px);
+      text-align: center;
+    }
+
+    .footer-bottom {
+      padding: 14px 24px;
+    }
+
+    .footer-copyright {
+      font-size: var(--footer-body-mobile);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-container {
+      padding: 28px 16px 16px;
+    }
+
+    .footer-grid {
+      gap: 24px 16px;
+    }
+
+    .footer-heading {
+      font-size: calc(var(--footer-heading-mobile) - 2px);
+      margin-bottom: 14px;
+    }
+
+    .footer-logo-box {
+      width: 54px;
+      height: 54px;
+    }
+
+    .footer-store-name {
+      font-size: calc(var(--footer-heading-mobile) + 8px);
+    }
+
+    .footer-description {
+      font-size: calc(var(--footer-body-mobile) - 1px);
+      max-width: 260px;
+    }
+
+    .footer-link,
+    .footer-contact-text {
+      font-size: calc(var(--footer-body-mobile) - 1px);
+    }
+
+    .footer-link-list li,
+    .footer-contact-item {
+      margin-bottom: 10px;
+    }
+
+    .footer-contact-icon,
+    .footer-social-link {
+      width: 28px;
+      height: 28px;
+    }
+
+    .footer-contact-icon svg,
+    .footer-social-link svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .footer-app-buttons {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .app-store-btn-content {
+      width: 160px;
+    }
+
+    .footer-newsletter-wrapper {
+      padding: 0 12px;
+      margin-bottom: 16px;
+    }
+
+    .footer-newsletter {
+      padding: 16px 18px;
+      border-radius: 16px;
+    }
+
+    .footer-newsletter-heading {
+      font-size: calc(var(--footer-heading-mobile) + 2px);
+    }
+
+    .footer-newsletter-input,
+    .footer-newsletter-btn {
+      font-size: calc(var(--footer-body-mobile) - 1px);
+    }
+
+    .footer-bottom {
+      padding: 12px 16px;
+    }
+
+    .footer-copyright {
+      font-size: calc(var(--footer-body-mobile) - 1px);
+    }
+  }
+
+  /* Reduced Motion - Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .footer-shape {
+      animation: none;
+    }
+
+    .footer-shapes {
+      display: none;
+    }
+  }
+
+  /* ================================
+     Back to Top Button (Block)
+     Uses global button settings
+     ================================ */
+  .back-to-top {
+    position: fixed;
+    bottom: 24px;
+    z-index: 999;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--button-primary-bg, #1a2744);
+    color: var(--button-primary-text, #ffffff);
+    border: var(--button-border-thickness, 2px) solid var(--button-primary-bg, #1a2744);
+    border-radius: var(--button-border-radius, 16px);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all var(--button-transition-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--button-shadow-value, 0 4px 20px rgba(0, 0, 0, 0.2));
+  }
+
+  .back-to-top svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    background-color: var(--button-primary-bg-hover, #0f172a);
+    color: var(--button-primary-text-hover, #ffffff);
+    border-color: var(--button-primary-bg-hover, #0f172a);
+    transform: translateY(-4px);
+    box-shadow: var(--button-shadow-hover-value, 0 8px 30px rgba(0, 0, 0, 0.25));
+  }
+
+  .back-to-top:active {
+    transform: translateY(-2px);
+  }
+
+  .back-to-top:focus-visible {
+    outline: 2px solid var(--color-accent, #1a2744);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .back-to-top {
+      bottom: 100px;
+      width: 52px;
+      height: 52px;
+      border-radius: calc(var(--button-border-radius, 16px) * 0.875);
+    }
+
+    .back-to-top svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  /* ================================
+     Desktop FAB Container (Block)
+     Uses global button settings
+     ================================ */
+  .fab-desktop {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fab-toggle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--button-secondary-bg, #f1f5f9);
+    color: var(--button-secondary-text, #1a2744);
+    border: var(--button-border-thickness, 2px) solid var(--button-secondary-border, #e5e7eb);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--button-transition-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 10;
+    box-shadow: var(--button-shadow-value, 0 4px 15px rgba(0, 0, 0, 0.15));
+  }
+
+  .fab-toggle:hover {
+    background: var(--button-secondary-bg-hover, #e2e8f0);
+    color: var(--button-secondary-text-hover, #1a2744);
+    transform: scale(1.05);
+    box-shadow: var(--button-shadow-hover-value, 0 6px 20px rgba(0, 0, 0, 0.2));
+  }
+
+  .fab-toggle:focus-visible {
+    outline: 2px solid var(--color-accent, #1a2744);
+    outline-offset: 2px;
+  }
+
+  .fab-toggle-icon {
+    width: 24px;
+    height: 24px;
+    transition: opacity 0.2s ease, transform 0.3s ease;
+  }
+
+  .fab-icon-close {
+    position: absolute;
+    opacity: 0;
+    transform: rotate(-90deg);
+  }
+
+  .fab-container.is-open .fab-icon-grid {
+    opacity: 0;
+    transform: rotate(90deg);
+  }
+
+  .fab-container.is-open .fab-icon-close {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+
+  .fab-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    background: var(--button-primary-bg, #1a2744);
+    border-radius: calc(var(--button-border-radius, 8px) * 3);
+    padding: 16px 12px;
+    margin-top: -26px;
+    padding-top: 42px;
+    transform: scaleY(0);
+    transform-origin: top center;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+  }
+
+  .fab-container.is-open .fab-menu {
+    transform: scaleY(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .fab-item {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--button-primary-text, #ffffff);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--button-transition-duration, 300ms) ease;
+    text-decoration: none;
+    position: relative;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  .fab-container.is-open .fab-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fab-container.is-open .fab-item:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+  .fab-container.is-open .fab-item:nth-child(2) {
+    transition-delay: 0.15s;
+  }
+  .fab-container.is-open .fab-item:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+
+  .fab-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+  }
+
+  .fab-item:focus-visible {
+    outline: 2px solid var(--button-primary-text, #ffffff);
+    outline-offset: 2px;
+  }
+
+  .fab-item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .fab-cart-count {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    background: var(--input-error-border, #ef4444);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: var(--button-font-weight, 600);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    line-height: 1;
+  }
+
+  /* ================================
+     Mobile Bottom Navigation (Block)
+     Uses global button settings
+     ================================ */
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--button-primary-bg, #1a2744);
+    z-index: 1000;
+    padding: 6px 10px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: var(--button-border-radius, 24px) var(--button-border-radius, 24px) 0 0;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--button-primary-text, #ffffff);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: calc(var(--button-border-radius, 8px) * 1.5);
+    transition: all var(--button-transition-duration, 300ms) ease;
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    gap: 4px;
+    font-family: var(--font-body-family);
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-nav-item.is-active {
+    color: var(--button-primary-text-hover, #ffffff);
+  }
+
+  .mobile-nav-item.is-active .mobile-nav-icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .mobile-nav-icon-wrapper {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--button-transition-duration, 300ms) ease;
+  }
+
+  .mobile-nav-icon-wrapper svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mobile-nav-label {
+    font-size: 10px;
+    font-weight: var(--button-font-weight, 500);
+    opacity: 0.9;
+    white-space: nowrap;
+  }
+
+  .mobile-nav-item--home {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: calc(var(--button-border-radius, 8px) * 2);
+    padding: 12px 20px;
+  }
+
+  .mobile-nav-item--home.is-active {
+    background: var(--button-primary-text, #ffffff);
+    color: var(--button-primary-bg, #1a2744);
+  }
+
+  .mobile-nav-icon--home svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mobile-nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    background: var(--input-error-border, #ef4444);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: var(--button-font-weight, 600);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    line-height: 1;
+  }
+
+  @media (max-width: 768px) {
+    .fab-desktop {
+      display: none !important;
+    }
+
+    .mobile-bottom-nav {
+      display: flex;
+    }
+
+    body {
+      padding-bottom: 80px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-bottom-nav {
+      display: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top,
+    .fab-toggle,
+    .fab-menu,
+    .fab-item,
+    .fab-toggle-icon,
+    .mobile-nav-item,
+    .whatsapp-float {
+      transition: none !important;
+    }
+
+    .back-to-top.is-visible {
+      transform: none;
+    }
+
+    .whatsapp-float-pulse,
+    .whatsapp-float-badge {
+      animation: none !important;
+    }
+  }
+
+  /* ================================
+     WhatsApp Floating Button (Block)
+     Static WhatsApp green color
+     ================================ */
+  .whatsapp-float {
+    position: fixed;
+    bottom: 24px;
+    z-index: 998;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #25d366;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .whatsapp-float:hover {
+    background-color: #20bd5a;
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(37, 211, 102, 0.5);
+  }
+
+  .whatsapp-float:active {
+    transform: scale(1.05);
+  }
+
+  .whatsapp-float-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .whatsapp-float-icon svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Notification Badge */
+  .whatsapp-float-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 22px;
+    height: 22px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-body-family);
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    line-height: 1;
+    z-index: 3;
+    animation: whatsapp-badge-bounce 2s ease-in-out infinite;
+  }
+
+  /* Pulse Animation */
+  .whatsapp-float-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #25d366;
+    z-index: 1;
+    animation: whatsapp-pulse 2s ease-out infinite;
+  }
+
+  @keyframes whatsapp-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+
+  @keyframes whatsapp-badge-bounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.15);
+    }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .whatsapp-float {
+      bottom: 100px;
+      width: 56px;
+      height: 56px;
+    }
+
+    .whatsapp-float-icon svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .whatsapp-float-badge {
+      min-width: 20px;
+      height: 20px;
+      font-size: 11px;
+      top: -2px;
+      right: -2px;
+    }
+  }
+
+  @media print {
+    .back-to-top,
+    .fab-container,
+    .mobile-bottom-nav,
+    .whatsapp-float {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Footer Section - Block Components Initialization
+   * Supports Shopify Theme Editor reactivity
+   */
+  (function () {
+    'use strict';
+
+    const SECTION_TYPE = 'footer';
+    let scrollHandler = null;
+
+    /**
+     * Initialize Back to Top Button
+     */
+    function initBackToTop() {
+      const backToTop = document.querySelector('[data-back-to-top]');
+      if (!backToTop) return;
+
+      const scrollThreshold = parseInt(backToTop.dataset.scrollThreshold) || 400;
+
+      function toggleVisibility() {
+        if (window.scrollY > scrollThreshold) {
+          backToTop.classList.add('is-visible');
+        } else {
+          backToTop.classList.remove('is-visible');
+        }
+      }
+
+      // Remove old handler if exists
+      if (scrollHandler) {
+        window.removeEventListener('scroll', scrollHandler);
+      }
+
+      // Click handler
+      backToTop.onclick = function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      // Scroll handler with throttle
+      let ticking = false;
+      scrollHandler = function () {
+        if (!ticking) {
+          window.requestAnimationFrame(function () {
+            toggleVisibility();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      };
+
+      window.addEventListener('scroll', scrollHandler);
+      toggleVisibility();
+    }
+
+    /**
+     * Initialize Desktop FAB Menu
+     */
+    function initFabMenu() {
+      const fabContainer = document.getElementById('floatingMenu');
+      const fabToggle = document.getElementById('fabToggle');
+      if (!fabContainer || !fabToggle) return;
+
+      function toggleMenu() {
+        const isOpen = fabContainer.classList.contains('is-open');
+        fabContainer.classList.toggle('is-open');
+        fabToggle.setAttribute('aria-expanded', String(!isOpen));
+      }
+
+      function closeMenu() {
+        fabContainer.classList.remove('is-open');
+        fabToggle.setAttribute('aria-expanded', 'false');
+      }
+
+      fabToggle.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMenu();
+      };
+
+      // Close on outside click
+      document.addEventListener('click', function (e) {
+        if (fabContainer && !fabContainer.contains(e.target)) {
+          closeMenu();
+        }
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && fabContainer.classList.contains('is-open')) {
+          closeMenu();
+          fabToggle.focus();
+        }
+      });
+    }
+
+    /**
+     * Initialize WhatsApp Button
+     */
+    function initWhatsApp() {
+      const whatsappBtn = document.querySelector('[data-whatsapp-chat]');
+      if (!whatsappBtn) return;
+
+      whatsappBtn.onclick = function (e) {
+        const number = this.dataset.whatsappNumber;
+        const message = this.dataset.whatsappMessage || '';
+        if (number) {
+          const url = `https://wa.me/${number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }
+      };
+    }
+
+    /**
+     * Initialize all footer components
+     */
+    function initFooterComponents() {
+      initBackToTop();
+      initFabMenu();
+      initWhatsApp();
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFooterComponents);
+    } else {
+      initFooterComponents();
+    }
+
+    // Shopify Theme Editor Events - Re-initialize on section/block changes
+    document.addEventListener('shopify:section:load', function (e) {
+      if (e.detail.sectionId && e.target.querySelector('[data-section-type="footer"]')) {
+        initFooterComponents();
+      }
+    });
+
+    document.addEventListener('shopify:section:reorder', function (e) {
+      initFooterComponents();
+    });
+
+    document.addEventListener('shopify:block:select', function (e) {
+      if (e.target.closest('[data-section-type="footer"]')) {
+        initFooterComponents();
+      }
+    });
+
+    document.addEventListener('shopify:block:deselect', function (e) {
+      if (e.target.closest('[data-section-type="footer"]')) {
+        initFooterComponents();
+      }
+    });
+
+    // Cart count update
+    document.addEventListener('cart:updated', function (e) {
+      const cartCounts = document.querySelectorAll('.fab-cart-count, .mobile-nav-badge');
+      cartCounts.forEach(function (el) {
+        if (e.detail && e.detail.itemCount !== undefined) {
+          if (e.detail.itemCount > 0) {
+            el.textContent = e.detail.itemCount;
+            el.style.display = 'flex';
+          } else {
+            el.style.display = 'none';
+          }
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "tag": "section",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:sections.footer.settings.logo.label",
+      "info": "t:sections.footer.settings.logo.info"
+    },
+    {
+      "type": "text",
+      "id": "store_name",
+      "label": "t:sections.footer.settings.store_name.label",
+      "default": "Sallety Theme",
+      "info": "t:sections.footer.settings.store_name.info"
+    },
+    {
+      "type": "textarea",
+      "id": "store_description",
+      "label": "t:sections.footer.settings.store_description.label",
+      "default": "قالب سالتي - قالب شوبيفاي احترافي وسريع للمتاجر العربية مع دعم كامل للغة العربية و RTL"
+    },
+    {
+      "type": "url",
+      "id": "store_url",
+      "label": "t:sections.footer.settings.store_url.label",
+      "info": "t:sections.footer.settings.store_url.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "links_title",
+      "label": "t:sections.footer.settings.links_title.label",
+      "default": "روابط مهمة"
+    },
+    {
+      "type": "link_list",
+      "id": "footer_menu",
+      "label": "t:sections.footer.settings.footer_menu.label",
+      "info": "t:sections.footer.settings.footer_menu.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "contact_title",
+      "label": "t:sections.footer.settings.contact_title.label",
+      "default": "تواصل معنا"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "t:sections.footer.settings.phone.label",
+      "placeholder": "t:sections.footer.settings.phone.placeholder",
+      "default": "+201027706834"
+    },
+    {
+      "type": "text",
+      "id": "mobile",
+      "label": "t:sections.footer.settings.mobile.label",
+      "placeholder": "t:sections.footer.settings.mobile.placeholder",
+      "default": "+201027706834"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "t:sections.footer.settings.email.label",
+      "placeholder": "t:sections.footer.settings.email.placeholder",
+      "default": "support@sallety-theme.dev"
+    },
+    {
+      "type": "text",
+      "id": "telegram",
+      "label": "t:sections.footer.settings.telegram.label",
+      "placeholder": "t:sections.footer.settings.telegram.placeholder",
+      "default": "sallety"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social_icons",
+      "label": "t:sections.footer.settings.show_social_icons.label",
+      "default": true,
+      "info": "t:sections.footer.settings.show_social_icons.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": "t:sections.footer.settings.show_newsletter.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "t:sections.footer.settings.newsletter_title.label",
+      "default": "اشترك في النشرة البريدية ليصلك كل جديد!"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_placeholder",
+      "label": "t:sections.footer.settings.newsletter_placeholder.label",
+      "default": "ادخل البريد الإلكتروني"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_button",
+      "label": "t:sections.footer.settings.newsletter_button.label",
+      "default": "اشترك"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_app_section",
+      "label": "t:sections.footer.settings.show_app_section.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "app_section_title",
+      "label": "t:sections.footer.settings.app_section_title.label",
+      "default": "تحميل تطبيق الجوال"
+    },
+    {
+      "type": "text",
+      "id": "google_play_link",
+      "label": "t:sections.footer.settings.google_play_link.label",
+      "default": "https://play.google.com/store/apps",
+      "info": "t:sections.footer.settings.google_play_link.info"
+    },
+    {
+      "type": "text",
+      "id": "app_store_link",
+      "label": "t:sections.footer.settings.app_store_link.label",
+      "default": "https://apps.apple.com/app",
+      "info": "t:sections.footer.settings.app_store_link.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_app_badge",
+      "label": "t:sections.footer.settings.show_app_badge.label",
+      "default": true,
+      "info": "t:sections.footer.settings.show_app_badge.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_saudi_auth",
+      "label": "t:sections.footer.settings.show_saudi_auth.label",
+      "default": true,
+      "info": "t:sections.footer.settings.show_saudi_auth.info"
+    },
+    {
+      "type": "url",
+      "id": "saudi_auth_url",
+      "label": "t:sections.footer.settings.saudi_auth_url.label",
+      "info": "t:sections.footer.settings.saudi_auth_url.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "t:sections.footer.settings.show_localization.label",
+      "default": true,
+      "info": "t:sections.footer.settings.show_localization.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "t:sections.footer.settings.copyright_text.label",
+      "default": "صنع باتقان على",
+      "info": "t:sections.footer.settings.copyright_text.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_parallax_shapes",
+      "label": "t:sections.footer.settings.show_parallax_shapes.label",
+      "default": true
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.footer.settings.color_scheme.label",
+      "default": "scheme-3"
+    },
+    {
+      "type": "color",
+      "id": "footer_newsletter_bg",
+      "label": "t:sections.footer.settings.footer_newsletter_bg.label",
+      "default": "#cbd5e1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_desktop",
+      "label": "t:sections.footer.settings.heading_size_desktop.label",
+      "default": 22,
+      "min": 14,
+      "max": 32,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "body_size_desktop",
+      "label": "t:sections.footer.settings.body_size_desktop.label",
+      "default": 18,
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_tablet",
+      "label": "t:sections.footer.settings.heading_size_tablet.label",
+      "default": 18,
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "body_size_tablet",
+      "label": "t:sections.footer.settings.body_size_tablet.label",
+      "default": 16,
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "t:sections.footer.settings.heading_size_mobile.label",
+      "default": 16,
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "body_size_mobile",
+      "label": "t:sections.footer.settings.body_size_mobile.label",
+      "default": 14,
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "footer_heading_weight",
+      "label": "t:sections.footer.settings.footer_heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.footer.settings.footer_heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.footer.settings.footer_heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.footer.settings.footer_heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.footer.settings.footer_heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.footer.settings.footer_heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "footer_body_weight",
+      "label": "t:sections.footer.settings.footer_body_weight.label",
+      "default": "400",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.footer.settings.footer_body_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.footer.settings.footer_body_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.footer.settings.footer_body_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.footer.settings.footer_body_weight.options.700"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "back_to_top",
+      "name": "t:sections.footer.blocks.back_to_top.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "t:sections.footer.blocks.back_to_top.settings.enabled.label",
+          "default": true
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:sections.footer.blocks.back_to_top.settings.position.label",
+          "default": "left",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.footer.blocks.back_to_top.settings.position.options.left"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.footer.blocks.back_to_top.settings.position.options.right"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "bottom_offset",
+          "label": "t:sections.footer.blocks.back_to_top.settings.bottom_offset.label",
+          "default": 24,
+          "min": 16,
+          "max": 100,
+          "step": 4,
+          "unit": "px"
+        },
+        {
+          "type": "range",
+          "id": "scroll_threshold",
+          "label": "t:sections.footer.blocks.back_to_top.settings.scroll_threshold.label",
+          "default": 400,
+          "min": 100,
+          "max": 800,
+          "step": 50,
+          "unit": "px",
+          "info": "t:sections.footer.blocks.back_to_top.settings.scroll_threshold.info"
+        }
+      ]
+    },
+    {
+      "type": "floating_menu",
+      "name": "t:sections.footer.blocks.floating_menu.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.floating_menu.settings.header.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "desktop_enabled",
+          "label": "t:sections.footer.blocks.floating_menu.settings.desktop_enabled.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "desktop_show_cart",
+          "label": "t:sections.footer.blocks.floating_menu.settings.desktop_show_cart.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "desktop_show_search",
+          "label": "t:sections.footer.blocks.floating_menu.settings.desktop_show_search.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "desktop_show_account",
+          "label": "t:sections.footer.blocks.floating_menu.settings.desktop_show_account.label",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.floating_menu.settings.header.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_enabled",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_enabled.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_home",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_home.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_cart",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_cart.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_search",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_search.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_account",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_account.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_wishlist",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_wishlist.label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "mobile_show_labels",
+          "label": "t:sections.footer.blocks.floating_menu.settings.mobile_show_labels.label",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.floating_menu.settings.header.content"
+        },
+        {
+          "type": "url",
+          "id": "custom_link_1_url",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_url.label"
+        },
+        {
+          "type": "text",
+          "id": "custom_link_1_label",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_label.label",
+          "default": "رابط"
+        },
+        {
+          "type": "select",
+          "id": "custom_link_1_icon",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.label",
+          "default": "plus",
+          "options": [
+            {
+              "value": "plus",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.plus"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.heart"
+            },
+            {
+              "value": "star",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.star"
+            },
+            {
+              "value": "gift",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.gift"
+            },
+            {
+              "value": "tag",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.tag"
+            },
+            {
+              "value": "phone",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_1_icon.options.phone"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.floating_menu.settings.header.content"
+        },
+        {
+          "type": "url",
+          "id": "custom_link_2_url",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_url.label"
+        },
+        {
+          "type": "text",
+          "id": "custom_link_2_label",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_label.label",
+          "default": "رابط"
+        },
+        {
+          "type": "select",
+          "id": "custom_link_2_icon",
+          "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.label",
+          "default": "plus",
+          "options": [
+            {
+              "value": "plus",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.plus"
+            },
+            {
+              "value": "heart",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.heart"
+            },
+            {
+              "value": "star",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.star"
+            },
+            {
+              "value": "gift",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.gift"
+            },
+            {
+              "value": "tag",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.tag"
+            },
+            {
+              "value": "phone",
+              "label": "t:sections.footer.blocks.floating_menu.settings.custom_link_2_icon.options.phone"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "whatsapp",
+      "name": "t:sections.footer.blocks.whatsapp.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "enabled",
+          "label": "t:sections.footer.blocks.whatsapp.settings.enabled.label",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "whatsapp_number",
+          "label": "t:sections.footer.blocks.whatsapp.settings.whatsapp_number.label",
+          "default": "+201027706834",
+          "info": "t:sections.footer.blocks.whatsapp.settings.whatsapp_number.info"
+        },
+        {
+          "type": "text",
+          "id": "welcome_message",
+          "label": "t:sections.footer.blocks.whatsapp.settings.welcome_message.label",
+          "default": "مرحباً، أحتاج للمساعدة"
+        },
+        {
+          "type": "select",
+          "id": "position",
+          "label": "t:sections.footer.blocks.whatsapp.settings.position.label",
+          "default": "right",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.footer.blocks.whatsapp.settings.position.options.left"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.footer.blocks.whatsapp.settings.position.options.right"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.footer.blocks.whatsapp.settings.header.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_badge",
+          "label": "t:sections.footer.blocks.whatsapp.settings.show_badge.label",
+          "default": true,
+          "info": "t:sections.footer.blocks.whatsapp.settings.show_badge.info"
+        },
+        {
+          "type": "range",
+          "id": "badge_number",
+          "label": "t:sections.footer.blocks.whatsapp.settings.badge_number.label",
+          "default": 1,
+          "min": 0,
+          "max": 99,
+          "step": 1
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

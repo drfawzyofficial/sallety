@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "main-page": {
+      "type": "main-page",
+      "settings": {}
+    },
+    "faq": {
+      "type": "faq",
+      "settings": {
+        "heading": "الأسئلة الشائعة"
+      }
+    },
+    "contact-form": {
+      "type": "contact-form",
+      "settings": {
+        "heading": "لم تجد إجابتك؟ تواصل معنا"
+      }
+    }
+  },
+  "order": [
+    "main-page",
+    "faq",
+    "contact-form"
+  ]
+}
+

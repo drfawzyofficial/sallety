@@ -1,0 +1,192 @@
+{%- comment -%}
+  Sallety Theme - Variant Picker Snippet
+  Renders product variants with configurable display modes.
+
+  Accepts:
+  - product: {Object} Product Liquid object
+  - picker_type: {String} 'swatches' | 'buttons' | 'dropdown' (default: 'buttons')
+
+  Usage:
+  {% render 'variant-picker', product: product, picker_type: 'swatches' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign default_picker = picker_type | default: 'swatches'
+-%}
+
+{%- unless product.has_only_default_variant -%}
+  <div class="variant-picker" data-variant-selector>
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign option_name_lower = option.name | downcase
+        assign is_color = false
+        assign is_size = false
+        if option_name_lower == 'اللون' or option_name_lower == 'لون' or option_name_lower == 'color' or option_name_lower == 'colour'
+          assign is_color = true
+        endif
+        if option_name_lower == 'المقاس' or option_name_lower == 'مقاس' or option_name_lower == 'size' or option_name_lower == 'حجم'
+          assign is_size = true
+        endif
+      -%}
+
+      <div class="variant-picker__option" data-option data-option-index="{{ forloop.index0 }}">
+        <div class="variant-picker__option-header">
+          <label class="variant-picker__label">
+            {{ option.name }}
+            {%- if is_color -%}
+              <span class="variant-picker__selected-value" data-selected-value>{{ option.selected_value }}</span>
+            {%- endif -%}
+          </label>
+        </div>
+
+        <div class="variant-picker__values{% if default_picker == 'dropdown' %} variant-picker__values--dropdown{% elsif is_color %} variant-picker__values--colors{% elsif is_size or default_picker == 'buttons' %} variant-picker__values--buttons{% else %} variant-picker__values--buttons{% endif %}">
+          {%- if default_picker == 'dropdown' -%}
+            <select
+              name="{{ option.name }}"
+              class="variant-picker__select form-select"
+              data-option-select
+            >
+              {%- for value in option.values -%}
+                <option
+                  value="{{ value }}"
+                  {% if option.selected_value == value %}
+                    selected
+                  {% endif %}
+                >
+                  {{ value }}
+                </option>
+              {%- endfor -%}
+            </select>
+
+          {%- elsif is_color -%}
+            {%- for value in option.values -%}
+              {%- liquid
+                assign color_value = value | downcase | replace: ' ', ''
+                assign swatch_style = ''
+                assign color_map = ''
+
+                case color_value
+                  when 'black', 'أسود'
+                    assign color_map = '#000000'
+                  when 'white', 'أبيض'
+                    assign color_map = '#ffffff'
+                  when 'red', 'أحمر'
+                    assign color_map = '#dc2626'
+                  when 'blue', 'أزرق'
+                    assign color_map = '#2563eb'
+                  when 'green', 'أخضر'
+                    assign color_map = '#16a34a'
+                  when 'yellow', 'أصفر'
+                    assign color_map = '#eab308'
+                  when 'orange', 'برتقالي'
+                    assign color_map = '#ea580c'
+                  when 'purple', 'بنفسجي'
+                    assign color_map = '#9333ea'
+                  when 'pink', 'وردي'
+                    assign color_map = '#ec4899'
+                  when 'brown', 'بني'
+                    assign color_map = '#92400e'
+                  when 'gray', 'grey', 'رمادي'
+                    assign color_map = '#6b7280'
+                  when 'navy', 'كحلي'
+                    assign color_map = '#1e3a5f'
+                  when 'beige', 'بيج'
+                    assign color_map = '#d4b896'
+                  when 'cream', 'كريمي'
+                    assign color_map = '#fffdd0'
+                  when 'tan'
+                    assign color_map = '#d2b48c'
+                  when 'olive', 'زيتي'
+                    assign color_map = '#556b2f'
+                  when 'burgundy', 'عنابي'
+                    assign color_map = '#800020'
+                  when 'charcoal'
+                    assign color_map = '#36454f'
+                  when 'lightblue'
+                    assign color_map = '#add8e6'
+                  when 'darkblue'
+                    assign color_map = '#00008b'
+                  when 'darkgreen'
+                    assign color_map = '#006400'
+                  when 'heatheredgrey', 'heatheredgray'
+                    assign color_map = '#9ca3af'
+                  when 'lightgrey', 'lightgray'
+                    assign color_map = '#d1d5db'
+                  else
+                    assign color_map = color_value
+                endcase
+
+                if color_map != blank
+                  assign swatch_style = 'background-color: ' | append: color_map
+                endif
+
+                assign variant_available = false
+                for variant in product.variants
+                  if variant.available
+                    assign opt_index = 'option' | append: forloop.parentloop.parentloop.index
+                    if variant[opt_index] == value
+                      assign variant_available = true
+                      break
+                    endif
+                  endif
+                endfor
+              -%}
+
+              <label
+                class="variant-picker__color{% if option.selected_value == value %} is-active{% endif %}{% unless variant_available %} is-unavailable{% endunless %}"
+                title="{{ value }}"
+                data-option-value="{{ value }}"
+              >
+                <input
+                  type="radio"
+                  name="{{ option.name }}"
+                  value="{{ value }}"
+                  {% if option.selected_value == value %}
+                    checked
+                  {% endif %}
+                  class="visually-hidden"
+                >
+                <span
+                  class="variant-picker__color-swatch"
+                  style="{{ swatch_style }}"
+                ></span>
+              </label>
+            {%- endfor -%}
+
+          {%- else -%}
+            {%- for value in option.values -%}
+              {%- liquid
+                assign variant_available = false
+                for variant in product.variants
+                  if variant.available
+                    assign opt_index = 'option' | append: forloop.parentloop.parentloop.index
+                    if variant[opt_index] == value
+                      assign variant_available = true
+                      break
+                    endif
+                  endif
+                endfor
+              -%}
+
+              <label
+                class="variant-picker__button{% if option.selected_value == value %} is-active{% endif %}{% unless variant_available %} is-unavailable{% endunless %}"
+                data-option-value="{{ value }}"
+              >
+                <input
+                  type="radio"
+                  name="{{ option.name }}"
+                  value="{{ value }}"
+                  {% if option.selected_value == value %}
+                    checked
+                  {% endif %}
+                  class="visually-hidden"
+                >
+                <span>{{ value }}</span>
+              </label>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+{%- endunless -%}

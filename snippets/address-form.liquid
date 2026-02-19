@@ -1,0 +1,146 @@
+{%- comment -%}
+  Sallety Theme - Address Form Snippet
+  Renders customer address form fields.
+
+  Accepts:
+  - form: {Object} Form Liquid object
+  - address: {Object} Address Liquid object (optional, for editing)
+
+  Usage:
+  {% render 'address-form', form: form, address: address %}
+{%- endcomment -%}
+
+<div class="address-form">
+  <div class="form-field">
+    <label for="{{ form.id }}-first-name">{{ 'customer.addresses.first_name' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-first-name"
+      name="address[first_name]"
+      value="{{ address.first_name }}"
+      class="form-input"
+      autocomplete="given-name"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-last-name">{{ 'customer.addresses.last_name' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-last-name"
+      name="address[last_name]"
+      value="{{ address.last_name }}"
+      class="form-input"
+      autocomplete="family-name"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-company">{{ 'customer.addresses.company' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-company"
+      name="address[company]"
+      value="{{ address.company }}"
+      class="form-input"
+      autocomplete="organization"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-address1">{{ 'customer.addresses.address1' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-address1"
+      name="address[address1]"
+      value="{{ address.address1 }}"
+      class="form-input"
+      autocomplete="address-line1"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-address2">{{ 'customer.addresses.address2' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-address2"
+      name="address[address2]"
+      value="{{ address.address2 }}"
+      class="form-input"
+      autocomplete="address-line2"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-city">{{ 'customer.addresses.city' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-city"
+      name="address[city]"
+      value="{{ address.city }}"
+      class="form-input"
+      autocomplete="address-level2"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-country">{{ 'customer.addresses.country' | t }}</label>
+    <select
+      id="{{ form.id }}-country"
+      name="address[country]"
+      class="form-select"
+      data-address-country-select
+      autocomplete="country"
+    >
+      {{ all_country_option_tags }}
+    </select>
+  </div>
+
+  <div class="form-field" id="{{ form.id }}-province-container" style="display: none;">
+    <label for="{{ form.id }}-province">{{ 'customer.addresses.province' | t }}</label>
+    <select
+      id="{{ form.id }}-province"
+      name="address[province]"
+      class="form-select"
+      data-address-province-select
+      autocomplete="address-level1"
+    ></select>
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-zip">{{ 'customer.addresses.zip' | t }}</label>
+    <input
+      type="text"
+      id="{{ form.id }}-zip"
+      name="address[zip]"
+      value="{{ address.zip }}"
+      class="form-input"
+      autocomplete="postal-code"
+    >
+  </div>
+
+  <div class="form-field">
+    <label for="{{ form.id }}-phone">{{ 'customer.addresses.phone' | t }}</label>
+    <input
+      type="tel"
+      id="{{ form.id }}-phone"
+      name="address[phone]"
+      value="{{ address.phone }}"
+      class="form-input"
+      autocomplete="tel"
+    >
+  </div>
+
+  <div class="form-field">
+    <label class="form-checkbox">
+      <input
+        type="checkbox"
+        name="address[default]"
+        value="1"
+        {% if address.default %}checked{% endif %}
+      >
+      <span>{{ 'customer.addresses.set_default' | t }}</span>
+    </label>
+  </div>
+</div>
+

@@ -1,0 +1,141 @@
+{%- comment -%}
+  Sallety Theme - Premium Free Shipping Bar Snippet
+  Displays a beautiful progress bar toward free shipping.
+
+  Usage:
+  {% render 'free-shipping-bar-premium' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | times: 100
+  assign cart_total = cart.total_price
+  assign remaining = threshold | minus: cart_total
+  assign percentage = cart_total | times: 100 | divided_by: threshold
+  if percentage > 100
+    assign percentage = 100
+  endif
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<div class="free-shipping-bar-premium" dir="{{ section_dir }}">
+  {%- if cart_total >= threshold -%}
+    <!-- Achieved State -->
+    <div class="flex items-center gap-3 text-success flex-row-reverse">
+      <div class="flex-shrink-0 w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="animate-bounce-subtle">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <div class="flex-1 text-right">
+        <p class="text-sm font-semibold">
+          {{ 'cart.free_shipping.achieved' | t | default: 'تهانينا! حصلت على شحن مجاني' }}
+        </p>
+        <p class="text-xs text-success/80">
+          {{ 'cart.free_shipping.enjoy' | t | default: 'استمتع بالتوصيل المجاني لطلبك' }}
+        </p>
+      </div>
+      <div class="flex-shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+          <rect x="1" y="3" width="15" height="13"></rect>
+          <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+          <circle cx="5.5" cy="18.5" r="2.5"></circle>
+          <circle cx="18.5" cy="18.5" r="2.5"></circle>
+        </svg>
+      </div>
+    </div>
+  {%- else -%}
+    <!-- Progress State -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-3 flex-row-reverse">
+        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+        </div>
+        <div class="flex-1 text-right">
+          <p class="text-sm font-medium text-foreground">
+            {{ 'cart.free_shipping.remaining_html' | t: remaining: remaining | money }}
+          </p>
+          <p class="text-xs text-secondary">
+            {{ 'cart.free_shipping.add_more' | t | default: 'أضف المزيد للحصول على شحن مجاني' }}
+          </p>
+        </div>
+        <div class="flex-shrink-0 text-left">
+          <span class="text-lg font-bold text-primary">{{ percentage }}%</span>
+        </div>
+      </div>
+
+      <!-- Progress Bar - RTL: fills from right to left -->
+      <div class="relative h-2 rounded-full bg-border/50 overflow-hidden" dir="ltr">
+        <div 
+          class="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-primary to-accent transition-all duration-500 ease-out"
+          style="width: {{ percentage }}%;"
+        >
+          <!-- Animated shine effect -->
+          <div class="absolute inset-0 bg-gradient-to-l from-transparent via-white/30 to-transparent animate-shimmer-rtl"></div>
+        </div>
+        
+        <!-- Milestone markers -->
+        <div class="absolute inset-0 flex items-center justify-between px-1 flex-row-reverse">
+          <div class="w-1.5 h-1.5 rounded-full {% if percentage >= 25 %}bg-white{% else %}bg-border{% endif %}"></div>
+          <div class="w-1.5 h-1.5 rounded-full {% if percentage >= 50 %}bg-white{% else %}bg-border{% endif %}"></div>
+          <div class="w-1.5 h-1.5 rounded-full {% if percentage >= 75 %}bg-white{% else %}bg-border{% endif %}"></div>
+          <div class="w-1.5 h-1.5 rounded-full {% if percentage >= 100 %}bg-white{% else %}bg-border{% endif %}"></div>
+        </div>
+      </div>
+
+      <!-- Threshold indicator -->
+      <div class="flex items-center justify-between text-xs text-secondary flex-row-reverse">
+        <span>{{ 0 | money }}</span>
+        <span class="font-medium text-primary">{{ threshold | money }}</span>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+  /* Shimmer animation for LTR */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Shimmer animation for RTL */
+  @keyframes shimmer-rtl {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  .animate-shimmer-rtl {
+    animation: shimmer-rtl 2s infinite;
+  }
+
+  /* Subtle bounce animation */
+  @keyframes bounce-subtle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 1s ease-in-out infinite;
+  }
+</style>

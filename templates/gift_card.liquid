@@ -1,0 +1,1240 @@
+{% layout none %}
+{%- comment -%}
+  Sallety Theme — Gift Card Template
+  Premium gift card display with RTL/LTR support, responsive design,
+  comprehensive customization, glassmorphism effects, and modern aesthetics.
+{%- endcomment -%}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" dir="{{ settings.enable_rtl | default: true | ternary: 'rtl', 'ltr' }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="{{ settings.color_primary }}">
+    <meta name="robots" content="noindex, nofollow">
+
+    {%- assign gift_card_value = gift_card.initial_value | money -%}
+    <title>{{ 'gift_cards.issued.title' | t: value: gift_card_value, shop: shop.name }}</title>
+
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+    {%- endif -%}
+
+    {{ content_for_header }}
+
+    {%- comment -%} Google Fonts {%- endcomment -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    >
+
+    <style>
+      /* ===== CSS Variables ===== */
+      :root {
+        --gc-primary: var(--color-scheme-1-accent, {{ settings.color_primary | default: '#6366f1' }});
+        --gc-primary-rgb: {{ settings.color_primary | color_to_rgb | remove: 'rgb(' | remove: ')' | default: '99, 102, 241' }};
+        --gc-bg-1: var(--color-scheme-1-bg, #0f0c29);
+        --gc-bg-2: var(--color-scheme-1-bg, #302b63);
+        --gc-bg-3: var(--color-scheme-1-bg, #24243e);
+        --gc-text: var(--color-scheme-1-text, #ffffff);
+        --gc-text-muted: rgba(255, 255, 255, 0.7);
+        --gc-glass-bg: rgba(255, 255, 255, 0.08);
+        --gc-glass-border: rgba(255, 255, 255, 0.15);
+        --gc-card-bg: rgba(255, 255, 255, 0.06);
+        --gc-success: #22c55e;
+        --gc-gold: #f59e0b;
+        --gc-radius: 20px;
+        --gc-font-body: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      /* ===== Global Reset ===== */
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--gc-font-body);
+        line-height: 1.6;
+        color: var(--gc-text);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+      }
+
+      /* ===== Page Background ===== */
+      .gc-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        position: relative;
+        background: linear-gradient(135deg, var(--gc-bg-1) 0%, var(--gc-bg-2) 50%, var(--gc-bg-3) 100%);
+      }
+
+      /* ===== Background Decorations ===== */
+      .gc-bg-shapes {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .gc-bg-shape {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.15;
+        animation: gc-float 20s ease-in-out infinite;
+      }
+
+      .gc-bg-shape--1 {
+        width: min(500px, 60vw);
+        height: min(500px, 60vw);
+        background: var(--gc-primary);
+        top: -15%;
+        inset-inline-start: -10%;
+        animation-delay: 0s;
+      }
+
+      .gc-bg-shape--2 {
+        width: min(400px, 50vw);
+        height: min(400px, 50vw);
+        background: #ec4899;
+        bottom: -10%;
+        inset-inline-end: -10%;
+        animation-delay: -7s;
+      }
+
+      .gc-bg-shape--3 {
+        width: min(300px, 40vw);
+        height: min(300px, 40vw);
+        background: var(--gc-gold);
+        top: 40%;
+        inset-inline-end: 15%;
+        animation-delay: -14s;
+        opacity: 0.08;
+      }
+
+      @keyframes gc-float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        25% { transform: translate(30px, -30px) scale(1.05); }
+        50% { transform: translate(-20px, 20px) scale(0.95); }
+        75% { transform: translate(-30px, -15px) scale(1.02); }
+      }
+
+      /* Background grid pattern */
+      .gc-bg-pattern {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.03;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.5) 1px, transparent 0);
+        background-size: 40px 40px;
+      }
+
+      /* Decorative SVG */
+      .gc-bg-decor {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        animation: gc-decor-float 25s ease-in-out infinite alternate;
+      }
+
+      .gc-bg-decor svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      @keyframes gc-decor-float {
+        0% { transform: scale(1) translateY(0); }
+        100% { transform: scale(1.02) translateY(-8px); }
+      }
+
+      /* ===== Container ===== */
+      .gc-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 680px;
+      }
+
+      /* ===== Header (Shop Logo) ===== */
+      .gc-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .gc-header__logo {
+        max-width: 160px;
+        height: auto;
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        transition: transform 0.3s ease;
+      }
+
+      .gc-header__logo:hover {
+        transform: scale(1.05);
+      }
+
+      .gc-header__shop-name {
+        font-size: 1.75rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--gc-text);
+        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      }
+
+      /* ===== Main Card ===== */
+      .gc-card {
+        background: var(--gc-card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--gc-glass-border);
+        border-radius: var(--gc-radius);
+        overflow: hidden;
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        position: relative;
+      }
+
+      /* Subtle top gradient line */
+      .gc-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gc-primary), #ec4899, var(--gc-gold), var(--gc-primary));
+        background-size: 300% 100%;
+        animation: gc-gradient-shift 6s linear infinite;
+        z-index: 2;
+      }
+
+      @keyframes gc-gradient-shift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 300% 50%; }
+      }
+
+      /* ===== Gift Card Image ===== */
+      .gc-image {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .gc-image__img {
+        width: 100%;
+        height: auto;
+        display: block;
+        transition: transform 0.5s ease;
+      }
+
+      .gc-image:hover .gc-image__img {
+        transform: scale(1.02);
+      }
+
+      .gc-image__overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%);
+        pointer-events: none;
+      }
+
+      /* ===== Card Body ===== */
+      .gc-body {
+        padding: 2.5rem 2rem;
+        text-align: center;
+      }
+
+      /* Gift icon */
+      .gc-gift-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(var(--gc-primary-rgb), 0.2), rgba(236, 72, 153, 0.15));
+        border: 1px solid rgba(var(--gc-primary-rgb), 0.3);
+        color: var(--gc-primary);
+        margin-bottom: 1.5rem;
+        animation: gc-gift-pulse 3s ease-in-out infinite;
+      }
+
+      @keyframes gc-gift-pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--gc-primary-rgb), 0.2); }
+        50% { transform: scale(1.05); box-shadow: 0 0 20px 5px rgba(var(--gc-primary-rgb), 0.1); }
+      }
+
+      /* Title */
+      .gc-title {
+        font-size: clamp(1.25rem, 3vw, 1.75rem);
+        font-weight: 700;
+        color: var(--gc-text);
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+      }
+
+      .gc-subtitle {
+        font-size: 0.9375rem;
+        color: var(--gc-text-muted);
+        margin-bottom: 2rem;
+      }
+
+      /* ===== Balance Display ===== */
+      .gc-balance {
+        margin-bottom: 2rem;
+      }
+
+      .gc-balance__label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gc-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+
+      .gc-balance__amount {
+        font-size: clamp(2.5rem, 8vw, 3.5rem);
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--gc-primary), #a78bfa, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+
+      .gc-balance__initial {
+        font-size: 0.875rem;
+        color: var(--gc-text-muted);
+        margin-top: 0.5rem;
+      }
+
+      .gc-balance__initial del {
+        opacity: 0.6;
+      }
+
+      /* ===== Expiry Badge ===== */
+      .gc-expiry {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        margin-bottom: 2rem;
+      }
+
+      .gc-expiry--active {
+        background: rgba(34, 197, 94, 0.12);
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        color: #86efac;
+      }
+
+      .gc-expiry--expired {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+      }
+
+      .gc-expiry svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+
+      /* ===== Code Display ===== */
+      .gc-code-section {
+        margin-bottom: 2rem;
+      }
+
+      .gc-code-section__label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gc-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+      }
+
+      .gc-code-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: var(--gc-glass-bg);
+        border: 1px solid var(--gc-glass-border);
+        border-radius: 14px;
+        padding: 1rem 1.25rem;
+        gap: 0.75rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .gc-code-box:hover {
+        border-color: rgba(var(--gc-primary-rgb), 0.4);
+        box-shadow: 0 0 20px rgba(var(--gc-primary-rgb), 0.1);
+      }
+
+      .gc-code-box__value {
+        flex: 1;
+        font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+        font-size: clamp(1rem, 3vw, 1.25rem);
+        font-weight: 600;
+        color: var(--gc-text);
+        letter-spacing: 0.15em;
+        word-break: break-all;
+        text-align: start;
+        user-select: all;
+        -webkit-user-select: all;
+      }
+
+      .gc-code-box__copy {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.625rem 1.25rem;
+        background: var(--gc-primary);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-family: var(--gc-font-body);
+        white-space: nowrap;
+      }
+
+      .gc-code-box__copy:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(var(--gc-primary-rgb), 0.4);
+      }
+
+      .gc-code-box__copy:active {
+        transform: translateY(0);
+      }
+
+      .gc-code-box__copy svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .gc-code-box__copy--success {
+        background: var(--gc-success);
+      }
+
+      /* ===== QR Code ===== */
+      .gc-qr {
+        margin-bottom: 2rem;
+      }
+
+      .gc-qr__label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--gc-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+      }
+
+      .gc-qr__wrapper {
+        display: inline-flex;
+        padding: 1rem;
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+      }
+
+      .gc-qr__wrapper:hover {
+        transform: scale(1.05);
+      }
+
+      .gc-qr__wrapper img {
+        width: 140px;
+        height: 140px;
+        display: block;
+      }
+
+      /* ===== Divider ===== */
+      .gc-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, var(--gc-glass-border) 50%, transparent 100%);
+        margin: 0 -2rem 2rem;
+      }
+
+      /* ===== Action Buttons ===== */
+      .gc-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .gc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 2rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: var(--gc-font-body);
+        border: none;
+        min-width: 160px;
+      }
+
+      .gc-btn svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+
+      .gc-btn--primary {
+        background: var(--gc-primary);
+        color: #fff;
+        border: 2px solid var(--gc-primary);
+      }
+
+      .gc-btn--primary:hover {
+        background: transparent;
+        color: var(--gc-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(var(--gc-primary-rgb), 0.3);
+      }
+
+      .gc-btn--secondary {
+        background: transparent;
+        color: var(--gc-text);
+        border: 2px solid var(--gc-glass-border);
+      }
+
+      .gc-btn--secondary:hover {
+        border-color: var(--gc-primary);
+        color: var(--gc-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      }
+
+      .gc-btn--print {
+        background: transparent;
+        color: var(--gc-text-muted);
+        border: 1px solid var(--gc-glass-border);
+        font-size: 0.8125rem;
+        padding: 0.625rem 1.25rem;
+        min-width: auto;
+      }
+
+      .gc-btn--print:hover {
+        color: var(--gc-text);
+        border-color: rgba(255,255,255,0.3);
+      }
+
+      /* Apple Wallet */
+      .gc-wallet {
+        display: inline-flex;
+        transition: transform 0.3s ease;
+      }
+
+      .gc-wallet:hover {
+        transform: translateY(-2px);
+      }
+
+      .gc-wallet img {
+        height: 44px;
+        width: auto;
+      }
+
+      /* ===== Footer Info ===== */
+      .gc-footer {
+        text-align: center;
+        padding-top: 1.5rem;
+      }
+
+      .gc-footer__shop {
+        font-size: 0.8125rem;
+        color: var(--gc-text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+      }
+
+      .gc-footer__shop a {
+        color: var(--gc-text);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .gc-footer__shop a:hover {
+        color: var(--gc-primary);
+      }
+
+      /* ===== Confetti Canvas ===== */
+      .gc-confetti {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      /* ===== Copy Toast ===== */
+      .gc-toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: var(--gc-success);
+        color: #fff;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 100;
+        pointer-events: none;
+      }
+
+      .gc-toast--visible {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .gc-toast svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      /* ===== Animations ===== */
+      .gc-reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        animation: gc-reveal 0.7s ease forwards;
+      }
+
+      @keyframes gc-reveal {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .gc-card { animation-delay: 0.1s; }
+      .gc-header { animation-delay: 0s; }
+
+      .gc-card .gc-image { animation-delay: 0.15s; }
+      .gc-card .gc-gift-icon { animation-delay: 0.2s; }
+      .gc-card .gc-title { animation-delay: 0.25s; }
+      .gc-card .gc-balance { animation-delay: 0.3s; }
+      .gc-card .gc-expiry { animation-delay: 0.35s; }
+      .gc-card .gc-code-section { animation-delay: 0.4s; }
+      .gc-card .gc-qr { animation-delay: 0.45s; }
+      .gc-card .gc-actions { animation-delay: 0.5s; }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 639px) {
+        .gc-page {
+          padding: 1.5rem 0.75rem;
+        }
+
+        .gc-body {
+          padding: 2rem 1.25rem;
+        }
+
+        .gc-gift-icon {
+          width: 56px;
+          height: 56px;
+        }
+
+        .gc-gift-icon svg {
+          width: 28px;
+          height: 28px;
+        }
+
+        .gc-code-box {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .gc-code-box__value {
+          text-align: center;
+        }
+
+        .gc-code-box__copy {
+          width: 100%;
+        }
+
+        .gc-actions {
+          flex-direction: column;
+        }
+
+        .gc-btn {
+          width: 100%;
+          min-width: auto;
+        }
+
+        .gc-qr__wrapper img {
+          width: 120px;
+          height: 120px;
+        }
+      }
+
+      @media (min-width: 640px) and (max-width: 1023px) {
+        .gc-container {
+          max-width: 560px;
+        }
+      }
+
+      /* ===== RTL Adjustments ===== */
+      [dir="rtl"] .gc-code-box__value {
+        direction: ltr;
+        text-align: right;
+      }
+
+      /* ===== Print Styles ===== */
+      @media print {
+        .gc-page {
+          background: #fff !important;
+          min-height: auto;
+          padding: 0;
+        }
+
+        .gc-bg-shapes,
+        .gc-bg-pattern,
+        .gc-bg-decor,
+        .gc-confetti,
+        .gc-toast,
+        .gc-btn--print,
+        .gc-wallet {
+          display: none !important;
+        }
+
+        .gc-card {
+          background: #fff !important;
+          box-shadow: none !important;
+          border: 2px solid #e5e7eb !important;
+          backdrop-filter: none !important;
+        }
+
+        .gc-card::before {
+          display: none;
+        }
+
+        .gc-header__shop-name,
+        .gc-title {
+          color: #1f2937 !important;
+        }
+
+        .gc-balance__amount {
+          -webkit-text-fill-color: #6366f1 !important;
+          color: #6366f1 !important;
+        }
+
+        .gc-text-muted,
+        .gc-subtitle,
+        .gc-balance__label,
+        .gc-code-section__label,
+        .gc-qr__label,
+        .gc-footer__shop {
+          color: #6b7280 !important;
+        }
+
+        .gc-code-box {
+          background: #f9fafb !important;
+          border: 2px solid #d1d5db !important;
+        }
+
+        .gc-code-box__value {
+          color: #1f2937 !important;
+        }
+
+        .gc-code-box__copy {
+          display: none !important;
+        }
+
+        .gc-btn--primary,
+        .gc-btn--secondary {
+          color: #6366f1 !important;
+          background: transparent !important;
+          border: 2px solid #6366f1 !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .gc-expiry {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .gc-bg-shape,
+        .gc-bg-shapes {
+          display: none !important;
+        }
+
+        * {
+          animation: none !important;
+        }
+      }
+
+      /* ===== Reduced Motion ===== */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="gc-page" role="main">
+      {%- comment -%} ── Background Decorations ── {%- endcomment -%}
+      <div class="gc-bg-shapes" aria-hidden="true">
+        <div class="gc-bg-shape gc-bg-shape--1"></div>
+        <div class="gc-bg-shape gc-bg-shape--2"></div>
+        <div class="gc-bg-shape gc-bg-shape--3"></div>
+      </div>
+
+      <div class="gc-bg-pattern" aria-hidden="true"></div>
+
+      <div class="gc-bg-decor" aria-hidden="true">
+        <svg viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <circle cx="200" cy="150" r="100" stroke="rgba(255,255,255,0.04)" stroke-width="1.5" fill="none"/>
+          <circle cx="200" cy="150" r="60" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/>
+          <circle cx="1250" cy="600" r="120" stroke="rgba(255,255,255,0.03)" stroke-width="1.5" fill="none"/>
+          <circle cx="400" cy="80" r="4" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="800" cy="700" r="3" fill="rgba(255,255,255,0.05)"/>
+          <circle cx="1100" cy="100" r="5" fill="rgba(255,255,255,0.04)"/>
+          <polygon points="600,200 640,140 680,200" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+          <rect x="1000" y="300" width="45" height="45" rx="4" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none" transform="rotate(45 1022.5 322.5)"/>
+        </svg>
+      </div>
+
+      {%- comment -%} ── Main Container ── {%- endcomment -%}
+      <div class="gc-container">
+        {%- comment -%} ── Header / Shop Logo ── {%- endcomment -%}
+        <header class="gc-header gc-reveal">
+          {%- if settings.logo != blank -%}
+            <a href="{{ shop.url }}">
+              <img
+                src="{{ settings.logo | image_url: width: 320 }}"
+                srcset="
+                  {{ settings.logo | image_url: width: 160 }} 1x,
+                  {{ settings.logo | image_url: width: 320 }} 2x
+                "
+                alt="{{ shop.name }}"
+                class="gc-header__logo"
+                width="160"
+                height="{{ 160 | divided_by: settings.logo.aspect_ratio | round }}"
+              >
+            </a>
+          {%- else -%}
+            <a href="{{ shop.url }}" style="text-decoration:none;">
+              <h1 class="gc-header__shop-name">{{ shop.name }}</h1>
+            </a>
+          {%- endif -%}
+        </header>
+
+        {%- comment -%} ── Gift Card ── {%- endcomment -%}
+        <article class="gc-card gc-reveal" aria-label="{{ 'gift_cards.issued.subtext' | t }}">
+          {%- comment -%} Gift card image {%- endcomment -%}
+          {%- if gift_card.image -%}
+            <div class="gc-image gc-reveal">
+              <img
+                src="{{ gift_card.image | image_url: width: 1200 }}"
+                srcset="
+                  {{ gift_card.image | image_url: width: 600 }} 600w,
+                  {{ gift_card.image | image_url: width: 900 }} 900w,
+                  {{ gift_card.image | image_url: width: 1200 }} 1200w
+                "
+                sizes="(max-width: 680px) 100vw, 680px"
+                alt="{{ 'gift_cards.issued.subtext' | t }}"
+                class="gc-image__img"
+                width="680"
+                height="{{ 680 | divided_by: gift_card.image.aspect_ratio | round }}"
+                loading="eager"
+              >
+              <div class="gc-image__overlay" aria-hidden="true"></div>
+            </div>
+          {%- endif -%}
+
+          <div class="gc-body">
+            {%- comment -%} Gift icon {%- endcomment -%}
+            <div class="gc-gift-icon gc-reveal" aria-hidden="true">
+              <svg
+                width="36"
+                height="36"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 12 20 22 4 22 4 12"/>
+                <rect x="2" y="7" width="20" height="5"/>
+                <line x1="12" y1="22" x2="12" y2="7"/>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+              </svg>
+            </div>
+
+            {%- comment -%} Title {%- endcomment -%}
+            <h2 class="gc-title gc-reveal">{{ 'gift_cards.issued.subtext' | t }}</h2>
+            <p class="gc-subtitle gc-reveal">
+              {{ 'gift_cards.issued.title' | t: value: gift_card_value, shop: shop.name }}
+            </p>
+
+            {%- comment -%} Balance {%- endcomment -%}
+            <div class="gc-balance gc-reveal">
+              <p class="gc-balance__label">{{ 'gift_cards.issued.gift_card_code' | t | split: ' ' | first }}</p>
+              <p class="gc-balance__amount">{{ gift_card.balance | money }}</p>
+              {%- if gift_card.balance != gift_card.initial_value -%}
+                <p class="gc-balance__initial">
+                  {{ 'gift_cards.issued.remaining_html' | t: balance: gift_card.balance | money }}
+                  &middot;
+                  {{ 'products.product.price.regular_price' | t }}: <del>{{ gift_card.initial_value | money }}</del>
+                </p>
+              {%- endif -%}
+            </div>
+
+            {%- comment -%} Expiry {%- endcomment -%}
+            {%- if gift_card.expires_on -%}
+              <div class="gc-reveal" style="margin-bottom:2rem;">
+                {%- if gift_card.expired -%}
+                  <span class="gc-expiry gc-expiry--expired">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    {{ 'gift_cards.issued.expired' | t }}
+                  </span>
+                {%- else -%}
+                  <span class="gc-expiry gc-expiry--active">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    {{
+                      'gift_cards.issued.expiration_date'
+                      | t: expires_on: gift_card.expires_on
+                      | date: format: 'date'
+                    }}
+                  </span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- comment -%} Gift Card Code {%- endcomment -%}
+            <div class="gc-code-section gc-reveal">
+              <p class="gc-code-section__label">{{ 'gift_cards.issued.gift_card_code' | t }}</p>
+              <div class="gc-code-box">
+                <span class="gc-code-box__value" id="gc-code" aria-label="{{ 'gift_cards.issued.gift_card_code' | t }}">
+                  {{ gift_card.code | format_code }}
+                </span>
+                <button
+                  class="gc-code-box__copy"
+                  id="gc-copy-btn"
+                  type="button"
+                  aria-label="{{ 'gift_cards.issued.copy_code' | t }}"
+                  data-copy-label="{{ 'gift_cards.issued.copy_code' | t }}"
+                  data-success-label="{{ 'gift_cards.issued.copy_code_success' | t }}"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    id="gc-copy-icon"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  <span id="gc-copy-text">{{ 'gift_cards.issued.copy_code' | t }}</span>
+                </button>
+              </div>
+            </div>
+
+            {%- comment -%} QR Code {%- endcomment -%}
+            <div class="gc-qr gc-reveal">
+              <p class="gc-qr__label">{{ 'gift_cards.issued.qr_image_alt' | t }}</p>
+              <div class="gc-qr__wrapper">
+                {{ gift_card.qr_code }}
+              </div>
+            </div>
+
+            <div class="gc-divider" aria-hidden="true"></div>
+
+            {%- comment -%} Action Buttons {%- endcomment -%}
+            <div class="gc-actions gc-reveal">
+              <a href="{{ shop.url }}" class="gc-btn gc-btn--primary">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+                  <line x1="3" y1="6" x2="21" y2="6"/>
+                  <path d="M16 10a4 4 0 01-8 0"/>
+                </svg>
+                {{ 'gift_cards.issued.shop_link' | t }}
+              </a>
+
+              <button type="button" class="gc-btn gc-btn--print" onclick="window.print()">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 6 2 18 2 18 9"/>
+                  <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                {{ 'gift_cards.issued.print' | t | default: 'Print' }}
+              </button>
+            </div>
+
+            {%- comment -%} Apple Wallet {%- endcomment -%}
+            {%- if gift_card.pass_url -%}
+              <div class="gc-reveal" style="margin-bottom:1.5rem;">
+                <a href="{{ gift_card.pass_url }}" class="gc-wallet">
+                  <img
+                    src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}"
+                    alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t }}"
+                    width="168"
+                    height="44"
+                    loading="lazy"
+                  >
+                </a>
+              </div>
+            {%- endif -%}
+
+            {%- comment -%} Footer {%- endcomment -%}
+            <footer class="gc-footer gc-reveal">
+              <p class="gc-footer__shop">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <a href="{{ shop.url }}">{{ shop.name }}</a>
+              </p>
+            </footer>
+          </div>
+        </article>
+      </div>
+
+      {%- comment -%} ── Toast Notification ── {%- endcomment -%}
+      <div class="gc-toast" id="gc-toast" role="status" aria-live="polite">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        <span>{{ 'gift_cards.issued.copy_code_success' | t }}</span>
+      </div>
+
+      {%- comment -%} ── Confetti Canvas ── {%- endcomment -%}
+      <canvas class="gc-confetti" id="gc-confetti" aria-hidden="true"></canvas>
+    </main>
+
+    <script>
+      /* ===== Copy to Clipboard ===== */
+      (function () {
+        var copyBtn = document.getElementById('gc-copy-btn');
+        var codeEl = document.getElementById('gc-code');
+        var toast = document.getElementById('gc-toast');
+        var copyText = document.getElementById('gc-copy-text');
+        var copyIcon = document.getElementById('gc-copy-icon');
+        var copyLabel = copyBtn.getAttribute('data-copy-label');
+        var successLabel = copyBtn.getAttribute('data-success-label');
+
+        copyBtn.addEventListener('click', function () {
+          var code = codeEl.textContent.trim().replace(/\s/g, '');
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(code).then(onSuccess).catch(fallbackCopy);
+          } else {
+            fallbackCopy();
+          }
+
+          function fallbackCopy() {
+            var textarea = document.createElement('textarea');
+            textarea.value = code;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              document.execCommand('copy');
+              onSuccess();
+            } catch (e) {}
+            document.body.removeChild(textarea);
+          }
+
+          function onSuccess() {
+            /* Update button */
+            copyBtn.classList.add('gc-code-box__copy--success');
+            copyText.textContent = successLabel;
+            copyIcon.innerHTML =
+              '<polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
+
+            /* Show toast */
+            toast.classList.add('gc-toast--visible');
+
+            setTimeout(function () {
+              copyBtn.classList.remove('gc-code-box__copy--success');
+              copyText.textContent = copyLabel;
+              copyIcon.innerHTML =
+                '<rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none"/>';
+              toast.classList.remove('gc-toast--visible');
+            }, 2500);
+          }
+        });
+      })();
+
+      /* ===== Confetti Effect ===== */
+      (function () {
+        var canvas = document.getElementById('gc-confetti');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        var confetti = [];
+        var colors = ['#6366f1', '#ec4899', '#f59e0b', '#22c55e', '#3b82f6', '#a78bfa', '#f472b6'];
+        var shapes = ['circle', 'rect', 'triangle'];
+
+        for (var i = 0; i < 80; i++) {
+          confetti.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 8 + 4,
+            h: Math.random() * 6 + 3,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            shape: shapes[Math.floor(Math.random() * shapes.length)],
+            speed: Math.random() * 3 + 1.5,
+            angle: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.15,
+            drift: (Math.random() - 0.5) * 1.5,
+            opacity: Math.random() * 0.7 + 0.3,
+          });
+        }
+
+        var frame = 0;
+        var maxFrames = 200;
+
+        function draw() {
+          if (frame > maxFrames) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+          }
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          var fadeStart = maxFrames * 0.7;
+          var globalAlpha = frame > fadeStart ? 1 - (frame - fadeStart) / (maxFrames - fadeStart) : 1;
+
+          for (var i = 0; i < confetti.length; i++) {
+            var c = confetti[i];
+            c.y += c.speed;
+            c.x += c.drift;
+            c.angle += c.spin;
+
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate(c.angle);
+            ctx.globalAlpha = c.opacity * globalAlpha;
+            ctx.fillStyle = c.color;
+
+            if (c.shape === 'circle') {
+              ctx.beginPath();
+              ctx.arc(0, 0, c.w / 2, 0, Math.PI * 2);
+              ctx.fill();
+            } else if (c.shape === 'rect') {
+              ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+            } else {
+              ctx.beginPath();
+              ctx.moveTo(0, -c.w / 2);
+              ctx.lineTo(c.w / 2, c.w / 2);
+              ctx.lineTo(-c.w / 2, c.w / 2);
+              ctx.closePath();
+              ctx.fill();
+            }
+
+            ctx.restore();
+          }
+
+          frame++;
+          requestAnimationFrame(draw);
+        }
+
+        /* Auto-play confetti on load */
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          draw();
+        }
+      })();
+    </script>
+  </body>
+</html>

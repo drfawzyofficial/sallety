@@ -1,0 +1,66 @@
+{
+  "sections": {
+    "content-page": {
+      "type": "content-page",
+      "blocks": {
+        "intro": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "مقدمة",
+            "block_content": "<p>مرحباً بك في متجر سالتي. باستخدامك لموقعنا وخدماتنا، فإنك توافق على الالتزام بهذه الشروط والأحكام. يرجى قراءتها بعناية قبل الاستخدام.</p>"
+          }
+        },
+        "acceptance": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "shield",
+            "block_heading": "قبول الشروط",
+            "block_content": "<p>باستخدام هذا الموقع، فإنك تقر بأنك قد قرأت وفهمت ووافقت على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على هذه الشروط، يرجى عدم استخدام موقعنا.</p>"
+          }
+        },
+        "usage": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "استخدام الموقع",
+            "block_content": "<p>يُسمح لك باستخدام هذا الموقع للأغراض الشخصية وغير التجارية فقط. يحظر:</p><ul><li>نسخ أو تعديل أي جزء من الموقع</li><li>استخدام الموقع لأي غرض غير قانوني</li><li>محاولة الوصول غير المصرح به إلى أنظمتنا</li><li>نقل أي فيروسات أو برامج ضارة</li></ul>"
+          }
+        },
+        "products": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "المنتجات والأسعار",
+            "block_content": "<p>نحتفظ بالحق في تعديل أو إيقاف أي منتج دون إشعار مسبق. قد تتغير الأسعار دون إشعار. نبذل قصارى جهدنا لعرض ألوان وصور دقيقة، ولكن قد تختلف الألوان الفعلية حسب جهاز العرض.</p>"
+          }
+        },
+        "divider": {
+          "type": "divider"
+        },
+        "contact": {
+          "type": "contact_info",
+          "settings": {
+            "contact_heading": "للتواصل معنا",
+            "email": "support@sallety-theme.dev",
+            "phone": "+201027706834",
+            "address": "المملكة العربية السعودية"
+          }
+        }
+      },
+      "block_order": ["intro", "acceptance", "usage", "products", "divider", "contact"],
+      "settings": {
+        "heading": "الشروط والأحكام",
+        "subheading": "يرجى قراءة هذه الشروط والأحكام بعناية قبل استخدام موقعنا",
+        "show_last_updated": true,
+        "color_scheme": "scheme-1",
+        "content_width": "800"
+      }
+    }
+  },
+  "order": ["content-page"]
+}

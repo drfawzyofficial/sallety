@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "content-page": {
+      "type": "content-page",
+      "blocks": {
+        "intro": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "refresh",
+            "block_heading": "سياسة الاسترجاع",
+            "block_content": "<p>رضاك هو أولويتنا! نقدم سياسة استرجاع مرنة لضمان راحتك وثقتك عند التسوق معنا. يرجى قراءة الشروط التالية بعناية.</p>"
+          }
+        },
+        "conditions": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "شروط الاسترجاع",
+            "block_content": "<p>يمكنك استرجاع المنتج إذا توفرت الشروط التالية:</p><ul><li>المنتج في حالته الأصلية ولم يُستخدم</li><li>التغليف الأصلي سليم مع جميع الملحقات</li><li>طلب الاسترجاع خلال 14 يوماً من الاستلام</li><li>إرفاق فاتورة الشراء أو إثبات الطلب</li></ul>"
+          }
+        },
+        "excluded": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "المنتجات غير القابلة للاسترجاع",
+            "block_content": "<p>لا يمكن استرجاع المنتجات التالية:</p><ul><li>المنتجات المستخدمة أو التالفة بسبب العميل</li><li>المنتجات بدون تغليفها الأصلي</li><li>المنتجات المخصصة أو المصنعة حسب الطلب</li><li>منتجات العناية الشخصية لأسباب صحية</li></ul>"
+          }
+        },
+        "process": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "refresh",
+            "block_heading": "خطوات الاسترجاع",
+            "block_content": "<p>لاسترجاع منتج، اتبع الخطوات التالية:</p><ol><li>تواصل معنا عبر البريد الإلكتروني أو الهاتف</li><li>أرسل صور المنتج والفاتورة</li><li>سنرسل لك بوليصة الشحن</li><li>أرسل المنتج وانتظر التأكيد</li><li>سيتم استرداد المبلغ خلال 5-7 أيام عمل</li></ol>"
+          }
+        },
+        "refund": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "طريقة الاسترداد",
+            "block_content": "<p>سيتم استرداد المبلغ بنفس طريقة الدفع الأصلية:</p><ul><li><strong>البطاقة الائتمانية:</strong> 5-7 أيام عمل</li><li><strong>Apple Pay / mada:</strong> 3-5 أيام عمل</li><li><strong>التحويل البنكي:</strong> 7-10 أيام عمل</li></ul>"
+          }
+        },
+        "divider": {
+          "type": "divider"
+        },
+        "contact": {
+          "type": "contact_info",
+          "settings": {
+            "contact_heading": "طلب استرجاع؟",
+            "email": "returns@sallety-theme.dev",
+            "phone": "+201027706834",
+            "address": "المملكة العربية السعودية"
+          }
+        }
+      },
+      "block_order": ["intro", "conditions", "excluded", "process", "refund", "divider", "contact"],
+      "settings": {
+        "heading": "سياسة الاسترجاع والاستبدال",
+        "subheading": "رضاك هو أولويتنا - سياسة استرجاع مرنة وسهلة",
+        "show_last_updated": true,
+        "color_scheme": "scheme-1",
+        "content_width": "800"
+      }
+    }
+  },
+  "order": ["content-page"]
+}
+

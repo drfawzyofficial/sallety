@@ -1,0 +1,70 @@
+{%- comment -%}
+  Sallety Theme - Social Icons Snippet
+  Renders social media links from theme settings.
+
+  Usage:
+  {% render 'social-icons' %}
+{%- endcomment -%}
+
+<div class="social-icons">
+  {%- if settings.social_facebook_link != blank -%}
+    <a href="{{ settings.social_facebook_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.facebook' | t }}">
+      {% render 'icon-facebook' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_instagram_link != blank -%}
+    <a href="{{ settings.social_instagram_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.instagram' | t }}">
+      {% render 'icon-instagram' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_twitter_link != blank -%}
+    <a href="{{ settings.social_twitter_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.twitter' | t }}">
+      {% render 'icon-twitter' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_youtube_link != blank -%}
+    <a href="{{ settings.social_youtube_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.youtube' | t }}">
+      {% render 'icon-youtube' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_tiktok_link != blank -%}
+    <a href="{{ settings.social_tiktok_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.tiktok' | t }}">
+      {% render 'icon-tiktok' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_snapchat_link != blank -%}
+    <a href="{{ settings.social_snapchat_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.snapchat' | t }}">
+      {% render 'icon-snapchat' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_pinterest_link != blank -%}
+    <a href="{{ settings.social_pinterest_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.pinterest' | t }}">
+      {% render 'icon-pinterest' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_linkedin_link != blank -%}
+    <a href="{{ settings.social_linkedin_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.linkedin' | t }}">
+      {% render 'icon-linkedin' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_whatsapp_link != blank -%}
+    <a href="{{ settings.social_whatsapp_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.whatsapp' | t }}">
+      {% render 'icon-whatsapp' %}
+    </a>
+  {%- endif -%}
+
+  {%- if settings.social_telegram_link != blank -%}
+    <a href="{{ settings.social_telegram_link }}" target="_blank" rel="noopener noreferrer" class="social-icons__link" aria-label="{{ 'general.social.links.telegram' | t }}">
+      {% render 'icon-telegram' %}
+    </a>
+  {%- endif -%}
+</div>
+

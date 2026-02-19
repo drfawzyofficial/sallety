@@ -1,0 +1,132 @@
+{%- comment -%}
+  Instagram Feed Item Snippet
+  Renders a single Instagram post card
+  Used by: sections/instagram-feed.liquid
+
+  Parameters:
+    block       - The section block with settings
+    image_ratio - square, portrait, landscape, auto
+    hover_effect - zoom_overlay, zoom_only, blur, grayscale, shine
+    show_likes  - Boolean
+    show_caption - Boolean
+    corner_radius - Number (px)
+    index       - Loop index for stagger animation
+{%- endcomment -%}
+
+{%- liquid
+  assign ig_image = block.settings.image
+  assign ig_link = block.settings.link
+  assign ig_caption = block.settings.caption
+  assign ig_likes = block.settings.likes_count
+  assign ig_is_video = block.settings.is_video
+  assign ig_is_carousel = block.settings.is_carousel_post
+-%}
+
+{%- if ig_link != blank -%}
+  <a
+    href="{{ ig_link }}"
+    class="ig-item ig-item--{{ hover_effect }}"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="{{ ig_caption | default: 'منشور انستغرام' | escape }}"
+    style="--ig-item-corner: {{ corner_radius }}px;"
+  >
+{%- else -%}
+  <div
+    class="ig-item ig-item--{{ hover_effect }}"
+    style="--ig-item-corner: {{ corner_radius }}px;"
+  >
+{%- endif -%}
+
+<div class="ig-item__image-wrap ig-item__image-wrap--{{ image_ratio }}">
+  {%- if ig_image != blank -%}
+    <img
+      src="{{ ig_image | image_url: width: 600 }}"
+      srcset="
+        {{ ig_image | image_url: width: 300 }} 300w,
+        {{ ig_image | image_url: width: 450 }} 450w,
+        {{ ig_image | image_url: width: 600 }} 600w,
+        {{ ig_image | image_url: width: 800 }} 800w
+      "
+      sizes="(max-width: 639px) 50vw, (max-width: 1024px) 33vw, 25vw"
+      alt="{{ ig_caption | default: 'Instagram post' | escape }}"
+      class="ig-item__img"
+      loading="lazy"
+      width="{{ ig_image.width }}"
+      height="{{ ig_image.height }}"
+    >
+  {%- else -%}
+    <div class="ig-item__placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="5"/>
+        <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Type indicators (video / carousel) {%- endcomment -%}
+  {%- if ig_is_video or ig_is_carousel -%}
+    <div class="ig-item__type-badge" aria-hidden="true">
+      {%- if ig_is_video -%}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      {%- elsif ig_is_carousel -%}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="6" width="14" height="14" rx="2"/>
+          <path d="M18 2h2a2 2 0 0 1 2 2v14"/>
+        </svg>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Hover Overlay {%- endcomment -%}
+  <div class="ig-item__overlay">
+    <svg class="ig-item__overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="12" cy="12" r="5"/>
+      <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+    </svg>
+
+    {%- if show_likes and ig_likes != blank -%}
+      <div class="ig-item__likes">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span>{{ ig_likes }}</span>
+      </div>
+    {%- endif -%}
+
+    {%- if show_caption and ig_caption != blank -%}
+      <p class="ig-item__caption">{{ ig_caption }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- if ig_link != blank -%}
+  </a>
+{%- else -%}
+  </div>
+{%- endif -%}
+
+<style>
+  /* Type Badge (Video / Carousel) */
+  .ig-item__type-badge {
+    position: absolute;
+    top: 0.5rem;
+    inset-inline-end: 0.5rem;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 3;
+    pointer-events: none;
+  }
+</style>

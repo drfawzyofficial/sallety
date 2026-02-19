@@ -1,0 +1,137 @@
+{%- comment -%}
+  Sallety Theme - Button Snippet
+  
+  A reusable button component with multiple variants, sizes, and states.
+  
+  Parameters:
+  - label: Button text (required)
+  - href: Link URL (optional, renders as <a> if provided)
+  - type: Button type for <button> element - 'button', 'submit', 'reset' (default: 'button')
+  - variant: 'primary', 'secondary', 'outline', 'ghost', 'link' (default: 'primary')
+  - size: 'sm', 'md', 'lg', 'xl' (default: 'md')
+  - full_width: Boolean to make button full width (default: false)
+  - disabled: Boolean to disable the button (default: false)
+  - loading: Boolean to show loading state (default: false)
+  - icon_start: Icon snippet name to show before label (optional)
+  - icon_end: Icon snippet name to show after label (optional)
+  - icon_only: Boolean for icon-only button (default: false)
+  - class: Additional CSS classes (optional)
+  - id: Button ID (optional)
+  - name: Button name attribute (optional)
+  - value: Button value attribute (optional)
+  - aria_label: Accessible label (optional)
+  - data_attributes: String of data attributes (optional)
+  - form: Form ID to associate button with (optional)
+  
+  Usage Examples:
+  
+  Basic button:
+  {% render 'button', label: 'Add to Cart' %}
+  
+  Link button:
+  {% render 'button', label: 'Shop Now', href: '/collections/all', variant: 'primary' %}
+  
+  Secondary outline button:
+  {% render 'button', label: 'Learn More', variant: 'outline', size: 'lg' %}
+  
+  Button with icon:
+  {% render 'button', label: 'Search', icon_start: 'icon-search', variant: 'secondary' %}
+  
+  Icon-only button:
+  {% render 'button', icon_start: 'icon-heart', icon_only: true, variant: 'ghost', aria_label: 'Add to wishlist' %}
+  
+  Loading button:
+  {% render 'button', label: 'Processing...', loading: true, disabled: true %}
+  
+  Full width button:
+  {% render 'button', label: 'Checkout', variant: 'primary', full_width: true, size: 'lg' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = variant | default: 'primary'
+  assign size = size | default: 'md'
+  assign type = type | default: 'button'
+  assign full_width = full_width | default: false
+  assign disabled = disabled | default: false
+  assign loading = loading | default: false
+  assign icon_only = icon_only | default: false
+  
+  assign button_classes = 'btn'
+  assign button_classes = button_classes | append: ' btn--' | append: variant
+  assign button_classes = button_classes | append: ' btn--' | append: size
+  
+  if full_width
+    assign button_classes = button_classes | append: ' btn--full'
+  endif
+  
+  if icon_only
+    assign button_classes = button_classes | append: ' btn--icon'
+  endif
+  
+  if disabled
+    assign button_classes = button_classes | append: ' btn--disabled'
+  endif
+  
+  if loading
+    assign button_classes = button_classes | append: ' btn--loading'
+  endif
+  
+  case settings.button_hover_effect
+    when 'darken'
+      assign button_classes = button_classes | append: ' btn--hover-darken'
+    when 'scale'
+      assign button_classes = button_classes | append: ' btn--hover-scale'
+    when 'shadow'
+      assign button_classes = button_classes | append: ' btn--hover-shadow'
+  endcase
+  
+  if class != blank
+    assign button_classes = button_classes | append: ' ' | append: class
+  endif
+-%}
+
+{%- capture button_content -%}
+  {%- if icon_start != blank -%}
+    <span class="btn__icon btn__icon--start">
+      {% render icon_start %}
+    </span>
+  {%- endif -%}
+  
+  {%- unless icon_only -%}
+    <span class="btn__label">{{ label }}</span>
+  {%- endunless -%}
+  
+  {%- if icon_end != blank -%}
+    <span class="btn__icon btn__icon--end">
+      {% render icon_end %}
+    </span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if href != blank -%}
+  <a
+    href="{{ href }}"
+    class="{{ button_classes }}"
+    {%- if id != blank %} id="{{ id }}"{% endif %}
+    {%- if aria_label != blank %} aria-label="{{ aria_label }}"{% endif %}
+    {%- if disabled %} aria-disabled="true" tabindex="-1"{% endif %}
+    {%- if data_attributes != blank %} {{ data_attributes }}{% endif %}
+  >
+    {{- button_content -}}
+  </a>
+{%- else -%}
+  <button
+    type="{{ type }}"
+    class="{{ button_classes }}"
+    {%- if id != blank %} id="{{ id }}"{% endif %}
+    {%- if name != blank %} name="{{ name }}"{% endif %}
+    {%- if value != blank %} value="{{ value }}"{% endif %}
+    {%- if aria_label != blank %} aria-label="{{ aria_label }}"{% endif %}
+    {%- if disabled or loading %} disabled{% endif %}
+    {%- if form != blank %} form="{{ form }}"{% endif %}
+    {%- if data_attributes != blank %} {{ data_attributes }}{% endif %}
+  >
+    {{- button_content -}}
+  </button>
+{%- endif -%}
+

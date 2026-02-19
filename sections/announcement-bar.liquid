@@ -1,0 +1,1056 @@
+{%- comment -%}
+  Sallety Theme - Announcement Bar Section
+  Enhanced with slider/marquee modes, countdown, and close button
+{%- endcomment -%}
+
+{%- if section.settings.show_announcement and section.blocks.size > 0 -%}
+  {%- assign theme_name = 'sallety' -%}
+  {%- assign label = 'sections.announcements.label' | t | default: 'Announcement' -%}
+
+  {%- comment -%} Calculate background opacity {%- endcomment -%}
+  {%- assign bg_opacity = section.settings.background_opacity | divided_by: 100.0 -%}
+
+  {%- comment -%} Arrow icon SVG for shortcode replacement - flips automatically in RTL {%- endcomment -%}
+  {%- capture arrow_icon -%}
+    <svg class="announcement-bar__arrow-icon" width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true" focusable="false">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M8.537.808a.5.5 0 01.817-.162l4 4a.5.5 0 010 .708l-4 4a.5.5 0 11-.708-.708L11.793 5.5H1a.5.5 0 010-1h10.793L8.646 1.354a.5.5 0 01-.109-.546z" fill="currentColor"></path>
+    </svg>
+  {%- endcapture -%}
+
+  {%- comment -%} Close button HTML {%- endcomment -%}
+  {%- capture close_button -%}
+    {%- if section.settings.close_style != 'disabled' -%}
+      <button type="button" class="announcement-bar__close announcement-bar__close--{{ section.settings.close_style }}" aria-label="{{ 'accessibility.close' | t }}">
+        {%- if section.settings.close_style == 'icon_text' or section.settings.close_style == 'icon_only' -%}
+          <svg class="announcement-bar__close-icon" width="10" height="10" viewBox="0 0 16 14" aria-hidden="true" focusable="false">
+            <path d="M15 0L1 14m14 0L1 0" stroke="currentColor" fill="none" stroke-width="2"></path>
+          </svg>
+        {%- endif -%}
+        {%- if section.settings.close_style == 'icon_text' or section.settings.close_style == 'text_only' -%}
+          <span class="announcement-bar__close-text">{{ 'sections.announcements.close' | t | default: 'Close' }}</span>
+        {%- endif -%}
+      </button>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- style -%}
+    .announcement-bar {
+      --announcement-bg: {{ section.settings.background_color | color_modify: 'alpha', bg_opacity }};
+      --announcement-text: {{ section.settings.text_color }};
+      --announcement-close: {{ section.settings.close_button_color }};
+      --announcement-height: {{ section.settings.height }}px;
+      --announcement-font-size: {{ section.settings.font_size }}px;
+      --marquee-speed: {{ section.settings.marquee_speed }}s;
+
+      background-color: var(--announcement-bg);
+      color: var(--announcement-text);
+      min-height: var(--announcement-height);
+      font-size: var(--announcement-font-size);
+      position: relative;
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .announcement-bar[aria-hidden="true"] {
+      display: none;
+    }
+
+    .announcement-bar__wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--announcement-height);
+      padding: 8px 16px;
+      gap: 16px;
+    }
+
+    .announcement-bar__wrap a,
+    .announcement-bar__wrap p {
+      color: var(--announcement-text);
+    }
+
+    .announcement-bar__content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Slider Styles */
+    .announcement-bar__slider {
+      position: relative;
+      width: 100%;
+      text-align: center;
+    }
+
+    .announcement-bar__slider .announcement-bar__item {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s;
+    }
+
+    .announcement-bar__slider .announcement-bar__item.is-active {
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* Slider Effects */
+    .announcement-bar__slider--fade .announcement-bar__item {
+      transform: translateY(-50%);
+    }
+
+    .announcement-bar__slider--fade .announcement-bar__item.is-active {
+      transform: translateY(0);
+    }
+
+    .announcement-bar__slider--slide .announcement-bar__item {
+      transform: translateX(100%);
+    }
+
+    .announcement-bar__slider--slide .announcement-bar__item.is-active {
+      transform: translateX(0);
+    }
+
+    .announcement-bar__slider--slide .announcement-bar__item.is-prev {
+      transform: translateX(-100%);
+    }
+
+    .announcement-bar__slider--translate .announcement-bar__item {
+      transform: translateY(30px);
+    }
+
+    .announcement-bar__slider--translate .announcement-bar__item.is-active {
+      transform: translateY(0);
+    }
+
+    /* Marquee Styles */
+    .announcement-bar__marquee {
+      display: flex;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .announcement-bar__marquee-track {
+      display: flex;
+      animation: marquee var(--marquee-speed) linear infinite;
+      white-space: nowrap;
+    }
+
+    .announcement-bar__marquee--rtl .announcement-bar__marquee-track {
+      animation-name: marquee-rtl;
+    }
+
+    .announcement-bar__marquee--ltr .announcement-bar__marquee-track {
+      animation-name: marquee-ltr;
+    }
+
+    .announcement-bar__marquee--pause:hover .announcement-bar__marquee-track {
+      animation-play-state: paused;
+    }
+
+    .announcement-bar__marquee-content {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      padding-inline: 15px;
+    }
+
+    .announcement-bar__marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .announcement-bar__marquee-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--announcement-text);
+      flex-shrink: 0;
+    }
+
+    @keyframes marquee-rtl {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @keyframes marquee-ltr {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+
+    /* Item Styles */
+    .announcement-bar__item {
+      position: relative;
+    }
+
+    .announcement-bar__item p {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .announcement-bar__item a {
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .announcement-bar__item a:hover {
+      opacity: 0.8;
+    }
+
+    .announcement-bar__item--underline a {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .announcement-bar__link {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .announcement-bar__text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .announcement-bar__text a {
+      position: relative;
+      z-index: 3;
+    }
+
+    /* Arrow Icon */
+    .announcement-bar__arrow-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-inline-start: 4px;
+      transition: transform 0.2s ease;
+    }
+
+    /* Flip arrow icon in RTL so it points left */
+    [dir="rtl"] .announcement-bar__arrow-icon {
+      transform: scaleX(-1);
+      margin-inline-start: 0;
+      margin-inline-end: 4px;
+    }
+
+    .announcement-bar__item:hover .announcement-bar__arrow-icon {
+      transform: translateX(4px);
+    }
+
+    [dir="rtl"] .announcement-bar__item:hover .announcement-bar__arrow-icon {
+      transform: scaleX(-1) translateX(4px);
+    }
+
+    /* Countdown */
+    .announcement-bar__countdown {
+      display: inline-block;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Close Button */
+    .announcement-bar__close {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: transparent;
+      border: none;
+      color: var(--announcement-close);
+      cursor: pointer;
+      font-size: var(--announcement-font-size);
+      line-height: 1;
+      transition: opacity 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .announcement-bar__close:hover {
+      opacity: 0.7;
+    }
+
+    .announcement-bar__close:focus {
+      outline: none;
+      opacity: 0.7;
+    }
+
+    .announcement-bar__close-icon {
+      width: 10px;
+      height: 10px;
+    }
+
+    .announcement-bar__close--icon_only .announcement-bar__close-text {
+      display: none;
+    }
+
+    .announcement-bar__close--text_only .announcement-bar__close-icon {
+      display: none;
+    }
+
+    /* Navigation (for slider with multiple items) */
+    .announcement-bar__nav {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: none;
+      color: var(--announcement-text);
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .announcement-bar__nav:hover {
+      opacity: 1;
+    }
+
+    .announcement-bar__nav svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .announcement-bar--has-multiple .announcement-bar__nav {
+      display: flex;
+    }
+
+    /* RTL Support */
+    [dir="rtl"] .announcement-bar__marquee--rtl .announcement-bar__marquee-track {
+      animation-name: marquee-ltr;
+    }
+
+    [dir="rtl"] .announcement-bar__marquee--ltr .announcement-bar__marquee-track {
+      animation-name: marquee-rtl;
+    }
+
+    /* RTL Slider slide effect directions */
+    [dir="rtl"] .announcement-bar__slider--slide .announcement-bar__item {
+      transform: translateX(-100%);
+    }
+
+    [dir="rtl"] .announcement-bar__slider--slide .announcement-bar__item.is-active {
+      transform: translateX(0);
+    }
+
+    [dir="rtl"] .announcement-bar__slider--slide .announcement-bar__item.is-prev {
+      transform: translateX(100%);
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 767px) {
+      .announcement-bar__wrap {
+        padding: 6px 12px;
+        gap: 8px;
+      }
+
+      .announcement-bar__nav {
+        display: none !important;
+      }
+
+      .announcement-bar__close-text {
+        display: none;
+      }
+    }
+  {%- endstyle -%}
+
+  <div
+    id="announcement-bar-{{ section.id }}"
+    class="announcement-bar{% if section.blocks.size > 1 %} announcement-bar--has-multiple{% endif %}"
+    aria-hidden="false"
+    data-section-id="{{ section.id }}"
+    data-section-type="announcement-bar"
+    data-version="{{ section.settings.version }}"
+    data-cookie-days="{{ section.settings.cookie_days }}"
+    data-theme-name="{{ theme_name }}"
+  >
+    <div class="container">
+      <div class="announcement-bar__wrap">
+        {%- comment -%} Close button at start {%- endcomment -%}
+        {%- if section.settings.close_style != 'disabled' -%}
+          <div class="announcement-bar__close-wrapper hidden md:block">
+            {{ close_button }}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Navigation prev {%- endcomment -%}
+        {%- if section.settings.design == 'slider' and section.blocks.size > 1 -%}
+          <button
+            type="button"
+            class="announcement-bar__nav announcement-bar__nav--prev"
+            aria-label="{{ 'sections.announcements.previous' | t }}"
+          >
+            {%- render 'icon-chevron-left' -%}
+          </button>
+        {%- endif -%}
+
+        {%- comment -%} Content area {%- endcomment -%}
+        <div class="announcement-bar__content">
+          {%- if section.settings.design == 'slider' -%}
+            {%- comment -%} SLIDER MODE {%- endcomment -%}
+            <div
+              class="announcement-bar__slider announcement-bar__slider--{{ section.settings.slider_effect }}"
+              data-autoplay="{{ section.settings.autoplay_speed | times: 1000 }}"
+            >
+              {%- for block in section.blocks -%}
+                {%- comment -%} Build countdown shortcode replacement {%- endcomment -%}
+                {%- capture countdown_html -%}
+                  {%- if block.settings.countdown_date != blank -%}
+                    <span 
+                      class="announcement-bar__countdown" 
+                      data-countdown 
+                      data-date="{{ block.settings.countdown_date }}"
+                      data-loop-days="{{ block.settings.countdown_loop_days }}"
+                    >
+                      <span data-days>00</span> {{ block.settings.countdown_text_day | default: 'يوم' }} 
+                      <span data-hours>00</span>:<span data-minutes>00</span>:<span data-seconds>00</span>
+                    </span>
+                  {%- endif -%}
+                {%- endcapture -%}
+
+                {%- comment -%} Process content with shortcode replacements {%- endcomment -%}
+                {%- assign processed_content = block.settings.content
+                  | replace: '[countdown]', countdown_html
+                  | replace: '[icon_arrow]', arrow_icon
+                -%}
+
+                <div
+                  id="announcement-{{ block.id }}"
+                  class="announcement-bar__item{% if forloop.first %} is-active{% endif %}{% if block.settings.show_link_underline %} announcement-bar__item--underline{% endif %}"
+                  {{ block.shopify_attributes }}
+                  data-index="{{ forloop.index0 }}"
+                >
+                  {%- if block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="announcement-bar__link" aria-label="{{ label }}"></a>
+                  {%- endif -%}
+                  <div class="announcement-bar__text rte">
+                    {{ processed_content }}
+                  </div>
+                </div>
+              {%- endfor -%}
+            </div>
+
+          {%- else -%}
+            {%- comment -%} MARQUEE MODE {%- endcomment -%}
+            <div
+              class="announcement-bar__marquee announcement-bar__marquee--{{ section.settings.marquee_direction }}{% if section.settings.marquee_pause_hover %} announcement-bar__marquee--pause{% endif %}"
+            >
+              <div class="announcement-bar__marquee-track">
+                {%- comment -%} Duplicate content for seamless loop {%- endcomment -%}
+                {%- for i in (1..2) -%}
+                  <div class="announcement-bar__marquee-content">
+                    {%- for block in section.blocks -%}
+                      {%- comment -%} Build countdown shortcode replacement {%- endcomment -%}
+                      {%- capture countdown_html -%}
+                        {%- if block.settings.countdown_date != blank -%}
+                          <span 
+                            class="announcement-bar__countdown" 
+                            data-countdown 
+                            data-date="{{ block.settings.countdown_date }}"
+                            data-loop-days="{{ block.settings.countdown_loop_days }}"
+                          >
+                            <span data-days>00</span> {{ block.settings.countdown_text_day | default: 'يوم' }} 
+                            <span data-hours>00</span>:<span data-minutes>00</span>:<span data-seconds>00</span>
+                          </span>
+                        {%- endif -%}
+                      {%- endcapture -%}
+
+                      {%- assign processed_content = block.settings.content
+                        | replace: '[countdown]', countdown_html
+                        | replace: '[icon_arrow]', arrow_icon
+                      -%}
+
+                      <div class="announcement-bar__marquee-item{% if block.settings.show_link_underline %} announcement-bar__item--underline{% endif %}">
+                        <span class="announcement-bar__marquee-dot"></span>
+                        <div class="announcement-bar__text rte">
+                          {%- if block.settings.link != blank -%}
+                            <a href="{{ block.settings.link }}">{{ processed_content }}</a>
+                          {%- else -%}
+                            {{ processed_content }}
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Navigation next {%- endcomment -%}
+        {%- if section.settings.design == 'slider' and section.blocks.size > 1 -%}
+          <button
+            type="button"
+            class="announcement-bar__nav announcement-bar__nav--next"
+            aria-label="{{ 'sections.announcements.next' | t }}"
+          >
+            {%- render 'icon-chevron-right' -%}
+          </button>
+        {%- endif -%}
+
+        {%- comment -%} Close button at end (mobile visible) {%- endcomment -%}
+        {%- if section.settings.close_style != 'disabled' -%}
+          <div class="announcement-bar__close-wrapper md:hidden">
+            {{ close_button }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Announcement Bar JavaScript {%- endcomment -%}
+  <script>
+    (function() {
+      'use strict';
+
+      var SECTION_ID = '{{ section.id }}';
+      var THEME_NAME = '{{ theme_name }}';
+      var VERSION = '{{ section.settings.version }}';
+      var COOKIE_DAYS = {{ section.settings.cookie_days }};
+      var COOKIE_NAME = 'sallety_announcement_' + THEME_NAME + '_' + VERSION;
+
+      // Check if already dismissed via cookie
+      function checkDismissed() {
+        if (document.cookie.indexOf(COOKIE_NAME) > -1) {
+          var el = document.getElementById('announcement-bar-' + SECTION_ID);
+          if (el) el.setAttribute('aria-hidden', 'true');
+          var section = document.getElementById('shopify-section-' + SECTION_ID);
+          if (section) section.setAttribute('aria-hidden', 'true');
+          return true;
+        }
+        return false;
+      }
+
+      // Set dismissal cookie
+      function setCookie() {
+        var date = new Date();
+        date.setTime(date.getTime() + (COOKIE_DAYS * 24 * 60 * 60 * 1000));
+        document.cookie = COOKIE_NAME + '=1;expires=' + date.toUTCString() + ';path=/;SameSite=Lax';
+      }
+
+      // Close announcement bar
+      function closeAnnouncement() {
+        var el = document.getElementById('announcement-bar-' + SECTION_ID);
+        if (el) {
+          el.setAttribute('aria-hidden', 'true');
+          setCookie();
+        }
+      }
+
+      // Slider functionality
+      function initSlider() {
+        var slider = document.querySelector('#announcement-bar-' + SECTION_ID + ' .announcement-bar__slider');
+        if (!slider) return;
+
+        var items = slider.querySelectorAll('.announcement-bar__item');
+        if (items.length <= 1) return;
+
+        var currentIndex = 0;
+        var autoplaySpeed = parseInt(slider.dataset.autoplay) || 0;
+        var autoplayInterval = null;
+
+        function showSlide(index) {
+          items.forEach(function(item, i) {
+            item.classList.remove('is-active', 'is-prev');
+            if (i === index) {
+              item.classList.add('is-active');
+            } else if (i === (index - 1 + items.length) % items.length) {
+              item.classList.add('is-prev');
+            }
+          });
+          currentIndex = index;
+        }
+
+        function nextSlide() {
+          showSlide((currentIndex + 1) % items.length);
+        }
+
+        function prevSlide() {
+          showSlide((currentIndex - 1 + items.length) % items.length);
+        }
+
+        function startAutoplay() {
+          if (autoplaySpeed > 0) {
+            autoplayInterval = setInterval(nextSlide, autoplaySpeed);
+          }
+        }
+
+        function stopAutoplay() {
+          if (autoplayInterval) {
+            clearInterval(autoplayInterval);
+            autoplayInterval = null;
+          }
+        }
+
+        // Navigation buttons
+        var container = document.getElementById('announcement-bar-' + SECTION_ID);
+        var prevBtn = container.querySelector('.announcement-bar__nav--prev');
+        var nextBtn = container.querySelector('.announcement-bar__nav--next');
+
+        if (prevBtn) {
+          prevBtn.addEventListener('click', function() {
+            stopAutoplay();
+            prevSlide();
+            startAutoplay();
+          });
+        }
+
+        if (nextBtn) {
+          nextBtn.addEventListener('click', function() {
+            stopAutoplay();
+            nextSlide();
+            startAutoplay();
+          });
+        }
+
+        // Pause on hover
+        slider.addEventListener('mouseenter', stopAutoplay);
+        slider.addEventListener('mouseleave', startAutoplay);
+
+        // Start autoplay
+        startAutoplay();
+      }
+
+      // Countdown functionality
+      function initCountdowns() {
+        var countdowns = document.querySelectorAll('#announcement-bar-' + SECTION_ID + ' [data-countdown]');
+
+        countdowns.forEach(function(el) {
+          var targetDate = el.dataset.date;
+          var loopDays = parseInt(el.dataset.loopDays) || 0;
+
+          if (!targetDate) return;
+
+          function parseDate(dateStr) {
+            // Support formats: "2026/12/31" or "2026/12/31 20:00:00"
+            var parts = dateStr.split(' ');
+            var dateParts = parts[0].split('/');
+            var timeParts = parts[1] ? parts[1].split(':') : [0, 0, 0];
+
+            return new Date(
+              parseInt(dateParts[0]),
+              parseInt(dateParts[1]) - 1,
+              parseInt(dateParts[2]),
+              parseInt(timeParts[0]) || 0,
+              parseInt(timeParts[1]) || 0,
+              parseInt(timeParts[2]) || 0
+            );
+          }
+
+          function updateCountdown() {
+            var now = new Date().getTime();
+            var target = parseDate(targetDate).getTime();
+
+            // Handle loop days
+            if (loopDays > 0 && now > target) {
+              var daysSinceTarget = Math.floor((now - target) / (1000 * 60 * 60 * 24));
+              var loopCount = Math.floor(daysSinceTarget / loopDays) + 1;
+              target = target + (loopCount * loopDays * 24 * 60 * 60 * 1000);
+            }
+
+            var distance = target - now;
+
+            if (distance < 0) {
+              el.querySelector('[data-days]').textContent = '00';
+              el.querySelector('[data-hours]').textContent = '00';
+              el.querySelector('[data-minutes]').textContent = '00';
+              el.querySelector('[data-seconds]').textContent = '00';
+              return;
+            }
+
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            var daysEl = el.querySelector('[data-days]');
+            var hoursEl = el.querySelector('[data-hours]');
+            var minutesEl = el.querySelector('[data-minutes]');
+            var secondsEl = el.querySelector('[data-seconds]');
+
+            if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+            if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+            if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+          }
+
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
+        });
+      }
+
+      // Initialize close buttons
+      function initCloseButtons() {
+        var container = document.getElementById('announcement-bar-' + SECTION_ID);
+        if (!container) return;
+
+        var closeButtons = container.querySelectorAll('.announcement-bar__close');
+        closeButtons.forEach(function(btn) {
+          btn.addEventListener('click', closeAnnouncement);
+        });
+      }
+
+      // Initialize on DOM ready
+      function init() {
+        if (checkDismissed()) return;
+
+        initSlider();
+        initCountdowns();
+        initCloseButtons();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+      // Shopify theme editor support
+      if (window.Shopify && Shopify.designMode) {
+        document.addEventListener('shopify:section:load', function(e) {
+          if (e.detail.sectionId === SECTION_ID) {
+            init();
+          }
+        });
+
+        document.addEventListener('shopify:block:select', function(e) {
+          if (e.detail.sectionId === SECTION_ID) {
+            var slider = document.querySelector('#announcement-bar-' + SECTION_ID + ' .announcement-bar__slider');
+            if (slider) {
+              var items = slider.querySelectorAll('.announcement-bar__item');
+              items.forEach(function(item) {
+                item.classList.remove('is-active', 'is-prev');
+                if (item.id === 'announcement-' + e.detail.blockId) {
+                  item.classList.add('is-active');
+                }
+              });
+            }
+          }
+        });
+      }
+    })();
+  </script>
+{%- else -%}
+  {%- comment -%} Remove section if not showing {%- endcomment -%}
+  <script>
+    try {
+      if (window.Shopify && !Shopify.designMode) {
+        var section = document.getElementById('shopify-section-{{ section.id }}');
+        if (section) section.remove();
+      } else {
+        var section = document.getElementById('shopify-section-{{ section.id }}');
+        if (section) section.setAttribute('aria-hidden', 'true');
+      }
+    } catch (err) {}
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.announcement_bar.name",
+  "class": "section-announcement-bar",
+  "max_blocks": 10,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "t:sections.announcement_bar.settings.show_announcement.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.design_header.content"
+    },
+    {
+      "type": "select",
+      "id": "design",
+      "label": "t:sections.announcement_bar.settings.design.label",
+      "default": "slider",
+      "options": [
+        {
+          "value": "slider",
+          "label": "t:sections.announcement_bar.settings.design.options.slider"
+        },
+        {
+          "value": "marquee",
+          "label": "t:sections.announcement_bar.settings.design.options.marquee"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.slider_header.content"
+    },
+    {
+      "type": "select",
+      "id": "slider_effect",
+      "label": "t:sections.announcement_bar.settings.slider_effect.label",
+      "default": "fade",
+      "options": [
+        {
+          "value": "fade",
+          "label": "t:sections.announcement_bar.settings.slider_effect.options.fade"
+        },
+        {
+          "value": "slide",
+          "label": "t:sections.announcement_bar.settings.slider_effect.options.slide"
+        },
+        {
+          "value": "translate",
+          "label": "t:sections.announcement_bar.settings.slider_effect.options.translate"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "unit": "s",
+      "label": "t:sections.announcement_bar.settings.autoplay_speed.label",
+      "info": "t:sections.announcement_bar.settings.autoplay_speed.info",
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.marquee_header.content"
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "label": "t:sections.announcement_bar.settings.marquee_speed.label",
+      "default": 20
+    },
+    {
+      "type": "select",
+      "id": "marquee_direction",
+      "label": "t:sections.announcement_bar.settings.marquee_direction.label",
+      "default": "rtl",
+      "options": [
+        {
+          "value": "rtl",
+          "label": "t:sections.announcement_bar.settings.marquee_direction.options.rtl"
+        },
+        {
+          "value": "ltr",
+          "label": "t:sections.announcement_bar.settings.marquee_direction.options.ltr"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee_pause_hover",
+      "label": "t:sections.announcement_bar.settings.marquee_pause_hover.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.style_header.content"
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "min": 30,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "label": "t:sections.announcement_bar.settings.height.label",
+      "default": 44
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 10,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "t:sections.announcement_bar.settings.font_size.label",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.announcement_bar.settings.text_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.announcement_bar.settings.background_color.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "range",
+      "id": "background_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.announcement_bar.settings.background_opacity.label",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.close_header.content"
+    },
+    {
+      "type": "select",
+      "id": "close_style",
+      "label": "t:sections.announcement_bar.settings.close_style.label",
+      "default": "disabled",
+      "options": [
+        {
+          "value": "disabled",
+          "label": "t:sections.announcement_bar.settings.close_style.options.disabled"
+        },
+        {
+          "value": "icon_text",
+          "label": "t:sections.announcement_bar.settings.close_style.options.icon_text"
+        },
+        {
+          "value": "icon_only",
+          "label": "t:sections.announcement_bar.settings.close_style.options.icon_only"
+        },
+        {
+          "value": "text_only",
+          "label": "t:sections.announcement_bar.settings.close_style.options.text_only"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "close_button_color",
+      "label": "t:sections.announcement_bar.settings.close_button_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement_bar.settings.cookie_header.content"
+    },
+    {
+      "type": "radio",
+      "id": "version",
+      "label": "t:sections.announcement_bar.settings.version.label",
+      "info": "t:sections.announcement_bar.settings.version.info",
+      "default": "1",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "cookie_days",
+      "min": 5,
+      "max": 365,
+      "step": 5,
+      "unit": "d",
+      "label": "t:sections.announcement_bar.settings.cookie_days.label",
+      "info": "t:sections.announcement_bar.settings.cookie_days.info",
+      "default": 30
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "t:sections.announcement_bar.blocks.announcement.name",
+      "settings": [
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.link.label"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.content.label",
+          "default": "<p>مرحباً بكم في متجرنا! شحن مجاني للطلبات فوق 200 ريال [icon_arrow]</p>",
+          "info": "t:sections.announcement_bar.blocks.announcement.settings.content.info"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_link_underline",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.show_link_underline.label",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "t:sections.announcement_bar.blocks.announcement.settings.countdown_header.content"
+        },
+        {
+          "type": "text",
+          "id": "countdown_date",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.countdown_date.label",
+          "info": "t:sections.announcement_bar.blocks.announcement.settings.countdown_date.info"
+        },
+        {
+          "type": "text",
+          "id": "countdown_text_day",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.countdown_text_day.label",
+          "default": "يوم"
+        },
+        {
+          "type": "range",
+          "id": "countdown_loop_days",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "unit": "d",
+          "label": "t:sections.announcement_bar.blocks.announcement.settings.countdown_loop_days.label",
+          "info": "t:sections.announcement_bar.blocks.announcement.settings.countdown_loop_days.info",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "announcement",
+        "settings": {
+          "content": "<p>مرحباً بكم في متجرنا! شحن مجاني للطلبات فوق 200 ريال [icon_arrow]</p>"
+        }
+      },
+      {
+        "type": "announcement",
+        "settings": {
+          "content": "<p>العرض ينتهي خلال [countdown] - تسوق الآن! [icon_arrow]</p>",
+          "countdown_date": "2026/12/31",
+          "countdown_text_day": "يوم"
+        }
+      },
+      {
+        "type": "announcement",
+        "settings": {
+          "content": "<p>وصلت تشكيلة جديدة! اكتشف أحدث المنتجات [icon_arrow]</p>"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}

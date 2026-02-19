@@ -1,0 +1,624 @@
+{%- comment -%}
+  Sallety Theme — Masonry Grid Section
+  Pinterest-style staggered image grid with hover effects. RTL/LTR.
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign show_heading = section.settings.show_heading
+  assign section_heading = section.settings.heading | default: 'معرض الصور'
+  assign section_subheading = section.settings.subheading
+  assign text_alignment = section.settings.text_alignment | default: 'center'
+  assign columns_desktop = section.settings.columns_desktop | default: 3
+  assign gap = section.settings.gap | default: 16
+  assign corner_radius = section.settings.corner_radius | default: 12
+  assign overlay_opacity = section.settings.overlay_opacity | default: 40
+  assign overlay_color = section.settings.overlay_color
+  assign show_shapes = section.settings.show_shapes
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="masonry-{{ section.id }}"
+  class="ms-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --ms-pt: {{ padding_top }}px;
+    --ms-pb: {{ padding_bottom }}px;
+    --ms-cols-d: {{ columns_desktop }};
+    --ms-gap: {{ gap }}px;
+    --ms-radius: {{ corner_radius }}px;
+    --ms-overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};
+    --ms-overlay-color: {{ overlay_color | default: '#000000' }};
+    --ms-heading-weight: {{ heading_weight }};
+    font-family: var(--font-body-family);
+  "
+>
+  {%- if show_shapes -%}
+    <div class="ms-shapes" aria-hidden="true">
+      <div class="ms-shape ms-shape-1"></div>
+      <div class="ms-shape ms-shape-2"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="ms-container">
+    {%- if show_heading -%}
+      <header class="ms-header ms-align--{{ text_alignment }}">
+        <h2 class="ms-section-heading">{{ section_heading }}</h2>
+        {%- if section_subheading != blank -%}
+          <p class="ms-section-sub">{{ section_subheading }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="ms-grid">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign span = block.settings.span | default: '1x1'
+          assign span_class = 'ms-item--' | append: span
+        -%}
+        <div class="ms-item {{ span_class }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}
+            <a
+              href="{{ block.settings.link }}"
+              class="ms-item__link"
+              aria-label="{{ block.settings.title | default: 'View' }}"
+            >
+          {%- endif -%}
+
+          {%- if block.settings.image != blank -%}
+            <img
+              class="ms-item__image"
+              src="{{ block.settings.image | image_url: width: 800 }}"
+              srcset="{{ block.settings.image | image_url: width: 400 }} 400w, {{ block.settings.image | image_url: width: 600 }} 600w, {{ block.settings.image | image_url: width: 800 }} 800w, {{ block.settings.image | image_url: width: 1200 }} 1200w"
+              sizes="(max-width: 639px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              alt="{{ block.settings.image.alt | default: block.settings.title | escape }}"
+              loading="lazy"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+            >
+          {%- else -%}
+            <div class="ms-item__placeholder">
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                opacity="0.3"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+          {%- endif -%}
+
+          {%- if block.settings.title != blank or block.settings.subtitle != blank -%}
+            <div class="ms-item__overlay">
+              <div class="ms-item__content">
+                {%- if block.settings.title != blank -%}
+                  <h3 class="ms-item__title">{{ block.settings.title }}</h3>
+                {%- endif -%}
+                {%- if block.settings.subtitle != blank -%}
+                  <p class="ms-item__subtitle">{{ block.settings.subtitle }}</p>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .ms-section {
+    padding-block-start: var(--ms-pt);
+    padding-block-end: var(--ms-pb);
+    position: relative;
+    overflow: hidden;
+  }
+  .ms-container {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+  @media (min-width: 768px) {
+    .ms-container {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ms-container {
+      padding-inline: 4rem;
+    }
+  }
+
+  .ms-header {
+    margin-block-end: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .ms-align--center {
+    text-align: center;
+    align-items: center;
+  }
+  .ms-align--start {
+    text-align: start;
+    align-items: flex-start;
+  }
+  .ms-align--end {
+    text-align: end;
+    align-items: flex-end;
+  }
+  .ms-section-heading {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--ms-heading-weight);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .ms-section-sub {
+    font-size: var(--font-body-size, 16px);
+    color: var(--color-secondary-text);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .ms-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ms-cols-d), 1fr);
+    grid-auto-rows: 220px;
+    gap: var(--ms-gap);
+  }
+  @media (max-width: 1024px) {
+    .ms-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 200px;
+    }
+  }
+  @media (max-width: 639px) {
+    .ms-grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: 220px;
+    }
+  }
+
+  /* Span variants */
+  .ms-item--1x2 {
+    grid-row: span 2;
+  }
+  .ms-item--2x1 {
+    grid-column: span 2;
+  }
+  .ms-item--2x2 {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  @media (max-width: 639px) {
+    .ms-item--2x1 {
+      grid-column: span 1;
+    }
+    .ms-item--2x2 {
+      grid-column: span 1;
+      grid-row: span 2;
+    }
+  }
+
+  .ms-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ms-radius);
+    cursor: pointer;
+  }
+  .ms-item__link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .ms-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .ms-item:hover .ms-item__image {
+    transform: scale(1.06);
+  }
+
+  .ms-item__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-card-background, rgba(0, 0, 0, 0.04));
+  }
+
+  .ms-item__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(var(--ms-overlay-color), var(--ms-overlay-opacity));
+    background: linear-gradient(to top, rgba(0, 0, 0, calc(var(--ms-overlay-opacity) + 0.15)) 0%, rgba(0, 0, 0, 0) 60%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .ms-item:hover .ms-item__overlay {
+    opacity: 1;
+  }
+
+  .ms-item__content {
+    transform: translateY(10px);
+    transition: transform 0.35s ease;
+  }
+  .ms-item:hover .ms-item__content {
+    transform: translateY(0);
+  }
+
+  .ms-item__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.25rem;
+    line-height: 1.3;
+  }
+  .ms-item__subtitle {
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Shapes */
+  .ms-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .ms-shape {
+    position: absolute;
+    opacity: 0.05;
+  }
+  .ms-shape-1 {
+    width: 220px;
+    height: 220px;
+    top: -60px;
+    inset-inline-start: -50px;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: ms-float 18s ease-in-out infinite;
+  }
+  .ms-shape-2 {
+    width: 60px;
+    height: 60px;
+    bottom: 10%;
+    inset-inline-end: 8%;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: ms-float 13s ease-in-out infinite reverse;
+  }
+  @keyframes ms-float {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(12px, -18px);
+    }
+  }
+  @media (max-width: 768px) {
+    .ms-shape-1 {
+      width: 120px;
+      height: 120px;
+    }
+    .ms-shape-2 {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ms-item__image {
+      transition: none;
+    }
+    .ms-item__overlay,
+    .ms-item__content {
+      transition: none;
+    }
+    .ms-shape {
+      animation: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.masonry_grid.name",
+  "tag": "section",
+  "class": "section-masonry-grid",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.masonry_grid.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.masonry_grid.settings.heading.label",
+      "default": "معرض الصور"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:sections.masonry_grid.settings.subheading.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.masonry_grid.settings.text_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.masonry_grid.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.masonry_grid.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.masonry_grid.settings.text_alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.masonry_grid.settings.columns_desktop.label",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:sections.masonry_grid.settings.gap.label",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.masonry_grid.settings.corner_radius.label",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.masonry_grid.settings.overlay_opacity.label",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 40,
+      "unit": "%"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "t:sections.masonry_grid.settings.overlay_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.masonry_grid.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.masonry_grid.settings.show_shapes.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.masonry_grid.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.masonry_grid.settings.heading_weight.options.400"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.masonry_grid.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.masonry_grid.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.masonry_grid.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.masonry_grid.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.masonry_grid.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.masonry_grid.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "masonry_item",
+      "name": "t:sections.masonry_grid.blocks.masonry_item.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.masonry_grid.blocks.masonry_item.settings.image.label"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.masonry_grid.blocks.masonry_item.settings.title.label"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "t:sections.masonry_grid.blocks.masonry_item.settings.subtitle.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.masonry_grid.blocks.masonry_item.settings.link.label"
+        },
+        {
+          "type": "select",
+          "id": "span",
+          "label": "t:sections.masonry_grid.blocks.masonry_item.settings.span.label",
+          "default": "1x1",
+          "options": [
+            {
+              "value": "1x1",
+              "label": "t:sections.masonry_grid.blocks.masonry_item.settings.span.options.1x1"
+            },
+            {
+              "value": "1x2",
+              "label": "t:sections.masonry_grid.blocks.masonry_item.settings.span.options.1x2"
+            },
+            {
+              "value": "2x1",
+              "label": "t:sections.masonry_grid.blocks.masonry_item.settings.span.options.2x1"
+            },
+            {
+              "value": "2x2",
+              "label": "t:sections.masonry_grid.blocks.masonry_item.settings.span.options.2x2"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.masonry_grid.name",
+      "blocks": [
+        {
+          "type": "masonry_item",
+          "settings": {
+            "span": "2x2",
+            "title": "مجموعة مميزة"
+          }
+        },
+        {
+          "type": "masonry_item",
+          "settings": {
+            "span": "1x1",
+            "title": "منتج 1"
+          }
+        },
+        {
+          "type": "masonry_item",
+          "settings": {
+            "span": "1x1",
+            "title": "منتج 2"
+          }
+        },
+        {
+          "type": "masonry_item",
+          "settings": {
+            "span": "1x2",
+            "title": "إطلالة"
+          }
+        },
+        {
+          "type": "masonry_item",
+          "settings": {
+            "span": "2x1",
+            "title": "بانر"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,35 @@
+{%- comment -%}
+  Footer Block - Link List
+  Displays a menu with links
+
+  Parameters:
+  - block: The block object from section
+{%- endcomment -%}
+
+<div class="footer-block footer-block--links text-right" {{ block.shopify_attributes }}>
+  {%- if block.settings.heading != blank -%}
+    <h3 class="text-base sm:text-lg font-bold mb-4 sm:mb-6">
+      {{ block.settings.heading }}
+    </h3>
+  {%- endif -%}
+  
+  {%- if block.settings.menu != blank -%}
+    {%- assign menu = linklists[block.settings.menu] -%}
+    {%- if menu.links.size > 0 -%}
+      <ul class="space-y-3 sm:space-y-4">
+        {%- for link in menu.links -%}
+          <li>
+            <a 
+              href="{{ link.url }}" 
+              class="text-gray-400 inline-block text-xs sm:text-sm hover:text-white transition-colors"
+              {% if link.current %} aria-current="page"{% endif %}
+            >
+              {{ link.title }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  {%- endif -%}
+</div>
+

@@ -1,0 +1,284 @@
+{%- comment -%}
+  Sallety Theme - Rich Text Section
+  Supports RTL and LTR layouts with customizable alignment and styling.
+{%- endcomment -%}
+
+{%- liquid
+  assign content_width_class = 'rich-text__content--' | append: section.settings.content_width
+  assign alignment_class = 'rich-text__content--align-' | append: section.settings.text_alignment
+  assign heading_size_class = 'rich-text__heading--' | append: section.settings.heading_size
+  assign button_class = 'button button--' | append: section.settings.button_style
+-%}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    {%- if section.settings.background_color != blank and section.settings.background_color != 'rgba(0,0,0,0)' -%}
+      --section-background: {{ section.settings.background_color }};
+    {%- endif -%}
+    {%- if section.settings.text_color != blank and section.settings.text_color != 'rgba(0,0,0,0)' -%}
+      --section-text-color: {{ section.settings.text_color }};
+    {%- endif -%}
+  }
+
+  #shopify-section-{{ section.id }} .rich-text {
+    padding-top: var(--section-padding-top);
+    padding-bottom: var(--section-padding-bottom);
+    {%- if section.settings.background_color != blank and section.settings.background_color != 'rgba(0,0,0,0)' -%}
+      background-color: var(--section-background);
+    {%- endif -%}
+    {%- if section.settings.text_color != blank and section.settings.text_color != 'rgba(0,0,0,0)' -%}
+      color: var(--section-text-color);
+    {%- endif -%}
+  }
+
+  #shopify-section-{{ section.id }} .rich-text__content {
+    {%- case section.settings.content_width -%}
+      {%- when 'small' -%}
+        max-width: 600px;
+      {%- when 'medium' -%}
+        max-width: 800px;
+      {%- when 'large' -%}
+        max-width: 1000px;
+      {%- when 'full' -%}
+        max-width: 100%;
+    {%- endcase -%}
+    margin-inline: auto;
+    {%- case section.settings.text_alignment -%}
+      {%- when 'start' -%}
+        text-align: start;
+      {%- when 'center' -%}
+        text-align: center;
+      {%- when 'end' -%}
+        text-align: end;
+    {%- endcase -%}
+  }
+
+  #shopify-section-{{ section.id }} .rich-text__heading {
+    {%- case section.settings.heading_size -%}
+      {%- when 'small' -%}
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+      {%- when 'medium' -%}
+        font-size: clamp(1.5rem, 4vw, 2rem);
+      {%- when 'large' -%}
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
+      {%- when 'xlarge' -%}
+        font-size: clamp(2rem, 6vw, 3rem);
+    {%- endcase -%}
+    margin-bottom: 1rem;
+  }
+
+  #shopify-section-{{ section.id }} .rich-text__text {
+    margin-bottom: 1.5rem;
+  }
+
+  #shopify-section-{{ section.id }} .rich-text__button {
+    display: inline-flex;
+  }
+{%- endstyle -%}
+
+<section 
+  class="rich-text section{% if section.settings.full_width %} rich-text--full-width{% endif %}" 
+  data-section-id="{{ section.id }}" 
+  data-section-type="rich-text"
+>
+  <div class="{% if section.settings.full_width %}container-fluid{% else %}container{% endif %}">
+    <div class="rich-text__content {{ content_width_class }} {{ alignment_class }}">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="rich-text__heading {{ heading_size_class }}">
+          {{ section.settings.heading }}
+        </h2>
+      {%- endif -%}
+      
+      {%- if section.settings.text != blank -%}
+        <div class="rich-text__text rte">
+          {{ section.settings.text }}
+        </div>
+      {%- endif -%}
+      
+      {%- if section.settings.button_label != blank -%}
+        <a 
+          href="{{ section.settings.button_link }}" 
+          class="rich-text__button {{ button_class }}"
+          {%- if section.settings.button_link == blank %} aria-disabled="true"{% endif -%}
+        >
+          {{ section.settings.button_label }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.rich_text.name",
+  "class": "section-rich-text",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.rich_text.settings.heading.label",
+      "default": "نص منسق"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.rich_text.settings.text.label",
+      "default": "<p>استخدم هذا القسم لتقديم معلومات عن متجرك أو منتجاتك أو علامتك التجارية.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.rich_text.settings.button_label.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.rich_text.settings.button_link.label"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.rich_text.settings.button_style.label",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.rich_text.settings.button_style.options.primary"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.rich_text.settings.button_style.options.secondary"
+        },
+        {
+          "value": "outline",
+          "label": "t:sections.rich_text.settings.button_style.options.outline"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.rich_text.settings.text_alignment.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.rich_text.settings.text_alignment.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.rich_text.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.rich_text.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.rich_text.settings.text_alignment.options.end"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "t:sections.rich_text.settings.content_width.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.rich_text.settings.content_width.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.rich_text.settings.content_width.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.rich_text.settings.content_width.options.large"
+        },
+        {
+          "value": "full",
+          "label": "t:sections.rich_text.settings.content_width.options.full"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "t:sections.rich_text.settings.heading_size.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.rich_text.settings.heading_size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.rich_text.settings.heading_size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.rich_text.settings.heading_size.options.large"
+        },
+        {
+          "value": "xlarge",
+          "label": "t:sections.rich_text.settings.heading_size.options.xlarge"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.rich_text.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.colors.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.rich_text.settings.background_color.label"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.rich_text.settings.text_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.rich_text.name"
+    }
+  ]
+}
+{% endschema %}
+

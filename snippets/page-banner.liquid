@@ -1,0 +1,338 @@
+{%- comment -%}
+  Sallety Theme - Page Banner Snippet
+  Reusable hero banner for any page (collections, contact, about-us, etc.)
+  Premium design with gradient fallback, breadcrumbs, title, subtitle, and wave.
+
+  Accepts:
+  - banner_image: {Object} Image picker object (optional)
+  - banner_title: {String} Banner heading text (required)
+  - banner_subtitle: {String} Subtitle / description text (optional)
+  - banner_height: {Number} Min height in px (default: 320)
+  - overlay_opacity: {Number} 0-100 (default: 40)
+  - text_alignment: {String} 'start' | 'center' | 'end' (default: 'center')
+  - show_breadcrumbs: {Boolean} Show breadcrumb nav (default: true)
+  - breadcrumb_label: {String} Current page label in breadcrumb
+  - breadcrumb_url: {String} If the breadcrumb should link somewhere before current page (optional)
+  - breadcrumb_parent_label: {String} Parent breadcrumb label (optional)
+  - show_badge: {Boolean} Show info badge (optional)
+  - badge_text: {String} Badge text content (optional)
+  - show_wave: {Boolean} Show decorative wave at bottom (default: true)
+
+  Usage:
+  {% render 'page-banner',
+    banner_title: 'المجموعات',
+    banner_subtitle: 'تصفح مجموعاتنا المميزة',
+    banner_height: 320,
+    overlay_opacity: 40,
+    text_alignment: 'center',
+    show_breadcrumbs: true,
+    breadcrumb_label: 'المجموعات'
+  %}
+{%- endcomment -%}
+
+{%- liquid
+  assign pb_height = banner_height | default: 320
+  assign pb_overlay = overlay_opacity | default: 40
+  assign pb_align = text_alignment | default: 'center'
+  assign pb_show_crumbs = show_breadcrumbs | default: true
+  assign pb_show_wave = show_wave | default: true
+  assign pb_crumb_label = breadcrumb_label | default: banner_title
+-%}
+
+<div
+  class="pb-banner relative overflow-hidden flex items-center justify-center"
+  style="min-height: {{ pb_height }}px;"
+>
+  {%- comment -%} Background {%- endcomment -%}
+  <div class="absolute inset-0 w-full h-full">
+    {%- if banner_image != blank -%}
+      <img
+        src="{{ banner_image | image_url: width: 1920 }}"
+        srcset="{{ banner_image | image_url: width: 800 }} 800w, {{ banner_image | image_url: width: 1200 }} 1200w, {{ banner_image | image_url: width: 1920 }} 1920w"
+        sizes="100vw"
+        alt="{{ banner_title | escape }}"
+        width="1920"
+        height="{{ 1920 | divided_by: banner_image.aspect_ratio | round }}"
+        loading="eager"
+        fetchpriority="high"
+        class="w-full h-full object-cover"
+      >
+    {%- else -%}
+      <div class="w-full h-full pb-banner__gradient"></div>
+      {%- comment -%} Default decorative SVG illustration {%- endcomment -%}
+      <div class="absolute inset-0 w-full h-full pb-banner__default-svg" aria-hidden="true">
+        <svg
+          viewBox="0 0 1920 600"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-full h-full"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {%- comment -%} Abstract geometric shapes {%- endcomment -%}
+          <circle cx="200" cy="150" r="120" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+          <circle cx="200" cy="150" r="80" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+          <circle cx="1700" cy="400" r="160" stroke="rgba(255,255,255,0.05)" stroke-width="1.5" fill="none"/>
+          <circle cx="1700" cy="400" r="100" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/>
+          <circle cx="960" cy="300" r="200" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+
+          {%- comment -%} Floating dots {%- endcomment -%}
+          <circle cx="400" cy="80" r="4" fill="rgba(255,255,255,0.08)"/>
+          <circle cx="600" cy="450" r="3" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="1100" cy="100" r="5" fill="rgba(255,255,255,0.07)"/>
+          <circle cx="1400" cy="250" r="3.5" fill="rgba(255,255,255,0.05)"/>
+          <circle cx="300" cy="400" r="3" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="1600" cy="120" r="4" fill="rgba(255,255,255,0.07)"/>
+          <circle cx="800" cy="500" r="3" fill="rgba(255,255,255,0.05)"/>
+          <circle cx="1200" cy="480" r="4.5" fill="rgba(255,255,255,0.06)"/>
+
+          {%- comment -%} Decorative lines {%- endcomment -%}
+          <line x1="100" y1="300" x2="350" y2="250" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="1500" y1="150" x2="1800" y2="200" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+          <line x1="700" y1="50" x2="900" y2="120" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+          {%- comment -%} Abstract polygon shapes {%- endcomment -%}
+          <polygon points="500,200 550,120 600,200" stroke="rgba(255,255,255,0.05)" stroke-width="1" fill="none"/>
+          <polygon points="1300,350 1360,280 1420,350" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
+
+          {%- comment -%} Subtle gradient blobs {%- endcomment -%}
+          <defs>
+            <radialGradient id="blob1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+            <radialGradient id="blob2" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.04)"/>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="350" cy="300" rx="180" ry="120" fill="url(#blob1)"/>
+          <ellipse cx="1500" cy="250" rx="220" ry="150" fill="url(#blob2)"/>
+
+          {%- comment -%} Diamond shape {%- endcomment -%}
+          <rect x="920" y="80" width="60" height="60" rx="4" stroke="rgba(255,255,255,0.05)" stroke-width="1" fill="none" transform="rotate(45 950 110)"/>
+          <rect x="1050" y="420" width="40" height="40" rx="3" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none" transform="rotate(45 1070 440)"/>
+        </svg>
+      </div>
+    {%- endif -%}
+    {%- comment -%} Overlay {%- endcomment -%}
+    <div
+      class="absolute inset-0"
+      style="background-color: rgba(0,0,0,{{ pb_overlay | divided_by: 100.0 }});"
+    ></div>
+  </div>
+
+  {%- comment -%} Content {%- endcomment -%}
+  <div
+    class="relative z-10 w-full mx-auto px-4 lg:px-6 py-8 md:py-12"
+    style="max-width: var(--page-width, 1320px);"
+  >
+    <div class="flex flex-col gap-3 items-{{ pb_align }}{% if pb_align == 'center' %} text-center{% elsif pb_align == 'end' %} text-end{% else %} text-start{% endif %}">
+      {%- comment -%} Breadcrumbs {%- endcomment -%}
+      {%- if pb_show_crumbs -%}
+        <nav class="pb-breadcrumb" aria-label="{{ 'general.breadcrumbs.label' | t | default: 'مسار التنقل' }}">
+          <ol class="flex flex-wrap items-center gap-2 text-sm">
+            <li>
+              <a
+                href="{{ routes.root_url }}"
+                class="pb-breadcrumb__link inline-flex items-center gap-1.5 transition-colors duration-200"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>{{ 'general.breadcrumbs.home' | t }}</span>
+              </a>
+            </li>
+            <li class="pb-breadcrumb__sep" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </li>
+            {%- if breadcrumb_parent_label != blank -%}
+              <li>
+                <a href="{{ breadcrumb_url }}" class="pb-breadcrumb__link transition-colors duration-200">
+                  {{ breadcrumb_parent_label }}
+                </a>
+              </li>
+              <li class="pb-breadcrumb__sep" aria-hidden="true">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </li>
+            {%- endif -%}
+            <li>
+              <span class="font-semibold" style="color: rgba(255,255,255,0.95);">
+                {{- pb_crumb_label -}}
+              </span>
+            </li>
+          </ol>
+        </nav>
+      {%- endif -%}
+
+      {%- comment -%} Title {%- endcomment -%}
+      <h1 class="pb-banner__title font-heading">
+        {{ banner_title }}
+      </h1>
+
+      {%- comment -%} Subtitle {%- endcomment -%}
+      {%- if banner_subtitle != blank -%}
+        <p class="pb-banner__subtitle max-w-2xl">
+          {{ banner_subtitle }}
+        </p>
+      {%- endif -%}
+
+      {%- comment -%} Optional Badge {%- endcomment -%}
+      {%- if show_badge and badge_text != blank -%}
+        <div
+          class="pb-banner__badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium mt-1"
+          style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.2);"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          <span>{{ badge_text }}</span>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Decorative bottom wave {%- endcomment -%}
+  {%- if pb_show_wave -%}
+    <div class="absolute bottom-0 left-0 right-0">
+      <svg
+        viewBox="0 0 1440 60"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-full"
+        preserveAspectRatio="none"
+        style="height: 30px;"
+      >
+        <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" style="fill: var(--color-background);"/>
+      </svg>
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+  .pb-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+  .pb-banner__gradient {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--color-primary) 80%, #000 20%) 0%,
+      color-mix(in srgb, var(--color-primary) 40%, #1a1a2e 60%) 50%,
+      #0f3460 100%
+    );
+  }
+  .pb-banner__title {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+  .pb-banner__subtitle {
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.6;
+  }
+  .pb-breadcrumb__link {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  .pb-breadcrumb__link:hover {
+    color: rgba(255, 255, 255, 0.95);
+  }
+  .pb-breadcrumb__sep {
+    color: rgba(255, 255, 255, 0.3);
+  }
+  [dir='rtl'] .pb-breadcrumb__sep svg {
+    transform: scaleX(-1);
+  }
+
+  @media (max-width: 639px) {
+    .pb-banner {
+      min-height: 200px !important;
+    }
+    .pb-banner__title {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pb-banner__title,
+    .pb-banner__subtitle,
+    .pb-breadcrumb__link {
+      transition: none;
+    }
+  }
+
+  .pb-breadcrumb__link:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  .pb-banner__default-svg {
+    opacity: 0.9;
+    animation: pb-svg-float 20s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  @keyframes pb-svg-float {
+    0% {
+      transform: scale(1) translateY(0);
+    }
+    100% {
+      transform: scale(1.03) translateY(-8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pb-banner__default-svg {
+      animation: none;
+    }
+  }
+
+  @media print {
+    .pb-banner {
+      display: none;
+    }
+  }
+</style>

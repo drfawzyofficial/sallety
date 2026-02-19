@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "content-page": {
+      "type": "content-page",
+      "blocks": {
+        "intro": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "truck",
+            "block_heading": "نظرة عامة على الشحن",
+            "block_content": "<p>نحرص على توصيل طلباتك بأسرع وقت وبأفضل جودة. نتعامل مع أفضل شركات الشحن لضمان وصول منتجاتك بأمان.</p>"
+          }
+        },
+        "areas": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "مناطق التوصيل",
+            "block_content": "<p>نقوم بالتوصيل إلى جميع مناطق المملكة العربية السعودية:</p><ul><li><strong>المنطقة الوسطى:</strong> الرياض والقصيم وحائل</li><li><strong>المنطقة الغربية:</strong> جدة ومكة والمدينة</li><li><strong>المنطقة الشرقية:</strong> الدمام والخبر والأحساء</li><li><strong>المناطق الأخرى:</strong> جميع مدن ومحافظات المملكة</li></ul>"
+          }
+        },
+        "times": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "مدة التوصيل",
+            "block_content": "<p>تختلف مدة التوصيل حسب موقعك:</p><ul><li><strong>المدن الرئيسية:</strong> 1-3 أيام عمل</li><li><strong>المدن الثانوية:</strong> 3-5 أيام عمل</li><li><strong>المناطق النائية:</strong> 5-7 أيام عمل</li></ul><p><em>ملاحظة: قد تتأخر الطلبات في المواسم والأعياد</em></p>"
+          }
+        },
+        "costs": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "تكاليف الشحن",
+            "block_content": "<p>تعتمد تكلفة الشحن على عدة عوامل:</p><ul><li>وزن وحجم الطلب</li><li>موقع التوصيل</li><li>طريقة الشحن المختارة</li></ul><p><strong>شحن مجاني:</strong> للطلبات التي تزيد عن 200 ريال</p>"
+          }
+        },
+        "tracking": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "تتبع الشحنة",
+            "block_content": "<p>يمكنك تتبع شحنتك بسهولة:</p><ul><li>ستصلك رسالة برقم التتبع عند شحن طلبك</li><li>يمكنك تتبع الشحنة من حسابك</li><li>سنرسل لك تحديثات عند كل مرحلة</li></ul>"
+          }
+        },
+        "divider": {
+          "type": "divider"
+        },
+        "contact": {
+          "type": "contact_info",
+          "settings": {
+            "contact_heading": "استفسارات الشحن",
+            "email": "shipping@sallety-theme.dev",
+            "phone": "+201027706834",
+            "address": "المملكة العربية السعودية"
+          }
+        }
+      },
+      "block_order": ["intro", "areas", "times", "costs", "tracking", "divider", "contact"],
+      "settings": {
+        "heading": "سياسة الشحن والتوصيل",
+        "subheading": "كل ما تحتاج معرفته عن شحن وتوصيل طلباتك",
+        "show_last_updated": true,
+        "color_scheme": "scheme-1",
+        "content_width": "800"
+      }
+    }
+  },
+  "order": ["content-page"]
+}
+

@@ -1,0 +1,52 @@
+{%- comment -%}
+  Promotional Banner - Image Content
+  The image side of the promotional banner
+
+  Parameters:
+  - section: The section object
+{%- endcomment -%}
+
+{%- if section.settings.image != blank -%}
+  <img 
+    src="{{ section.settings.image | image_url: width: 1200 }}"
+    srcset="{{ section.settings.image | image_url: width: 600 }} 600w,
+            {{ section.settings.image | image_url: width: 900 }} 900w,
+            {{ section.settings.image | image_url: width: 1200 }} 1200w"
+    sizes="(max-width: 1024px) 100vw, 50vw"
+    alt="{{ section.settings.image_alt | default: section.settings.heading | escape }}"
+    loading="lazy"
+    class="w-full h-full object-cover object-center"
+    width="{{ section.settings.image.width }}"
+    height="{{ section.settings.image.height }}"
+  >
+{%- else -%}
+  <!-- Placeholder -->
+  <div class="promo-placeholder w-full h-full flex items-center justify-center lg:min-h-[600px]" style="background-color: #f3f4f6; min-height: 300px;">
+    {{ 'collection-4' | placeholder_svg_tag: 'placeholder-svg' }}
+  </div>
+{%- endif -%}
+
+{%- if section.settings.show_discount_badge and section.settings.discount_value != blank -%}
+  <!-- Discount Badge -->
+  <div class="discount-badge absolute top-6 end-6 px-4 py-3 rounded-xl text-center shadow-lg" style="background-color: {{ section.settings.content_bg_color }}; color: {{ section.settings.content_text_color }};">
+    <span class="text-2xl font-bold block">{{ section.settings.discount_value }}</span>
+    {%- if section.settings.discount_label != blank -%}
+      <span class="text-sm">{{ section.settings.discount_label }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{%- if section.settings.show_decoration -%}
+  <!-- Grid Dots Decoration -->
+  <div class="dots-decoration absolute end-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-gray-400/80 rounded-full hidden sm:flex items-center justify-center">
+    <div class="grid grid-cols-3 gap-1">
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+      <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+    </div>
+  </div>
+{%- endif -%}
+

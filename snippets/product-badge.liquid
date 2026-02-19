@@ -1,0 +1,46 @@
+{%- comment -%}
+  Sallety Theme - Product Badge Snippet
+  Renders sale, sold out, and new badges.
+
+  Accepts:
+  - product: {Object} Product Liquid object
+
+  Usage:
+  {% render 'product-badge', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign show_badge = false
+  assign badge_type = ''
+  assign badge_text = ''
+  
+  if product.available == false and settings.show_sold_out_badge
+    assign show_badge = true
+    assign badge_type = 'sold-out'
+    assign badge_text = 'products.product.sold_out' | t
+  elsif product.compare_at_price > product.price and settings.show_sale_badge
+    assign show_badge = true
+    assign badge_type = 'sale'
+    assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price
+    assign badge_text = discount | append: '%'
+  elsif settings.show_new_badge
+    assign created_at = product.created_at | date: '%s'
+    assign now = 'now' | date: '%s'
+    assign diff = now | minus: created_at
+    assign days_diff = diff | divided_by: 86400
+    if days_diff < settings.new_badge_days
+      assign show_badge = true
+      assign badge_type = 'new'
+      assign badge_text = 'products.product.new_badge' | t | default: 'جديد'
+    endif
+  endif
+-%}
+
+{%- if show_badge -%}
+  <span class="product-card__badge product-card__badge--{{ badge_type }}">
+    {%- if badge_type == 'sale' -%}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+    {%- endif -%}
+    {{ badge_text }}
+  </span>
+{%- endif -%}

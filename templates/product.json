@@ -1,0 +1,139 @@
+{
+  "sections": {
+    "main-product": {
+      "type": "main-product",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "description-excerpt": {
+          "type": "description_excerpt",
+          "settings": {
+            "words_count": 25,
+            "show_learn_more": true
+          }
+        },
+        "variant-picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "swatches"
+          }
+        },
+        "buy-buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "checkout_bg": "#000000",
+            "checkout_text": "#ffffff"
+          }
+        },
+        "payment-badges": {
+          "type": "payment_badges",
+          "settings": {
+            "show_title": true,
+            "badge_mode": "manual"
+          }
+        },
+        "features-list": {
+          "type": "features_list",
+          "settings": {
+            "feature_1": "شحن مجاني للطلبات فوق 200 ريال",
+            "feature_2": "إرجاع مجاني خلال 14 يوم",
+            "feature_3": "ضمان جودة المنتج"
+          }
+        },
+        "details-tab": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "التفاصيل",
+            "open_by_default": false,
+            "show_product_description": true,
+            "show_product_features": true,
+            "feature_1_icon": "odor",
+            "feature_1_text": "مقاوم للروائح",
+            "feature_2_icon": "temperature",
+            "feature_2_text": "منظم لدرجة الحرارة",
+            "feature_3_icon": "fast_drying",
+            "feature_3_text": "سريع الجفاف",
+            "feature_4_icon": "wrinkle",
+            "feature_4_text": "مقاوم للتجاعيد"
+          }
+        },
+        "shipping-tab": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "الشحن",
+            "open_by_default": false,
+            "content": "<p>نوفر خدمة الشحن لجميع مناطق المملكة العربية السعودية. يتم شحن الطلبات خلال 2-4 أيام عمل من تاريخ تأكيد الطلب. الشحن مجاني للطلبات التي تتجاوز 200 ريال سعودي.</p>"
+          }
+        },
+        "returns-tab": {
+          "type": "collapsible_tab",
+          "settings": {
+            "heading": "الاسترجاع والاستبدال",
+            "open_by_default": false,
+            "content": "<p>يمكنك استرجاع أو استبدال المنتج خلال 14 يوماً من تاريخ الاستلام بشرط أن يكون المنتج بحالته الأصلية وفي عبوته الأصلية. لبدء عملية الاسترجاع، يرجى التواصل مع خدمة العملاء.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "description-excerpt",
+        "variant-picker",
+        "buy-buttons",
+        "payment-badges",
+        "features-list",
+        "details-tab",
+        "shipping-tab",
+        "returns-tab"
+      ],
+      "settings": {
+        "show_breadcrumbs": true,
+        "thumbnail_position": "right",
+        "enable_zoom": true,
+        "padding_top": 36,
+        "padding_bottom": 60
+      }
+    },
+    "product-recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "قد يعجبك أيضاً",
+        "products_to_show": 4
+      }
+    },
+    "recently-viewed": {
+      "type": "recently-viewed",
+      "settings": {
+        "heading": "شاهدته مؤخراً",
+        "products_to_show": 4
+      }
+    },
+    "product-reviews": {
+      "type": "product-reviews",
+      "settings": {
+        "heading": "آراء العملاء",
+        "show_summary": true,
+        "show_verified_badge": true,
+        "show_date": true,
+        "show_avatar": true,
+        "reviews_per_page": 5,
+        "sort_by": "newest",
+        "layout": "list",
+        "card_style": "bordered"
+      }
+    }
+  },
+  "order": [
+    "main-product",
+    "product-reviews",
+    "product-recommendations",
+    "recently-viewed"
+  ]
+}

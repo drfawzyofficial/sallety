@@ -1,0 +1,76 @@
+{
+  "sections": {
+    "content-page": {
+      "type": "content-page",
+      "blocks": {
+        "intro": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "shield",
+            "block_heading": "مقدمة",
+            "block_content": "<p>نحن في سالتي نلتزم بحماية خصوصيتك وبياناتك الشخصية. توضح سياسة الخصوصية هذه كيفية جمع واستخدام وحماية معلوماتك عند استخدام موقعنا وخدماتنا.</p>"
+          }
+        },
+        "collection": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "المعلومات التي نجمعها",
+            "block_content": "<p>نقوم بجمع المعلومات التالية:</p><ul><li><strong>معلومات الحساب:</strong> الاسم، البريد الإلكتروني، رقم الهاتف</li><li><strong>معلومات الشحن:</strong> العنوان، المدينة، الرمز البريدي</li><li><strong>معلومات الدفع:</strong> تفاصيل البطاقة (مشفرة ومؤمنة)</li><li><strong>معلومات التصفح:</strong> ملفات الكوكيز، عنوان IP، نوع المتصفح</li></ul>"
+          }
+        },
+        "usage": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "info",
+            "block_heading": "كيف نستخدم معلوماتك",
+            "block_content": "<p>نستخدم المعلومات التي نجمعها لـ:</p><ul><li>معالجة وتسليم طلباتك</li><li>التواصل معك بشأن طلباتك</li><li>إرسال العروض والتحديثات (بموافقتك)</li><li>تحسين خدماتنا وتجربة المستخدم</li><li>الامتثال للمتطلبات القانونية</li></ul>"
+          }
+        },
+        "protection": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "shield",
+            "block_heading": "حماية البيانات",
+            "block_content": "<p>نتخذ إجراءات أمنية صارمة لحماية معلوماتك:</p><ul><li>تشفير SSL لجميع البيانات المنقولة</li><li>تخزين آمن للبيانات</li><li>وصول محدود للموظفين المصرح لهم فقط</li><li>مراجعة دورية لإجراءات الأمان</li></ul>"
+          }
+        },
+        "rights": {
+          "type": "content_block",
+          "settings": {
+            "show_icon": true,
+            "icon_type": "document",
+            "block_heading": "حقوقك",
+            "block_content": "<p>لديك الحق في:</p><ul><li>الوصول إلى بياناتك الشخصية</li><li>تصحيح أي معلومات غير دقيقة</li><li>طلب حذف بياناتك</li><li>إلغاء الاشتراك من الرسائل التسويقية</li><li>تقديم شكوى لجهة حماية البيانات</li></ul>"
+          }
+        },
+        "divider": {
+          "type": "divider"
+        },
+        "contact": {
+          "type": "contact_info",
+          "settings": {
+            "contact_heading": "أسئلة حول الخصوصية؟",
+            "email": "privacy@sallety-theme.dev",
+            "phone": "+201027706834",
+            "address": "المملكة العربية السعودية"
+          }
+        }
+      },
+      "block_order": ["intro", "collection", "usage", "protection", "rights", "divider", "contact"],
+      "settings": {
+        "heading": "سياسة الخصوصية",
+        "subheading": "نحن نهتم بخصوصيتك وحماية بياناتك الشخصية",
+        "show_last_updated": true,
+        "color_scheme": "scheme-1",
+        "content_width": "800"
+      }
+    }
+  },
+  "order": ["content-page"]
+}
+

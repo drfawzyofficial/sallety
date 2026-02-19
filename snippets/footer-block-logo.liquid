@@ -1,0 +1,48 @@
+{%- comment -%}
+  Footer Block - Logo & Description
+  Displays store logo, name and description
+
+  Parameters:
+  - block: The block object from section
+{%- endcomment -%}
+
+<div class="footer-block footer-block--logo text-right" {{ block.shopify_attributes }}>
+  <div class="mb-4 flex flex-col items-end">
+    {%- if block.settings.logo != blank -%}
+      <div class="inline-flex items-center justify-center mb-3">
+        <img 
+          src="{{ block.settings.logo | image_url: width: block.settings.logo_width }}"
+          srcset="{{ block.settings.logo | image_url: width: block.settings.logo_width }} 1x, {{ block.settings.logo | image_url: width: block.settings.logo_width | times: 2 }} 2x"
+          alt="{{ block.settings.store_name | default: shop.name }}"
+          width="{{ block.settings.logo_width }}"
+          height="auto"
+          loading="lazy"
+          class="rounded-lg"
+        >
+      </div>
+    {%- else -%}
+      <!-- Default Logo Placeholder -->
+      <div class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-lg mb-3">
+        <svg viewBox="0 0 60 60" class="w-10 h-10 sm:w-12 sm:h-12">
+          <rect x="15" y="10" width="30" height="40" rx="2" fill="currentColor" class="text-[var(--footer-bg)]"/>
+          <path d="M25 20 L35 20 L35 25 L25 25 Z" fill="white"/>
+          <path d="M20 30 L40 30 L40 45 L20 45 Z" fill="white"/>
+          <circle cx="30" cy="37" r="5" fill="currentColor" class="text-[var(--footer-bg)]"/>
+        </svg>
+      </div>
+    {%- endif -%}
+    
+    {%- if block.settings.store_name != blank -%}
+      <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+        {{ block.settings.store_name }}
+      </h2>
+    {%- endif -%}
+  </div>
+  
+  {%- if block.settings.description != blank -%}
+    <p class="text-gray-400 text-xs sm:text-sm leading-relaxed">
+      {{ block.settings.description }}
+    </p>
+  {%- endif -%}
+</div>
+

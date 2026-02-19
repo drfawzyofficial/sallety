@@ -1,0 +1,65 @@
+{%- comment -%}
+  Sallety Theme — Newsletter Form Snippet
+  Reusable newsletter subscription form used inside the newsletter section.
+
+  This snippet is kept for backwards compatibility. The main newsletter
+  section (sections/newsletter.liquid) now renders its own inline form.
+  If you render this snippet standalone, it provides a minimal form.
+
+  Usage:
+  {% render 'newsletter-form' %}
+{%- endcomment -%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+{%- assign section_dir = section_dir | strip -%}
+
+{% form 'customer', class: 'newsletter-form' %}
+  <input type="hidden" name="contact[tags]" value="newsletter">
+
+  {%- if form.posted_successfully? -%}
+    <div class="newsletter-form__success" dir="{{ section_dir }}" role="status">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      {{ 'newsletter.success' | t }}
+    </div>
+  {%- else -%}
+    <div class="newsletter-form__input-group" dir="{{ section_dir }}">
+      <label for="newsletter-email" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+      <input
+        type="email"
+        id="newsletter-email"
+        name="contact[email]"
+        class="newsletter-form__input form-input"
+        placeholder="{{ 'newsletter.placeholder' | t }}"
+        autocomplete="email"
+        autocorrect="off"
+        autocapitalize="off"
+        required
+        aria-required="true"
+      >
+      <button
+        type="submit"
+        class="newsletter-form__submit button button--primary"
+        aria-label="{{ 'newsletter.submit' | t }}"
+      >
+        {{ 'newsletter.submit' | t }}
+      </button>
+    </div>
+
+    {%- if form.errors -%}
+      <div class="newsletter-form__error" dir="{{ section_dir }}" role="alert">
+        {{ form.errors.messages.email }}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{% endform %}

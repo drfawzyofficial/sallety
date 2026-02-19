@@ -1,0 +1,149 @@
+{%- comment -%}
+  Decorative Shapes Snippet
+  Shared parallax/animated shapes for section backgrounds
+  
+  Usage: 
+    {% render 'decorative-shapes', 
+      accent_color: accent_color,
+      text_color: text_color,
+      prefix: 'section-name'
+    %}
+  
+  Parameters:
+    - accent_color: Primary accent color for shapes (default: #1a2744)
+    - text_color: Secondary color for some shapes (default: #374151)
+    - prefix: Unique prefix for CSS class names to avoid conflicts (default: 'deco')
+{%- endcomment -%}
+
+{%- liquid
+  assign accent = accent_color | default: '#1a2744'
+  assign text = text_color | default: '#374151'
+  assign class_prefix = prefix | default: 'deco'
+-%}
+
+<div class="decorative-shapes {{ class_prefix }}-shapes" aria-hidden="true" style="--shape-accent: {{ accent }}; --shape-text: {{ text }};">
+  <div class="{{ class_prefix }}-shape {{ class_prefix }}-shape-1"></div>
+  <div class="{{ class_prefix }}-shape {{ class_prefix }}-shape-2"></div>
+  <div class="{{ class_prefix }}-shape {{ class_prefix }}-shape-3"></div>
+  <div class="{{ class_prefix }}-shape {{ class_prefix }}-shape-4"></div>
+  <div class="{{ class_prefix }}-shape {{ class_prefix }}-shape-5"></div>
+</div>
+
+<style>
+  /* ================================
+     Decorative Shapes - Shared Styles
+     ================================ */
+  
+  .decorative-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .decorative-shapes > div {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.05;
+  }
+
+  /* Shape 1 - Large gradient circle top-right */
+  .{{ class_prefix }}-shape-1 {
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(135deg, var(--shape-accent), var(--shape-text));
+    top: -80px;
+    right: -50px;
+    animation: decoFloat1 14s ease-in-out infinite;
+  }
+
+  /* Shape 2 - Medium circle bottom-left */
+  .{{ class_prefix }}-shape-2 {
+    width: 150px;
+    height: 150px;
+    background: var(--shape-accent);
+    bottom: 15%;
+    left: -40px;
+    animation: decoFloat2 11s ease-in-out infinite;
+  }
+
+  /* Shape 3 - Small pulsing circle */
+  .{{ class_prefix }}-shape-3 {
+    width: 80px;
+    height: 80px;
+    background: var(--shape-text);
+    top: 35%;
+    left: 10%;
+    animation: decoPulse 8s ease-in-out infinite;
+  }
+
+  /* Shape 4 - Ring outline top-right area */
+  .{{ class_prefix }}-shape-4 {
+    width: 120px;
+    height: 120px;
+    border: 2px solid var(--shape-accent);
+    background: transparent;
+    top: 20%;
+    right: 15%;
+    animation: decoRotate 20s linear infinite;
+  }
+
+  /* Shape 5 - Large ring outline bottom */
+  .{{ class_prefix }}-shape-5 {
+    width: 180px;
+    height: 180px;
+    border: 1px solid var(--shape-accent);
+    background: transparent;
+    bottom: -50px;
+    right: 25%;
+    animation: decoRotate 25s linear infinite reverse;
+  }
+
+  /* ================================
+     Animations
+     ================================ */
+  
+  @keyframes decoFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-20px, 30px) scale(1.05); }
+  }
+
+  @keyframes decoFloat2 {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(25px, -20px); }
+  }
+
+  @keyframes decoPulse {
+    0%, 100% { transform: scale(1); opacity: 0.05; }
+    50% { transform: scale(1.2); opacity: 0.1; }
+  }
+
+  @keyframes decoRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ================================
+     Responsive - Hide smaller shapes on mobile
+     ================================ */
+  
+  @media (max-width: 768px) {
+    .{{ class_prefix }}-shape-1 { width: 150px; height: 150px; }
+    .{{ class_prefix }}-shape-2 { width: 100px; height: 100px; }
+    .{{ class_prefix }}-shape-3 { display: none; }
+    .{{ class_prefix }}-shape-4 { display: none; }
+    .{{ class_prefix }}-shape-5 { display: none; }
+  }
+
+  /* ================================
+     Reduced Motion
+     ================================ */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .decorative-shapes > div {
+      animation: none !important;
+    }
+  }
+</style>
+

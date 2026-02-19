@@ -1,0 +1,20 @@
+{%- comment -%}
+  Sallety Theme - Product Card Placeholder Snippet
+  Displays a placeholder product card when no product is selected.
+{%- endcomment -%}
+
+<div class="product-card card product-card--placeholder">
+  <a href="#" class="product-card__link">
+    <div class="product-card__image card__image">
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+
+    <div class="product-card__info card__content">
+      <h3 class="product-card__title">{{ 'products.product.title' | t }}</h3>
+      <div class="product-card__price">
+        <span class="price__regular">{{ 9900 | money }}</span>
+      </div>
+    </div>
+  </a>
+</div>
+

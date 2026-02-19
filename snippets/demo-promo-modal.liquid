@@ -1,0 +1,266 @@
+{%- comment -%}
+  Demo Promo Modal
+  Only displays on demo.sallety-theme.dev domain
+  Shows once per user using localStorage
+  Uses global typography and button settings from theme customizer
+{%- endcomment -%}
+
+<style>
+  .demo-promo-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  
+  .demo-promo-modal.is-visible {
+    display: flex;
+  }
+  
+  .demo-promo-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease;
+  }
+  
+  .demo-promo-modal__card {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: var(--button-border-radius, 12px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 32rem;
+    width: 100%;
+    margin: 0 auto;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .demo-promo-modal.is-visible .demo-promo-modal__card {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  .demo-promo-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .demo-promo-modal__close:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+  }
+  
+  .demo-promo-modal__close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .demo-promo-modal__content {
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+  }
+  
+  .demo-promo-modal__title {
+    font-family: var(--font-heading-family);
+    font-size: var(--font-heading-size, 1.875rem);
+    font-weight: var(--font-heading-weight, 700);
+    color: var(--button-primary-bg, #1a2744);
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  .demo-promo-modal__text {
+    font-family: var(--font-body-family);
+    font-size: var(--font-body-size, 1.125rem);
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    line-height: 1.75;
+  }
+  
+  .demo-promo-modal__subtext {
+    font-family: var(--font-body-family);
+    font-size: calc(var(--font-body-size, 1rem) * 0.9);
+    color: #4b5563;
+    margin-bottom: 2rem;
+    line-height: 1.75;
+  }
+  
+  .demo-promo-modal__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: var(--button-padding-vertical, 1rem) var(--button-padding-horizontal, 2rem);
+    font-family: var(--font-body-family);
+    font-size: var(--font-body-size, 1.125rem);
+    font-weight: var(--button-font-weight, 600);
+    text-transform: var(--button-text-transform, none);
+    text-decoration: none;
+    color: var(--button-primary-text, #ffffff);
+    background-color: var(--button-primary-bg, #1a2744);
+    border: var(--button-border-thickness, 2px) solid var(--button-primary-bg, #1a2744);
+    border-radius: var(--button-border-radius, 12px);
+    box-shadow: var(--button-shadow-value, none);
+    cursor: pointer;
+    transition: all var(--button-transition-duration, 300ms) ease;
+  }
+  
+  .demo-promo-modal__btn:hover {
+    color: var(--button-primary-text-hover, #ffffff);
+    background-color: var(--button-primary-bg-hover, #0f172a);
+    border-color: var(--button-primary-bg-hover, #0f172a);
+    transform: translateY(-2px);
+    box-shadow: var(--button-shadow-hover-value, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  }
+  
+  @media (min-width: 640px) {
+    .demo-promo-modal__btn {
+      width: auto;
+    }
+  }
+</style>
+
+<!-- Demo Promo Modal -->
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<div 
+  id="demoPromoModal" 
+  class="demo-promo-modal"
+  dir="{{ section_dir }}"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="demoModalTitle"
+>
+  <!-- Backdrop -->
+  <div 
+    class="demo-promo-modal__backdrop"
+    id="demoModalBackdrop"
+  ></div>
+  
+  <!-- Modal Card -->
+  <div 
+    class="demo-promo-modal__card"
+    id="demoModalCard"
+  >
+    <!-- Close Button -->
+    <button 
+      type="button"
+      class="demo-promo-modal__close"
+      id="demoModalClose"
+      aria-label="إغلاق"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+    
+    <!-- Content -->
+    <div class="demo-promo-modal__content">
+      <!-- Title -->
+      <h2 id="demoModalTitle" class="demo-promo-modal__title">
+        <span>✨</span>
+        عجبك الثيم؟ لا تنتظر!
+        <span>✨</span>
+      </h2>
+      
+      <!-- Main Text -->
+      <p class="demo-promo-modal__text">
+        اشترِ الآن واستمتع بخدمة تخصيص متجرك مجاناً بالكامل بعد الشراء
+        <span>💪</span>
+      </p>
+      
+      <!-- Sub Text -->
+      <p class="demo-promo-modal__subtext">
+        <span>🚀</span>
+        بالإضافة إلى أكثر من 10 خدمات إضافية لدعم نجاح متجرك وتحسين مبيعاتك
+      </p>
+      
+      <!-- CTA Button -->
+      <a 
+        href="https://wa.me/201027706834?text=مرحباً، أريد الاستفسار عن ثيم Sallety"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="demo-promo-modal__btn"
+      >
+        تواصل معنا
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // Only run on demo domain
+    const DEMO_DOMAIN = 'demo.sallety-theme.dev';
+    const STORAGE_KEY = 'sallety_demo_promo_dismissed';
+    
+    // Check if we're on the demo domain
+    if (window.location.hostname !== DEMO_DOMAIN) {
+      return;
+    }
+    
+    // Check if user has already dismissed the modal
+    if (localStorage.getItem(STORAGE_KEY) === 'true') {
+      return;
+    }
+    
+    const modal = document.getElementById('demoPromoModal');
+    const closeBtn = document.getElementById('demoModalClose');
+    const backdrop = document.getElementById('demoModalBackdrop');
+    
+    if (!modal) return;
+    
+    // Show modal function
+    function showModal() {
+      modal.classList.add('is-visible');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Hide modal function
+    function hideModal() {
+      modal.classList.remove('is-visible');
+      document.body.style.overflow = '';
+      
+      // Store dismissal in localStorage
+      localStorage.setItem(STORAGE_KEY, 'true');
+    }
+    
+    // Event listeners
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hideModal);
+    }
+    
+    if (backdrop) {
+      backdrop.addEventListener('click', hideModal);
+    }
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-visible')) {
+        hideModal();
+      }
+    });
+    
+    // Show modal after a short delay (better UX)
+    setTimeout(showModal, 1500);
+  })();
+</script>
+

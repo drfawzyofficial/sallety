@@ -1,0 +1,55 @@
+{%- comment -%}
+  Sallety Theme - Color Scheme Snippet
+  
+  Applies the appropriate color scheme class to a section.
+  
+  Parameters:
+  - scheme: Color scheme number (1-5) or 'none' (default: 1)
+  
+  Color Schemes:
+  - 1: Brand colors (default)
+  - 2: Light variant
+  - 3: Dark variant
+  - 4: Accent 1
+  - 5: Accent 2
+  
+  Usage:
+  <div class="{% render 'color-scheme', scheme: section.settings.color_scheme %}">
+    ...
+  </div>
+  
+  In section schema, add:
+  {
+    "type": "select",
+    "id": "color_scheme",
+    "label": "t:sections.all.colors.label",
+    "default": "1",
+    "options": [
+      { "value": "1", "label": "t:sections.all.colors.scheme_1" },
+      { "value": "2", "label": "t:sections.all.colors.scheme_2" },
+      { "value": "3", "label": "t:sections.all.colors.scheme_3" },
+      { "value": "4", "label": "t:sections.all.colors.scheme_4" },
+      { "value": "5", "label": "t:sections.all.colors.scheme_5" }
+    ]
+  }
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme = scheme | default: '1'
+  
+  case scheme
+    when '1' or 1
+      echo 'color-scheme-1'
+    when '2' or 2
+      echo 'color-scheme-2'
+    when '3' or 3
+      echo 'color-scheme-3'
+    when '4' or 4
+      echo 'color-scheme-4'
+    when '5' or 5
+      echo 'color-scheme-5'
+    else
+      echo 'color-scheme-1'
+  endcase
+-%}
+

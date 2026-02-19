@@ -1,0 +1,22 @@
+{
+  "sections": {
+    "main-article": {
+      "type": "main-article",
+      "settings": {
+        "padding_top": 0,
+        "padding_bottom": 60
+      }
+    },
+    "featured-blog": {
+      "type": "featured-blog",
+      "settings": {
+        "heading": "مقالات ذات صلة",
+        "posts_to_show": 3
+      }
+    }
+  },
+  "order": [
+    "main-article",
+    "featured-blog"
+  ]
+}

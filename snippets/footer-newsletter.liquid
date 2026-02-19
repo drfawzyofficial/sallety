@@ -1,0 +1,66 @@
+{%- comment -%}
+  Footer Newsletter Component
+  A rounded card design for email subscription
+
+  Parameters:
+  - heading: The heading text
+  - placeholder: Input placeholder text
+  - button_text: Submit button text
+  - bg_color: Background color of the newsletter card
+{%- endcomment -%}
+
+<div 
+  class="footer-newsletter rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8"
+  style="background-color: {{ bg_color | default: '#cbd5e1' }};"
+>
+  <div class="flex flex-col-reverse md:flex-row items-center justify-between gap-4 sm:gap-6">
+    {%- form 'customer', class: 'footer-newsletter__form flex-1 w-full md:w-auto' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      <div class="flex flex-col sm:flex-row-reverse gap-2 sm:gap-3">
+        <input 
+          type="email" 
+          name="contact[email]"
+          placeholder="{{ placeholder | default: 'newsletter.placeholder' | t }}"
+          class="flex-1 bg-white rounded-full px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--scheme-3-background)]/20 text-right min-w-0 sm:min-w-[280px]"
+          required
+          autocomplete="email"
+          aria-label="{{ 'newsletter.label' | t }}"
+        >
+        <button 
+          type="submit"
+          class="bg-[var(--scheme-3-background)] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-sm sm:text-base font-medium hover:bg-opacity-90 transition-all hover:shadow-lg whitespace-nowrap"
+        >
+          {{ button_text | default: 'newsletter.submit' | t }}
+        </button>
+      </div>
+      
+      {%- if form.posted_successfully? -%}
+        <p class="mt-3 text-sm text-green-600 text-center md:text-right">
+          {{ 'newsletter.success' | t }}
+        </p>
+      {%- endif -%}
+      
+      {%- if form.errors -%}
+        <p class="mt-3 text-sm text-red-600 text-center md:text-right">
+          {{ 'newsletter.error' | t }}
+        </p>
+      {%- endif -%}
+    {%- endform -%}
+    
+    <div class="text-center md:text-right">
+      <h3 class="text-[var(--scheme-3-background)] text-base sm:text-xl md:text-2xl font-bold">
+        {{ heading | default: section.settings.newsletter_heading }}
+      </h3>
+    </div>
+  </div>
+</div>
+
+<style>
+  .footer-newsletter input:focus {
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
+  }
+  
+  .footer-newsletter button:hover {
+    transform: translateY(-1px);
+  }
+</style>

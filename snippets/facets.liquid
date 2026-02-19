@@ -1,0 +1,216 @@
+{%- comment -%}
+  Sallety Theme - Facets Snippet
+  Renders collection filters with accordion groups, color swatches,
+  price range slider, and boolean filters.
+
+  Accepts:
+  - collection: {Object} Collection Liquid object
+  - enable_filtering: {Boolean} Whether filtering is enabled
+
+  Usage:
+  {% render 'facets', collection: collection, enable_filtering: enable_filtering %}
+{%- endcomment -%}
+
+{%- if collection.filters.size > 0 and enable_filtering -%}
+  <form id="facets-form" class="facets" data-facets-form>
+    {%- for filter in collection.filters -%}
+      {%- liquid
+        assign is_color_filter = false
+        assign filter_label_lower = filter.label | downcase
+        if filter_label_lower contains 'color' or filter_label_lower contains 'colour' or filter_label_lower contains 'لون'
+          assign is_color_filter = true
+        endif
+
+        assign has_active = false
+        if filter.type == "price_range"
+          if filter.min_value.value != nil or filter.max_value.value != nil
+            assign has_active = true
+          endif
+        elsif filter.active_values.size > 0
+          assign has_active = true
+        endif
+      -%}
+
+      <div
+        class="facets__group border-b"
+        style="border-color: var(--color-border);"
+        data-accordion-item
+        {% if forloop.index <= 4 %}data-default-open{% endif %}
+      >
+        <button
+          type="button"
+          class="facets__header w-full flex items-center justify-between py-3.5 text-start font-medium text-sm transition-colors"
+          data-accordion-header
+          aria-expanded="{% if forloop.index <= 4 %}true{% else %}false{% endif %}"
+          style="color: var(--color-foreground);"
+        >
+          <span class="flex items-center gap-2">
+            {{ filter.label }}
+            {%- if has_active -%}
+              <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full" style="background-color: var(--color-primary); color: var(--color-background);">
+                {%- if filter.type == "price_range" -%}1{%- else -%}{{ filter.active_values.size }}{%- endif -%}
+              </span>
+            {%- endif -%}
+          </span>
+          <svg class="facets__icon w-4 h-4 transition-transform duration-200 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="facets__content pb-4 {% if forloop.index > 4 %}hidden{% endif %}" data-accordion-content>
+          {%- case filter.type -%}
+
+            {%- when 'list' -%}
+              {%- if is_color_filter -%}
+                {%- comment -%} Color Swatch Filter {%- endcomment -%}
+                <div class="facets__colors flex flex-wrap gap-2">
+                  {%- for value in filter.values -%}
+                    {%- liquid
+                      assign color_value = value.label | downcase | replace: ' ', ''
+                      assign swatch_style = 'background-color: ' | append: color_value
+                      if color_value == 'white' or color_value == 'أبيض'
+                        assign swatch_border = 'border: 1px solid var(--color-border);'
+                      else
+                        assign swatch_border = ''
+                      endif
+                      if color_value == 'multicolor' or color_value == 'multi'
+                        assign swatch_style = 'background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red)'
+                      endif
+                    -%}
+                    <label
+                      class="facets__color-swatch relative cursor-pointer group"
+                      title="{{ value.label }} ({{ value.count }})"
+                    >
+                      <input
+                        type="checkbox"
+                        name="{{ value.param_name }}"
+                        value="{{ value.value }}"
+                        class="sr-only"
+                        {% if value.active %}checked{% endif %}
+                        {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                        data-facet-input
+                      >
+                      <span
+                        class="facets__color-circle block w-8 h-8 rounded-full transition-all duration-200 ring-offset-2{% if value.active %} ring-2{% else %} group-hover:ring-2{% endif %}{% if value.count == 0 and value.active == false %} opacity-30{% endif %}"
+                        style="{{ swatch_style }}; {{ swatch_border }} {% if value.active %}ring-color: var(--color-primary);{% else %}ring-color: var(--color-border);{% endif %}"
+                      ></span>
+                      <span class="text-xs text-center mt-1 block truncate max-w-[40px]" style="color: var(--color-secondary-text);">
+                        {{ value.label | truncate: 6 }}
+                      </span>
+                    </label>
+                  {%- endfor -%}
+                </div>
+
+              {%- else -%}
+                {%- comment -%} Standard List Filter {%- endcomment -%}
+                {%- if filter.values.size > 10 -%}
+                  <div class="facets__search mb-3">
+                    <input
+                      type="text"
+                      class="form-input text-sm"
+                      placeholder="{{ 'collections.filtering.search' | t }}..."
+                      data-facet-search="{{ filter.label }}"
+                      style="padding: 0.5rem 0.75rem;"
+                    >
+                  </div>
+                {%- endif -%}
+                <ul class="facets__list space-y-0.5 max-h-[280px] overflow-y-auto" data-facet-list>
+                  {%- for value in filter.values -%}
+                    <li class="facets__item" data-facet-item data-label="{{ value.label | downcase }}">
+                      <label
+                        class="facets__label flex items-center gap-2.5 py-1.5 px-1 rounded cursor-pointer transition-colors hover:bg-gray-50 text-sm{% if value.count == 0 and value.active == false %} opacity-40 pointer-events-none{% endif %}"
+                      >
+                        <input
+                          type="checkbox"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value }}"
+                          class="facets__checkbox w-4 h-4 rounded flex-shrink-0"
+                          style="accent-color: var(--color-primary);"
+                          {% if value.active %}checked{% endif %}
+                          {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                          data-facet-input
+                        >
+                        <span class="facets__label-text flex-1 truncate">{{ value.label }}</span>
+                        <span class="facets__count text-xs flex-shrink-0" style="color: var(--color-secondary-text);">
+                          ({{ value.count }})
+                        </span>
+                      </label>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+            {%- when 'price_range' -%}
+              {%- comment -%} Price Range Filter {%- endcomment -%}
+              {%- assign max_price_value = filter.range_max | money_without_currency | replace: ',', '' -%}
+              <div class="facets__price-range">
+                <div class="facets__price-inputs flex items-center gap-3">
+                  <div class="facets__price-field flex-1">
+                    <label for="filter-{{ filter.param_name }}-min" class="text-xs font-medium mb-1 block" style="color: var(--color-secondary-text);">
+                      {{ 'collections.filtering.from' | t }}
+                    </label>
+                    <div class="relative">
+                      <span class="absolute start-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--color-secondary-text);">{{ cart.currency.symbol }}</span>
+                      <input
+                        type="number"
+                        id="filter-{{ filter.param_name }}-min"
+                        name="{{ filter.min_value.param_name }}"
+                        value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                        min="0"
+                        max="{{ max_price_value }}"
+                        placeholder="0"
+                        class="form-input text-sm ps-8"
+                        style="padding-top: 0.5rem; padding-bottom: 0.5rem;"
+                        data-facet-input
+                        data-price-min
+                      >
+                    </div>
+                  </div>
+                  <span class="text-sm mt-5" style="color: var(--color-secondary-text);">—</span>
+                  <div class="facets__price-field flex-1">
+                    <label for="filter-{{ filter.param_name }}-max" class="text-xs font-medium mb-1 block" style="color: var(--color-secondary-text);">
+                      {{ 'collections.filtering.to' | t }}
+                    </label>
+                    <div class="relative">
+                      <span class="absolute start-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--color-secondary-text);">{{ cart.currency.symbol }}</span>
+                      <input
+                        type="number"
+                        id="filter-{{ filter.param_name }}-max"
+                        name="{{ filter.max_value.param_name }}"
+                        value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                        min="0"
+                        max="{{ max_price_value }}"
+                        placeholder="{{ max_price_value }}"
+                        class="form-input text-sm ps-8"
+                        style="padding-top: 0.5rem; padding-bottom: 0.5rem;"
+                        data-facet-input
+                        data-price-max
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            {%- when 'boolean' -%}
+              {%- comment -%} Boolean Toggle Filter {%- endcomment -%}
+              <div class="facets__boolean flex items-center justify-between py-1">
+                <span class="text-sm">{{ filter.label }}</span>
+                <label class="facets__toggle relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="{{ filter.values[0].param_name }}"
+                    value="{{ filter.values[0].value }}"
+                    class="sr-only peer"
+                    {% if filter.values[0].active %}checked{% endif %}
+                    data-facet-input
+                  >
+                  <div class="w-11 h-6 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" style="background-color: var(--color-border); peer-checked:background-color: var(--color-primary);"></div>
+                </label>
+              </div>
+
+          {%- endcase -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </form>
+{%- endif -%}

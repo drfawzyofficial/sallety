@@ -1,0 +1,50 @@
+{
+  "sections": {
+    "page-banner": {
+      "type": "page-banner",
+      "settings": {
+        "show_banner": true,
+        "banner_height": 320,
+        "overlay_opacity": 40,
+        "banner_title": "المجموعات",
+        "banner_subtitle": "تصفح مجموعاتنا المميزة واكتشف أحدث المنتجات",
+        "breadcrumb_label": "المجموعات",
+        "text_alignment": "center",
+        "show_breadcrumbs": true,
+        "show_wave": true
+      }
+    },
+    "main-list-collections": {
+      "type": "main-list-collections",
+      "settings": {
+        "show_banner": false,
+        "banner_height": 320,
+        "overlay_opacity": 40,
+        "banner_title": "المجموعات",
+        "banner_subtitle": "تصفح مجموعاتنا المميزة واكتشف أحدث المنتجات",
+        "show_breadcrumbs": true,
+        "show_collection_count": true,
+        "text_alignment": "center",
+        "columns_desktop": "4",
+        "columns_tablet": "3",
+        "columns_mobile": "2",
+        "grid_gap": 20,
+        "card_style": "overlay",
+        "image_ratio": "portrait",
+        "show_card_count": true,
+        "card_border_radius": 12,
+        "card_shadow": "medium",
+        "hover_effect": "zoom",
+        "sort_collections": "alphabetical",
+        "hide_empty": true,
+        "max_collections": 0,
+        "padding_top": 40,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "page-banner",
+    "main-list-collections"
+  ]
+}

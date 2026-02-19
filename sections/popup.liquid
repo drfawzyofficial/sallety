@@ -1,0 +1,735 @@
+{%- comment -%}
+  Sallety Theme — Popup Section
+  Modal popup for promotions, newsletter, or announcements. RTL/LTR.
+{%- endcomment -%}
+
+{%- liquid
+  assign popup_size = section.settings.popup_size | default: 'medium'
+  assign popup_position = section.settings.popup_position | default: 'center'
+  assign trigger_type = section.settings.trigger_type | default: 'delay'
+  assign delay_seconds = section.settings.delay_seconds | default: 3
+  assign show_frequency = section.settings.show_frequency | default: 'once_session'
+  assign cookie_days = section.settings.cookie_days | default: 7
+  assign animation = section.settings.animation | default: 'fade'
+  assign overlay_opacity = section.settings.overlay_opacity | default: 50
+  assign corner_radius = section.settings.corner_radius | default: 16
+  assign show_on_mobile = section.settings.show_on_mobile
+  assign image = section.settings.image
+  assign image_position = section.settings.image_position | default: 'left'
+  assign heading = section.settings.heading
+  assign text = section.settings.text
+  assign show_newsletter = section.settings.show_newsletter
+  assign button_label = section.settings.button_label
+  assign button_link = section.settings.button_link
+  assign bg_color = section.settings.background_color
+  assign text_color = section.settings.text_color
+  assign btn_bg = section.settings.button_bg_color
+  assign btn_text = section.settings.button_text_color
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="popup-{{ section.id }}"
+  class="popup-section"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-trigger="{{ trigger_type }}"
+  data-delay="{{ delay_seconds }}"
+  data-frequency="{{ show_frequency }}"
+  data-cookie-days="{{ cookie_days }}"
+  style="display:none;"
+>
+  <div
+    class="popup-overlay"
+    data-popup-close
+    style="--popup-overlay-opacity: {{ overlay_opacity | divided_by: 100.0 }};"
+  ></div>
+
+  <div
+    class="popup-modal popup-modal--{{ popup_size }} popup-modal--{{ popup_position }} popup-modal--anim-{{ animation }}{% unless show_on_mobile %} popup-modal--hide-mobile{% endunless %}{% if image != blank %} popup-modal--has-image popup-modal--img-{{ image_position }}{% endif %}"
+    role="dialog"
+    aria-modal="true"
+    aria-label="{{ heading | default: 'Popup' }}"
+    style="
+      --popup-radius: {{ corner_radius }}px;
+      {%- if bg_color != blank %}--popup-bg: {{ bg_color }};{% endif %}
+      {%- if text_color != blank %}--popup-text: {{ text_color }};{% endif %}
+      {%- if btn_bg != blank %}--popup-btn-bg: {{ btn_bg }};{% endif %}
+      {%- if btn_text != blank %}--popup-btn-text: {{ btn_text }};{% endif %}
+    "
+  >
+    <button class="popup-close" data-popup-close aria-label="Close popup">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    {%- if image != blank -%}
+      <div class="popup-image">
+        <img
+          src="{{ image | image_url: width: 800 }}"
+          srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 800 }} 800w"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          alt="{{ image.alt | escape }}"
+          loading="lazy"
+          width="{{ image.width }}"
+          height="{{ image.height }}"
+        >
+      </div>
+    {%- endif -%}
+
+    <div class="popup-body">
+      {%- if heading != blank -%}
+        <h2 class="popup-heading">{{ heading }}</h2>
+      {%- endif -%}
+      {%- if text != blank -%}
+        <div class="popup-text rte">{{ text }}</div>
+      {%- endif -%}
+
+      {%- if show_newsletter -%}
+        {%- form 'customer', class: 'popup-newsletter' -%}
+          <input type="hidden" name="contact[tags]" value="popup,newsletter">
+          <div class="popup-newsletter__row">
+            <input
+              type="email"
+              name="contact[email]"
+              placeholder="{{ section.settings.email_placeholder | default: 'البريد الإلكتروني' }}"
+              required
+              autocomplete="email"
+              class="popup-newsletter__input"
+            >
+            <button type="submit" class="popup-newsletter__btn">
+              {{ section.settings.subscribe_text | default: 'اشتراك' }}
+            </button>
+          </div>
+          {%- if form.posted_successfully? -%}
+            <p class="popup-newsletter__success">{{ section.settings.success_message | default: 'شكراً لاشتراكك!' }}</p>
+          {%- endif -%}
+          {%- if form.errors -%}
+            <p class="popup-newsletter__error">
+              {{ form.errors.translated_fields.email | capitalize }}
+              {{ form.errors.messages.email }}
+            </p>
+          {%- endif -%}
+        {%- endform -%}
+      {%- endif -%}
+
+      {%- if button_label != blank -%}
+        <a href="{{ button_link }}" class="popup-btn">{{ button_label }}</a>
+      {%- endif -%}
+
+      {%- if section.settings.disclaimer != blank -%}
+        <p class="popup-disclaimer">{{ section.settings.disclaimer }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .popup-section {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .popup-section[style*='display:none'] {
+    pointer-events: none;
+  }
+
+  .popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--popup-overlay-opacity, 0.5));
+    z-index: 1;
+    cursor: pointer;
+  }
+
+  .popup-modal {
+    position: relative;
+    z-index: 2;
+    background: var(--popup-bg, var(--color-background, #fff));
+    color: var(--popup-text, var(--color-text, #1a1a1a));
+    border-radius: var(--popup-radius);
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .popup-modal--small {
+    width: min(400px, 92vw);
+  }
+  .popup-modal--medium {
+    width: min(560px, 92vw);
+  }
+  .popup-modal--large {
+    width: min(720px, 92vw);
+  }
+
+  .popup-modal--has-image {
+    display: flex;
+  }
+  .popup-modal--img-left {
+    flex-direction: row;
+  }
+  .popup-modal--img-right {
+    flex-direction: row-reverse;
+  }
+  .popup-modal--img-top {
+    flex-direction: column;
+  }
+  .popup-modal--img-top .popup-image {
+    max-height: 200px;
+  }
+
+  .popup-modal--bottom {
+    position: fixed;
+    bottom: 1rem;
+    inset-inline: 1rem;
+    width: auto;
+    margin: 0;
+    border-radius: var(--popup-radius);
+  }
+
+  .popup-image {
+    flex: 0 0 45%;
+    overflow: hidden;
+  }
+  .popup-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  @media (max-width: 639px) {
+    .popup-modal--has-image {
+      flex-direction: column;
+    }
+    .popup-image {
+      flex: 0 0 auto;
+      max-height: 180px;
+    }
+  }
+
+  .popup-body {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 0.75rem;
+    inset-inline-end: 0.75rem;
+    z-index: 3;
+    background: var(--popup-bg, rgba(255, 255, 255, 0.9));
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--popup-text, #333);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .popup-close:hover {
+    transform: rotate(90deg);
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .popup-heading {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+    font-family: var(--font-heading-family);
+  }
+  .popup-text {
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .popup-newsletter__row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .popup-newsletter__input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: calc(var(--popup-radius) / 2);
+    font-size: 0.9375rem;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+  .popup-newsletter__input:focus {
+    outline: none;
+    border-color: var(--color-primary, #1a2744);
+  }
+  .popup-newsletter__btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: var(--popup-btn-bg, var(--color-primary, #1a2744));
+    color: var(--popup-btn-text, #fff);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border-radius: calc(var(--popup-radius) / 2);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    font-family: inherit;
+  }
+  .popup-newsletter__btn:hover {
+    opacity: 0.85;
+  }
+  .popup-newsletter__success {
+    color: var(--color-success, #22c55e);
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+  }
+  .popup-newsletter__error {
+    color: var(--color-error, #ef4444);
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0;
+  }
+
+  .popup-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 2rem;
+    border-radius: calc(var(--popup-radius) / 2);
+    background: var(--popup-btn-bg, var(--color-primary, #1a2744));
+    color: var(--popup-btn-text, #fff);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: opacity 0.2s;
+  }
+  .popup-btn:hover {
+    opacity: 0.85;
+  }
+
+  .popup-disclaimer {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    margin: 0;
+    text-align: center;
+  }
+
+  .popup-modal--hide-mobile {
+    display: flex;
+  }
+  @media (max-width: 639px) {
+    .popup-modal--hide-mobile {
+      display: none !important;
+    }
+  }
+
+  /* Animations */
+  .popup-modal--anim-fade {
+    animation: popup-fade-in 0.3s ease;
+  }
+  .popup-modal--anim-slide {
+    animation: popup-slide-in 0.35s ease;
+  }
+  .popup-modal--anim-scale {
+    animation: popup-scale-in 0.3s ease;
+  }
+  @keyframes popup-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes popup-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes popup-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .popup-modal {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const section = document.getElementById('popup-{{ section.id }}');
+    if (!section) return;
+
+    const trigger = section.dataset.trigger;
+    const delay = parseInt(section.dataset.delay, 10) * 1000;
+    const frequency = section.dataset.frequency;
+    const cookieDays = parseInt(section.dataset.cookieDays, 10);
+    const cookieKey = 'sallety_popup_{{ section.id }}';
+
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;)\\s*' + name + '=([^;]*)');
+      return v ? v[2] : null;
+    }
+    function setCookie(name, val, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 86400000);
+      document.cookie = name + '=' + val + ';expires=' + d.toUTCString() + ';path=/';
+    }
+
+    function shouldShow() {
+      if (frequency === 'always') return true;
+      if (frequency === 'once_session') return !sessionStorage.getItem(cookieKey);
+      if (frequency === 'once_days') return !getCookie(cookieKey);
+      return true;
+    }
+
+    function showPopup() {
+      if (!shouldShow()) return;
+      section.style.display = 'flex';
+      if (frequency === 'once_session') sessionStorage.setItem(cookieKey, '1');
+      if (frequency === 'once_days') setCookie(cookieKey, '1', cookieDays);
+    }
+
+    function hidePopup() {
+      section.style.display = 'none';
+    }
+
+    section.querySelectorAll('[data-popup-close]').forEach(function (el) {
+      el.addEventListener('click', hidePopup);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && section.style.display !== 'none') hidePopup();
+    });
+
+    if (window.Shopify && Shopify.designMode) {
+      document.addEventListener('shopify:section:select', function (e) {
+        if (e.detail.sectionId === '{{ section.id }}') showPopup();
+      });
+      document.addEventListener('shopify:section:deselect', function (e) {
+        if (e.detail.sectionId === '{{ section.id }}') hidePopup();
+      });
+      return;
+    }
+
+    if (trigger === 'delay') {
+      setTimeout(showPopup, delay);
+    } else if (trigger === 'exit') {
+      let shown = false;
+      document.addEventListener('mouseout', function (e) {
+        if (!shown && e.clientY < 10) {
+          shown = true;
+          showPopup();
+        }
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.popup.name",
+  "tag": "section",
+  "class": "section-popup",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.popup.settings.heading.label",
+      "default": "احصل على خصم 10%"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.popup.settings.text.label",
+      "default": "<p>اشترك في نشرتنا البريدية واحصل على خصم 10% على أول طلب لك</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.popup.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.popup.settings.image_position.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.popup.settings.image_position.options.left"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.popup.settings.image_position.options.right"
+        },
+        {
+          "value": "top",
+          "label": "t:sections.popup.settings.image_position.options.top"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": "t:sections.popup.settings.show_newsletter.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "t:sections.popup.settings.email_placeholder.label",
+      "default": "البريد الإلكتروني"
+    },
+    {
+      "type": "text",
+      "id": "subscribe_text",
+      "label": "t:sections.popup.settings.subscribe_text.label",
+      "default": "اشتراك"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "t:sections.popup.settings.success_message.label",
+      "default": "شكراً لاشتراكك!"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.popup.settings.button_label.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.popup.settings.button_link.label"
+    },
+    {
+      "type": "text",
+      "id": "disclaimer",
+      "label": "t:sections.popup.settings.disclaimer.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "trigger_type",
+      "label": "t:sections.popup.settings.trigger_type.label",
+      "default": "delay",
+      "options": [
+        {
+          "value": "delay",
+          "label": "t:sections.popup.settings.trigger_type.options.delay"
+        },
+        {
+          "value": "exit",
+          "label": "t:sections.popup.settings.trigger_type.options.exit"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "delay_seconds",
+      "label": "t:sections.popup.settings.delay_seconds.label",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 3,
+      "unit": "ث"
+    },
+    {
+      "type": "select",
+      "id": "show_frequency",
+      "label": "t:sections.popup.settings.show_frequency.label",
+      "default": "once_session",
+      "options": [
+        {
+          "value": "always",
+          "label": "t:sections.popup.settings.show_frequency.options.always"
+        },
+        {
+          "value": "once_session",
+          "label": "t:sections.popup.settings.show_frequency.options.once_session"
+        },
+        {
+          "value": "once_days",
+          "label": "t:sections.popup.settings.show_frequency.options.once_days"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "cookie_days",
+      "label": "t:sections.popup.settings.cookie_days.label",
+      "min": 1,
+      "max": 30,
+      "step": 1,
+      "default": 7
+    },
+    {
+      "type": "checkbox",
+      "id": "show_on_mobile",
+      "label": "t:sections.popup.settings.show_on_mobile.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "popup_size",
+      "label": "t:sections.popup.settings.popup_size.label",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.popup.settings.popup_size.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.popup.settings.popup_size.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.popup.settings.popup_size.options.large"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "popup_position",
+      "label": "t:sections.popup.settings.popup_position.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:sections.popup.settings.popup_position.options.center"
+        },
+        {
+          "value": "bottom",
+          "label": "t:sections.popup.settings.popup_position.options.bottom"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation",
+      "label": "t:sections.popup.settings.animation.label",
+      "default": "fade",
+      "options": [
+        {
+          "value": "fade",
+          "label": "t:sections.popup.settings.animation.options.fade"
+        },
+        {
+          "value": "slide",
+          "label": "t:sections.popup.settings.animation.options.slide"
+        },
+        {
+          "value": "scale",
+          "label": "t:sections.popup.settings.animation.options.scale"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.popup.settings.overlay_opacity.label",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 50,
+      "unit": "%"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.popup.settings.corner_radius.label",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header.content"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.popup.settings.background_color.label"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.popup.settings.text_color.label"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "t:sections.popup.settings.button_bg_color.label"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "t:sections.popup.settings.button_text_color.label"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.popup.name"
+    }
+  ]
+}
+{% endschema %}

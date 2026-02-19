@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-wishlist",
+      "settings": {
+        "title": "قائمة المفضلة",
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "image_ratio": "portrait"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

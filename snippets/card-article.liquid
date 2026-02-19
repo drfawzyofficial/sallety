@@ -1,0 +1,571 @@
+{%- comment -%}
+  Sallety Theme - Article Card Snippet
+  A comprehensive, styled article card component that inherits from global blog settings.
+
+  Accepts:
+  - article: {Object} Article Liquid object (required)
+  - show_image: {Boolean} Override to show/hide image (optional)
+  - show_date: {Boolean} Override to show/hide date (optional)
+  - show_author: {Boolean} Override to show/hide author (optional)
+  - show_excerpt: {Boolean} Override to show/hide excerpt (optional)
+  - show_tags: {Boolean} Override to show/hide tags (optional)
+  - show_comments_count: {Boolean} Override to show/hide comments count (optional)
+  - show_read_more: {Boolean} Override to show/hide read more button (optional)
+  - excerpt_length: {Number} Override excerpt length (optional)
+  - image_ratio: {String} Override image ratio - 'square', 'portrait', 'landscape', 'wide' (optional)
+  - lazy_load: {Boolean} Enable lazy loading for images (default: true)
+  - class: {String} Additional CSS classes (optional)
+
+  Usage:
+  {% render 'card-article', article: article %}
+  {% render 'card-article', article: article, show_author: false, image_ratio: 'wide' %}
+{%- endcomment -%}
+
+{%- liquid
+  # Get global settings with fallbacks
+  assign card_image_ratio = image_ratio | default: settings.blog_card_image_ratio | default: 'landscape'
+  assign card_border_radius = settings.blog_card_border_radius | default: 12
+  assign card_shadow = settings.blog_card_shadow | default: 'small'
+  
+  # Display settings - properly handle boolean settings
+  # When parameter is passed (not nil), use it; otherwise use global setting
+  # Note: We check if the parameter was explicitly passed vs using global setting
+  
+  # Date display
+  if show_date == true or show_date == false
+    assign display_date = show_date
+  elsif settings.blog_show_date == false
+    assign display_date = false
+  else
+    assign display_date = true
+  endif
+  
+  # Author display
+  if show_author == true or show_author == false
+    assign display_author = show_author
+  elsif settings.blog_show_author == false
+    assign display_author = false
+  else
+    assign display_author = true
+  endif
+  
+  # Excerpt display
+  if show_excerpt == true or show_excerpt == false
+    assign display_excerpt = show_excerpt
+  elsif settings.blog_show_excerpt == false
+    assign display_excerpt = false
+  else
+    assign display_excerpt = true
+  endif
+  
+  # Tags display
+  if show_tags == true or show_tags == false
+    assign display_tags = show_tags
+  elsif settings.blog_show_tags == true
+    assign display_tags = true
+  else
+    assign display_tags = false
+  endif
+  
+  # Comments count display
+  if show_comments_count == true or show_comments_count == false
+    assign display_comments = show_comments_count
+  elsif settings.blog_show_comments_count == true
+    assign display_comments = true
+  else
+    assign display_comments = false
+  endif
+  
+  # Read more display
+  if show_read_more == true or show_read_more == false
+    assign display_read_more = show_read_more
+  elsif settings.blog_show_read_more == false
+    assign display_read_more = false
+  else
+    assign display_read_more = true
+  endif
+  
+  # Image display
+  if show_image == true or show_image == false
+    assign display_image = show_image
+  else
+    assign display_image = true
+  endif
+  
+  # Excerpt length
+  assign excerpt_chars = excerpt_length | default: settings.blog_excerpt_length | default: 100
+  
+  # Typography settings
+  assign title_size_desktop = settings.blog_title_size_desktop | default: 18
+  assign title_size_mobile = settings.blog_title_size_mobile | default: 16
+  assign title_weight = settings.blog_title_weight | default: '600'
+  
+  # Color settings
+  assign card_bg = settings.blog_card_bg | default: '#ffffff'
+  assign title_color = settings.blog_title_color | default: '#1a2744'
+  assign meta_color = settings.blog_meta_color | default: '#6b7280'
+  assign excerpt_color = settings.blog_excerpt_color | default: '#4b5563'
+  assign tag_bg = settings.blog_tag_bg | default: '#f3f4f6'
+  assign tag_color = settings.blog_tag_color | default: '#374151'
+  
+  # Hover effects - properly handle boolean settings
+  if settings.blog_hover_image_zoom == false
+    assign hover_zoom = false
+  else
+    assign hover_zoom = true
+  endif
+  
+  if settings.blog_hover_card_lift == false
+    assign hover_lift = false
+  else
+    assign hover_lift = true
+  endif
+  
+  if settings.blog_hover_shadow == false
+    assign hover_shadow = false
+  else
+    assign hover_shadow = true
+  endif
+  
+  # RTL detection based on theme settings
+  assign is_rtl = false
+  assign rtl_languages = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  for rtl_lang in rtl_languages
+    assign rtl_lang_trimmed = rtl_lang | strip
+    if request.locale.iso_code == rtl_lang_trimmed or localization.language.iso_code == rtl_lang_trimmed
+      assign is_rtl = true
+      break
+    endif
+  endfor
+  
+  # Also check if RTL is enabled globally
+  if settings.enable_rtl
+    assign is_rtl = true
+  endif
+  
+  # Image aspect ratios
+  case card_image_ratio
+    when 'square'
+      assign aspect_ratio = '1/1'
+      assign image_height = 300
+    when 'portrait'
+      assign aspect_ratio = '3/4'
+      assign image_height = 400
+    when 'landscape'
+      assign aspect_ratio = '16/10'
+      assign image_height = 250
+    when 'wide'
+      assign aspect_ratio = '16/9'
+      assign image_height = 225
+    else
+      assign aspect_ratio = '16/10'
+      assign image_height = 250
+  endcase
+  
+  assign image_height_400 = image_height | times: 0.67 | round
+  assign image_height_800 = image_height | times: 1.33 | round
+  
+  # Shadow values
+  case card_shadow
+    when 'none'
+      assign shadow_value = 'none'
+      assign shadow_hover = 'none'
+    when 'small'
+      assign shadow_value = '0 2px 8px rgba(0, 0, 0, 0.06)'
+      assign shadow_hover = '0 8px 24px rgba(0, 0, 0, 0.12)'
+    when 'medium'
+      assign shadow_value = '0 4px 12px rgba(0, 0, 0, 0.08)'
+      assign shadow_hover = '0 12px 32px rgba(0, 0, 0, 0.15)'
+    when 'large'
+      assign shadow_value = '0 6px 20px rgba(0, 0, 0, 0.1)'
+      assign shadow_hover = '0 16px 40px rgba(0, 0, 0, 0.18)'
+    else
+      assign shadow_value = '0 2px 8px rgba(0, 0, 0, 0.06)'
+      assign shadow_hover = '0 8px 24px rgba(0, 0, 0, 0.12)'
+  endcase
+  
+  # Lazy loading
+  assign use_lazy = lazy_load | default: true
+  
+  # Generate unique ID for scoped styles
+  assign card_id = 'article-card-' | append: article.id | default: 'placeholder'
+-%}
+
+<style>
+  .card-article {
+    --card-bg: {{ card_bg }};
+    --card-title-color: {{ title_color }};
+    --card-meta-color: {{ meta_color }};
+    --card-excerpt-color: {{ excerpt_color }};
+    --card-tag-bg: {{ tag_bg }};
+    --card-tag-color: {{ tag_color }};
+    --card-border-radius: {{ card_border_radius }}px;
+    --card-shadow: {{ shadow_value }};
+    --card-shadow-hover: {{ shadow_hover }};
+    --card-title-size-desktop: {{ title_size_desktop }}px;
+    --card-title-size-mobile: {{ title_size_mobile }}px;
+    --card-title-weight: {{ title_weight }};
+    --card-image-ratio: {{ aspect_ratio }};
+  }
+  
+  .card-article {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--card-bg);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  {% if hover_lift %}
+  .card-article:hover {
+    transform: translateY(-4px);
+  }
+  {% endif %}
+  
+  {% if hover_shadow %}
+  .card-article:hover {
+    box-shadow: var(--card-shadow-hover);
+  }
+  {% endif %}
+  
+  .card-article__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .card-article__image-wrapper {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: var(--card-image-ratio);
+    background-color: #f3f4f6;
+  }
+  
+  .card-article__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  
+  {% if hover_zoom %}
+  .card-article:hover .card-article__image {
+    transform: scale(1.05);
+  }
+  {% endif %}
+  
+  .card-article__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
+  }
+  
+  .card-article__placeholder svg {
+    width: 48px;
+    height: 48px;
+    color: #9ca3af;
+  }
+  
+  .card-article__tags {
+    position: absolute;
+    top: 12px;
+    inset-inline-start: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    z-index: 1;
+  }
+  
+  .card-article__tag {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    background-color: var(--card-tag-bg);
+    color: var(--card-tag-color);
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+  
+  .card-article__content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    gap: 12px;
+    text-align: start;
+  }
+  
+  /* RTL Support */
+  [dir="rtl"] .card-article__content,
+  .card-article[dir="rtl"] .card-article__content {
+    text-align: right;
+    direction: rtl;
+  }
+  
+  .card-article__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--card-meta-color);
+  }
+  
+  .card-article__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .card-article__meta-item svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  
+  .card-article__meta-divider {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--card-meta-color);
+    opacity: 0.4;
+  }
+  
+  .card-article__title {
+    font-family: var(--font-heading-family);
+    font-size: var(--card-title-size-desktop);
+    font-weight: var(--card-title-weight);
+    line-height: 1.4;
+    color: var(--card-title-color);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease;
+    text-align: start;
+  }
+  
+  [dir="rtl"] .card-article__title,
+  .card-article[dir="rtl"] .card-article__title {
+    text-align: right;
+  }
+  
+  .card-article:hover .card-article__title {
+    color: var(--button-primary-bg, #1a2744);
+  }
+  
+  .card-article__excerpt {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--card-excerpt-color);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+    text-align: start;
+  }
+  
+  [dir="rtl"] .card-article__excerpt,
+  .card-article[dir="rtl"] .card-article__excerpt {
+    text-align: right;
+  }
+  
+  .card-article__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  
+  .card-article__read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--button-primary-bg, #1a2744);
+    transition: gap 0.2s ease;
+  }
+  
+  .card-article:hover .card-article__read-more {
+    gap: 12px;
+  }
+  
+  .card-article__read-more svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+  }
+  
+  [dir="rtl"] .card-article__read-more svg,
+  .card-article[dir="rtl"] .card-article__read-more svg {
+    transform: scaleX(-1);
+  }
+  
+  .card-article:hover .card-article__read-more svg {
+    transform: translateX(4px);
+  }
+  
+  [dir="rtl"] .card-article:hover .card-article__read-more svg,
+  .card-article[dir="rtl"]:hover .card-article__read-more svg {
+    transform: scaleX(-1) translateX(4px);
+  }
+  
+  .card-article__comments {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--card-meta-color);
+  }
+  
+  .card-article__comments svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .card-article__title {
+      font-size: var(--card-title-size-mobile);
+    }
+    
+    .card-article__content {
+      padding: 16px;
+      gap: 10px;
+    }
+    
+    .card-article__meta {
+      font-size: 12px;
+      gap: 8px;
+    }
+    
+    .card-article__excerpt {
+      font-size: 13px;
+      -webkit-line-clamp: 2;
+    }
+  }
+</style>
+
+<article class="card-article {{ class }}" id="{{ card_id }}" {% if is_rtl %}dir="rtl"{% endif %}>
+  <a href="{{ article.url }}" class="card-article__link">
+    {%- if display_image -%}
+      <div class="card-article__image-wrapper">
+        {%- if article.image -%}
+          <img
+            class="card-article__image"
+            src="{{ article.image | image_url: width: 600, height: image_height, crop: 'center' }}"
+            alt="{{ article.image.alt | escape | default: article.title }}"
+            width="600"
+            height="{{ image_height }}"
+            {% if use_lazy %}loading="lazy"{% endif %}
+            srcset="
+              {{ article.image | image_url: width: 400, height: image_height_400, crop: 'center' }} 400w,
+              {{ article.image | image_url: width: 600, height: image_height, crop: 'center' }} 600w,
+              {{ article.image | image_url: width: 800, height: image_height_800, crop: 'center' }} 800w
+            "
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          >
+        {%- else -%}
+          <div class="card-article__placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+          </div>
+        {%- endif -%}
+        
+        {%- if display_tags and article.tags.size > 0 -%}
+          <div class="card-article__tags">
+            {%- for tag in article.tags limit: 2 -%}
+              <span class="card-article__tag">{{ tag }}</span>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    <div class="card-article__content">
+      {%- if display_date or display_author -%}
+        <div class="card-article__meta">
+          {%- if display_date -%}
+            <span class="card-article__meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                {{ article.published_at | date: format: 'abbreviated_date' }}
+              </time>
+            </span>
+          {%- endif -%}
+          
+          {%- if display_author and article.author != blank -%}
+            {%- if display_date -%}
+              <span class="card-article__meta-divider"></span>
+            {%- endif -%}
+            <span class="card-article__meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>{{ article.author }}</span>
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      
+      <h3 class="card-article__title">{{ article.title }}</h3>
+      
+      {%- if display_excerpt -%}
+        {%- if article.excerpt != blank -%}
+          <p class="card-article__excerpt">{{ article.excerpt | strip_html | truncate: excerpt_chars }}</p>
+        {%- elsif article.content != blank -%}
+          <p class="card-article__excerpt">{{ article.content | strip_html | truncate: excerpt_chars }}</p>
+        {%- endif -%}
+      {%- endif -%}
+      
+      {%- if display_read_more or display_comments -%}
+        <div class="card-article__footer">
+          {%- if display_read_more -%}
+            <span class="card-article__read-more">
+              {{ 'blogs.article.read_more' | t }}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </span>
+          {%- endif -%}
+          
+          {%- if display_comments and article.comments_count > 0 -%}
+            <span class="card-article__comments">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+              {{ article.comments_count }}
+            </span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </a>
+</article>
+

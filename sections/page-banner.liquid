@@ -1,0 +1,218 @@
+{%- comment -%}
+  Sallety Theme - Page Banner Section
+  Reusable banner section for any page template.
+  Uses the page-banner snippet with full customizer settings.
+  Can be shown/hidden from the settings panel.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_banner = section.settings.show_banner
+-%}
+
+{%- if show_banner -%}
+  {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+  {%- liquid
+    comment
+      Auto-detect page context for dynamic titles/images
+      when settings are left empty
+    endcomment
+
+    assign pb_title = section.settings.banner_title
+    assign pb_subtitle = section.settings.banner_subtitle
+    assign pb_image = section.settings.banner_image
+    assign pb_crumb = section.settings.breadcrumb_label
+
+    comment
+      Collection page: use collection title, description, and image
+    endcomment
+    if collection != blank
+      if pb_title == blank
+        assign pb_title = collection.title
+      endif
+      if pb_subtitle == blank and collection.description != blank
+        assign pb_subtitle = collection.description | strip_html | truncate: 150
+      endif
+      if pb_image == blank and collection.featured_image != blank
+        assign pb_image = collection.featured_image
+      endif
+      if pb_crumb == blank
+        assign pb_crumb = collection.title
+      endif
+    endif
+
+    comment
+      Regular page: use page title
+    endcomment
+    if page != blank
+      if pb_title == blank
+        assign pb_title = page.title
+      endif
+      if pb_crumb == blank
+        assign pb_crumb = page.title
+      endif
+    endif
+
+    comment
+      Search page
+    endcomment
+    if template.name == 'search'
+      if pb_title == blank
+        assign pb_title = 'templates.search.title' | t | default: 'نتائج البحث'
+      endif
+      if pb_crumb == blank
+        assign pb_crumb = pb_title
+      endif
+    endif
+
+    comment
+      Blog page
+    endcomment
+    if blog != blank
+      if pb_title == blank
+        assign pb_title = blog.title
+      endif
+      if pb_crumb == blank
+        assign pb_crumb = blog.title
+      endif
+    endif
+
+    comment
+      Fallback
+    endcomment
+    if pb_title == blank
+      assign pb_title = page_title
+    endif
+    if pb_crumb == blank
+      assign pb_crumb = pb_title
+    endif
+  -%}
+
+  <section
+    class="page-banner-section"
+    data-section-id="{{ section.id }}"
+    data-section-type="page-banner"
+    dir="{{ section_dir }}"
+  >
+    {% render 'page-banner',
+      banner_image: pb_image,
+      banner_title: pb_title,
+      banner_subtitle: pb_subtitle,
+      banner_height: section.settings.banner_height,
+      overlay_opacity: section.settings.overlay_opacity,
+      text_alignment: section.settings.text_alignment,
+      show_breadcrumbs: section.settings.show_breadcrumbs,
+      breadcrumb_label: pb_crumb,
+      show_wave: section.settings.show_wave
+    %}
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.page_banner.name",
+  "class": "section-page-banner",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.page_banner.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner",
+      "label": "t:sections.page_banner.settings.show_banner.label",
+      "default": true,
+      "info": "t:sections.page_banner.settings.show_banner.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "t:sections.page_banner.settings.banner_image.label",
+      "info": "t:sections.page_banner.settings.banner_image.info"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "t:sections.page_banner.settings.banner_height.label",
+      "default": 320,
+      "min": 150,
+      "max": 600,
+      "step": 10,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.page_banner.settings.overlay_opacity.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.page_banner.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "banner_title",
+      "label": "t:sections.page_banner.settings.banner_title.label",
+      "info": "t:sections.page_banner.settings.banner_title.info"
+    },
+    {
+      "type": "textarea",
+      "id": "banner_subtitle",
+      "label": "t:sections.page_banner.settings.banner_subtitle.label"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_label",
+      "label": "t:sections.page_banner.settings.breadcrumb_label.label",
+      "info": "t:sections.page_banner.settings.breadcrumb_label.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.page_banner.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.page_banner.settings.text_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.page_banner.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.page_banner.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.page_banner.settings.text_alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "t:sections.page_banner.settings.show_breadcrumbs.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_wave",
+      "label": "t:sections.page_banner.settings.show_wave.label",
+      "default": true,
+      "info": "t:sections.page_banner.settings.show_wave.info"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.page_banner.name"
+    }
+  ]
+}
+{% endschema %}

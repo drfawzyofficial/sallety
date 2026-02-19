@@ -1,0 +1,693 @@
+{%- comment -%}
+  Sallety Theme - Main Collection Section
+  Full-featured collection page with filtering, sorting, layout switching,
+  and multiple pagination modes. Matches Kalles-level functionality.
+{%- endcomment -%}
+
+{%- liquid
+  assign products_per_page = section.settings.products_per_page
+  assign enable_filtering = section.settings.enable_filtering
+  assign enable_sorting = section.settings.enable_sorting
+  assign enable_layout_switch = section.settings.enable_layout_switch
+  assign enable_list_view = section.settings.enable_list_view
+  assign default_list_view = section.settings.default_list_view
+  assign show_vendor = section.settings.show_vendor
+  assign show_product_count = section.settings.show_product_count
+  assign show_description = section.settings.show_description
+  assign description_position = section.settings.description_position
+  assign pagination_type = section.settings.pagination_type
+  assign enable_progress_bar = section.settings.enable_progress_bar
+  assign image_ratio = section.settings.image_ratio
+  assign columns_desktop = section.settings.columns_desktop | plus: 0
+  assign columns_tablet = section.settings.columns_tablet | plus: 0
+  assign columns_mobile = section.settings.columns_mobile | plus: 0
+  assign content_alignment = section.settings.content_alignment
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+
+  assign is_list_view = false
+  if enable_list_view and default_list_view
+    assign is_list_view = true
+  endif
+
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign results_count = collection.products_count
+
+  assign total_active_values = 0
+  for filter in collection.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != null or filter.max_value.value != null
+        assign total_active_values = total_active_values | plus: 1
+      endif
+    else
+      assign total_active_values = total_active_values | plus: filter.active_values.size
+    endif
+  endfor
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+{%- paginate collection.products by products_per_page -%}
+  <section
+    class="main-collection section color-scheme-1"
+    data-section-id="{{ section.id }}"
+    data-section-type="collection"
+    dir="{{ section_dir }}"
+    style="padding-top: {{ padding_top }}px; padding-bottom: {{ padding_bottom }}px; background-color: var(--color-scheme-1-bg, var(--color-background)); color: var(--color-scheme-1-text, var(--color-foreground));"
+  >
+    <div class="container mx-auto px-4 lg:px-6" style="max-width: var(--page-width, 1320px);">
+      {%- comment -%} Collection Description - Before {%- endcomment -%}
+      {%- if show_description and description_position == 'before' and collection.description != blank -%}
+        <div
+          class="collection__description rte mb-6 text-sm text-secondary leading-relaxed max-w-3xl"
+          style="color: var(--color-secondary-text);"
+        >
+          {{ collection.description }}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} ==================== AJAX CONTENT WRAPPER ==================== {%- endcomment -%}
+      <div id="collection-content" data-collection-content>
+        {%- comment -%} ==================== TOOLBAR ==================== {%- endcomment -%}
+        {%- if collection.products.size > 0 -%}
+          <div
+            class="collection__toolbar flex flex-wrap items-center justify-between gap-3 py-4 mb-2 border-b"
+            style="border-color: var(--color-border);"
+          >
+            {%- comment -%} Left: Product Count + Filter Button {%- endcomment -%}
+            <div class="collection__toolbar-start flex items-center gap-3">
+              {%- if enable_filtering and collection.filters.size > 0 -%}
+                <button
+                  type="button"
+                  class="collection__filter-toggle btn btn--outline btn--sm inline-flex items-center gap-2"
+                  data-filter-toggle
+                  aria-label="{{ 'collections.filtering.filter' | t }}"
+                >
+                  {% render 'icon-filter' %}
+                  <span>{{ 'collections.filtering.filter' | t }}</span>
+                  {%- if total_active_values > 0 -%}
+                    <span
+                      class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold rounded-full"
+                      style="background-color: var(--color-primary); color: var(--color-background);"
+                    >
+                      {{ total_active_values }}
+                    </span>
+                  {%- endif -%}
+                </button>
+              {%- endif -%}
+
+              {%- if show_product_count -%}
+                <p class="collection__count text-sm hidden md:block" style="color: var(--color-secondary-text);">
+                  {{ 'collections.general.items_with_count' | t: count: results_count }}
+                </p>
+              {%- endif -%}
+            </div>
+
+            {%- comment -%} Right: Layout Switch + Sort {%- endcomment -%}
+            <div class="collection__toolbar-end flex items-center gap-3">
+              {%- comment -%} Layout Switcher {%- endcomment -%}
+              {%- if enable_layout_switch -%}
+                <div
+                  class="collection__layout-switch hidden md:flex items-center gap-1 p-1 rounded-lg"
+                  style="background-color: var(--color-border); background-color: rgba(0,0,0,0.04);"
+                  data-layout-switch
+                >
+                  {%- if enable_list_view -%}
+                    <button
+                      type="button"
+                      class="collection__layout-btn p-1.5 rounded transition-colors{% unless is_list_view %} opacity-40{% endunless %}"
+                      data-layout="list"
+                      aria-label="{{ 'collections.general.list_view' | t }}"
+                      {% if is_list_view %}
+                        aria-pressed="true"
+                      {% endif %}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>
+                      </svg>
+                    </button>
+                  {%- endif -%}
+                  {%- for i in (2..5) -%}
+                    {%- if i <= columns_desktop -%}
+                      <button
+                        type="button"
+                        class="collection__layout-btn p-1.5 rounded transition-colors{% if is_list_view == false and i == columns_desktop %} is-active{% elsif i != columns_desktop %} opacity-40{% endif %}"
+                        data-layout="grid-{{ i }}"
+                        data-columns="{{ i }}"
+                        aria-label="{{ i }} {{ 'collections.general.columns' | t }}"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor">
+                          {%- case i -%}
+                            {%- when 2 -%}
+                              <rect x="0" y="0" width="7.5" height="7.5" rx="1"/><rect x="10.5" y="0" width="7.5" height="7.5" rx="1"/>
+                              <rect x="0" y="10.5" width="7.5" height="7.5" rx="1"/><rect x="10.5" y="10.5" width="7.5" height="7.5" rx="1"/>
+                            {%- when 3 -%}
+                              <rect x="0" y="0" width="4.5" height="7.5" rx="1"/><rect x="6.75" y="0" width="4.5" height="7.5" rx="1"/><rect x="13.5" y="0" width="4.5" height="7.5" rx="1"/>
+                              <rect x="0" y="10.5" width="4.5" height="7.5" rx="1"/><rect x="6.75" y="10.5" width="4.5" height="7.5" rx="1"/><rect x="13.5" y="10.5" width="4.5" height="7.5" rx="1"/>
+                            {%- when 4 -%}
+                              <rect x="0" y="0" width="3" height="7.5" rx="0.5"/><rect x="5" y="0" width="3" height="7.5" rx="0.5"/><rect x="10" y="0" width="3" height="7.5" rx="0.5"/><rect x="15" y="0" width="3" height="7.5" rx="0.5"/>
+                              <rect x="0" y="10.5" width="3" height="7.5" rx="0.5"/><rect x="5" y="10.5" width="3" height="7.5" rx="0.5"/><rect x="10" y="10.5" width="3" height="7.5" rx="0.5"/><rect x="15" y="10.5" width="3" height="7.5" rx="0.5"/>
+                            {%- when 5 -%}
+                              <rect x="0" y="0" width="2.4" height="7.5" rx="0.5"/><rect x="3.9" y="0" width="2.4" height="7.5" rx="0.5"/><rect x="7.8" y="0" width="2.4" height="7.5" rx="0.5"/><rect x="11.7" y="0" width="2.4" height="7.5" rx="0.5"/><rect x="15.6" y="0" width="2.4" height="7.5" rx="0.5"/>
+                              <rect x="0" y="10.5" width="2.4" height="7.5" rx="0.5"/><rect x="3.9" y="10.5" width="2.4" height="7.5" rx="0.5"/><rect x="7.8" y="10.5" width="2.4" height="7.5" rx="0.5"/><rect x="11.7" y="10.5" width="2.4" height="7.5" rx="0.5"/><rect x="15.6" y="10.5" width="2.4" height="7.5" rx="0.5"/>
+                          {%- endcase -%}
+                        </svg>
+                      </button>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+
+              {%- comment -%} Sort Dropdown {%- endcomment -%}
+              {%- if enable_sorting -%}
+                <div class="collection__sort relative" data-sort-wrapper>
+                  <button
+                    type="button"
+                    class="collection__sort-trigger btn btn--outline btn--sm inline-flex items-center gap-2"
+                    data-sort-toggle
+                    aria-expanded="false"
+                    aria-haspopup="listbox"
+                  >
+                    <span class="hidden md:inline" data-sort-label>
+                      {%- for option in collection.sort_options -%}
+                        {%- if option.value == sort_by -%}{{ option.name }}{%- endif -%}
+                      {%- endfor -%}
+                    </span>
+                    <span class="md:hidden">{{ 'collections.sorting.title' | t }}</span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </button>
+                  <div
+                    class="collection__sort-dropdown absolute top-full mt-1 end-0 z-50 min-w-[200px] rounded-lg shadow-lg border hidden"
+                    style="background-color: var(--color-background); border-color: var(--color-border);"
+                    data-sort-dropdown
+                    role="listbox"
+                  >
+                    {%- for option in collection.sort_options -%}
+                      <button
+                        type="button"
+                        class="collection__sort-option w-full text-start px-4 py-2.5 text-sm transition-colors hover:bg-gray-50{% if option.value == sort_by %} font-semibold{% endif %}"
+                        data-sort-value="{{ option.value }}"
+                        role="option"
+                        {% if option.value == sort_by %}
+                          aria-selected="true"
+                        {% endif %}
+                        style="{% if option.value == sort_by %}color: var(--color-primary);{% endif %}"
+                      >
+                        {{ option.name }}
+                      </button>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} ==================== ACTIVE FILTERS ==================== {%- endcomment -%}
+        {%- if total_active_values > 0 -%}
+          <div class="collection__active-filters flex flex-wrap items-center gap-2 py-3" data-active-filters>
+            <span class="text-sm font-medium" style="color: var(--color-secondary-text);">
+              {{ 'collections.filtering.active_filters' | t }}:
+            </span>
+            {%- for filter in collection.filters -%}
+              {%- if filter.type == 'price_range' -%}
+                {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+                  {%- assign min_value = filter.min_value.value | default: 0 -%}
+                  {%- assign max_value = filter.max_value.value | default: filter.range_max -%}
+                  <a
+                    href="{{ filter.url_to_remove }}"
+                    class="collection__active-filter inline-flex items-center gap-1.5 px-3 py-1 text-sm rounded-full border transition-colors hover:border-red-400 hover:text-red-500"
+                    style="border-color: var(--color-border);"
+                  >
+                    <span>{{ min_value | money }} - {{ max_value | money }}</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </a>
+                {%- endif -%}
+              {%- else -%}
+                {%- for value in filter.active_values -%}
+                  <a
+                    href="{{ value.url_to_remove }}"
+                    class="collection__active-filter inline-flex items-center gap-1.5 px-3 py-1 text-sm rounded-full border transition-colors hover:border-red-400 hover:text-red-500"
+                    style="border-color: var(--color-border);"
+                  >
+                    <span>{{ value.label }}</span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </a>
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endfor -%}
+
+            {%- if total_active_values > 1 -%}
+              <a
+                href="{{ collection.url }}{% if collection.sort_by != blank %}?sort_by={{ collection.sort_by }}{% endif %}"
+                class="collection__clear-filters text-sm font-medium underline underline-offset-4 transition-colors ms-2"
+                style="color: var(--color-primary);"
+              >
+                {{ 'collections.filtering.clear_all' | t }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} ==================== PRODUCT GRID ==================== {%- endcomment -%}
+        {%- if collection.products.size > 0 -%}
+          <div
+            class="collection__products mt-4"
+            data-collection-products
+            data-columns-desktop="{{ columns_desktop }}"
+            data-columns-tablet="{{ columns_tablet }}"
+            data-columns-mobile="{{ columns_mobile }}"
+          >
+            {%- comment -%} Load More Previous (for paginated load-more) {%- endcomment -%}
+            {%- if pagination_type != 'default' and paginate.previous.is_link -%}
+              <div class="collection__load-prev flex justify-center mb-6">
+                <a
+                  href="{{ paginate.previous.url }}"
+                  class="btn btn--outline btn--sm"
+                  data-load-prev
+                >
+                  {{ 'collections.pagination.load_previous' | t }}
+                </a>
+              </div>
+            {%- endif -%}
+
+            <div
+              class="collection__grid grid gap-x-4 gap-y-6 md:gap-x-5 md:gap-y-8 {% if is_list_view %}collection__grid--list{% endif %}"
+              data-product-grid
+              style="--grid-cols-desktop: {{ columns_desktop }}; --grid-cols-tablet: {{ columns_tablet }}; --grid-cols-mobile: {{ columns_mobile }};"
+            >
+              {%- for product in collection.products -%}
+                <div class="collection__item" data-product-item>
+                  {% render 'product-card',
+                    product: product,
+                    image_ratio: image_ratio,
+                    show_vendor: show_vendor,
+                    content_alignment: content_alignment
+                  %}
+                </div>
+              {%- endfor -%}
+            </div>
+
+            {%- comment -%} ==================== PAGINATION ==================== {%- endcomment -%}
+            {%- if paginate.pages > 1 -%}
+              <div class="collection__pagination mt-8 md:mt-12" data-pagination-wrapper>
+                {%- case pagination_type -%}
+                  {%- when 'default' -%}
+                    {% render 'pagination', paginate: paginate %}
+
+                  {%- when 'load_more' -%}
+                    {%- if enable_progress_bar -%}
+                      <div class="collection__progress mb-4 text-center">
+                        {%- assign loaded_count = collection.products.size | plus: paginate.current_offset -%}
+                        <p class="text-sm mb-2" style="color: var(--color-secondary-text);">
+                          {{ 'collections.pagination.showing_of' | t: loaded: loaded_count, total: results_count }}
+                        </p>
+                        <div
+                          class="w-full max-w-xs mx-auto h-1 rounded-full overflow-hidden"
+                          style="background-color: var(--color-border);"
+                        >
+                          <div
+                            class="h-full rounded-full transition-all duration-500"
+                            style="background-color: var(--color-primary); width: {{ loaded_count | times: 100.0 | divided_by: results_count }}%;"
+                          ></div>
+                        </div>
+                      </div>
+                    {%- endif -%}
+                    {%- if paginate.next.is_link -%}
+                      <div class="flex justify-center">
+                        <button
+                          type="button"
+                          class="btn btn--outline btn--md collection__load-more-btn"
+                          data-load-more
+                          data-next-url="{{ paginate.next.url }}"
+                        >
+                          <span class="collection__load-more-text">{{ 'collections.pagination.load_more' | t }}</span>
+                          <span class="collection__load-more-spinner hidden">
+                            <svg
+                              class="animate-spin h-5 w-5"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    {%- endif -%}
+
+                  {%- when 'infinite' -%}
+                    {%- if enable_progress_bar -%}
+                      <div class="collection__progress mb-4 text-center">
+                        {%- assign loaded_count = collection.products.size | plus: paginate.current_offset -%}
+                        <p class="text-sm mb-2" style="color: var(--color-secondary-text);">
+                          {{ 'collections.pagination.showing_of' | t: loaded: loaded_count, total: results_count }}
+                        </p>
+                        <div
+                          class="w-full max-w-xs mx-auto h-1 rounded-full overflow-hidden"
+                          style="background-color: var(--color-border);"
+                        >
+                          <div
+                            class="h-full rounded-full transition-all duration-500"
+                            style="background-color: var(--color-primary); width: {{ loaded_count | times: 100.0 | divided_by: results_count }}%;"
+                          ></div>
+                        </div>
+                      </div>
+                    {%- endif -%}
+                    {%- if paginate.next.is_link -%}
+                      <div
+                        class="collection__infinite-trigger flex justify-center py-8"
+                        data-infinite-trigger
+                        data-next-url="{{ paginate.next.url }}"
+                      >
+                        <div class="collection__infinite-spinner">
+                          <svg
+                            class="animate-spin h-8 w-8"
+                            style="color: var(--color-primary);"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                      </div>
+                    {%- endif -%}
+                {%- endcase -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- else -%}
+          {%- comment -%} ==================== EMPTY STATE ==================== {%- endcomment -%}
+          <div class="collection__empty empty-state py-16 text-center">
+            <div class="mb-4">
+              <svg
+                class="mx-auto"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="color: var(--color-secondary-text); opacity: 0.5;"
+              >
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold mb-2">{{ 'collections.general.no_matches' | t }}</h2>
+            <p class="mb-6" style="color: var(--color-secondary-text);">
+              {{ 'collections.general.use_fewer_filters' | t }}
+            </p>
+            {%- if total_active_values > 0 -%}
+              <a href="{{ collection.url }}" class="btn btn--primary btn--md">
+                {{ 'collections.filtering.clear_all' | t }}
+              </a>
+            {%- else -%}
+              <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary btn--md">
+                {{ 'general.continue_shopping' | t }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Collection Description - After {%- endcomment -%}
+        {%- if show_description and description_position == 'after' and collection.description != blank -%}
+          <div
+            class="collection__description rte mt-10 pt-8 border-t text-sm leading-relaxed max-w-3xl"
+            style="color: var(--color-secondary-text); border-color: var(--color-border);"
+          >
+            {{ collection.description }}
+          </div>
+        {%- endif -%}
+      </div>
+      {%- comment -%} /data-collection-content {%- endcomment -%}
+    </div>
+  </section>
+
+  {%- comment -%} ==================== FILTER DRAWER ==================== {%- endcomment -%}
+  {%- if enable_filtering and collection.filters.size > 0 -%}
+    <div class="drawer drawer--right" id="filter-drawer" data-filter-drawer aria-hidden="true">
+      <div class="drawer__header">
+        <h2 class="drawer__title">{{ 'collections.filtering.filter' | t }}</h2>
+        <button type="button" class="drawer__close" data-filter-close aria-label="{{ 'accessibility.close' | t }}">
+          {% render 'icon-close' %}
+        </button>
+      </div>
+      <div class="drawer__content" data-filter-drawer-content>
+        {% render 'facets', collection: collection, enable_filtering: enable_filtering %}
+      </div>
+      <div class="drawer__footer" data-filter-drawer-footer>
+        <div class="flex gap-3">
+          {%- if total_active_values > 0 -%}
+            <a
+              href="{{ collection.url }}{% if collection.sort_by != blank %}?sort_by={{ collection.sort_by }}{% endif %}"
+              class="btn btn--ghost btn--sm flex-1"
+              data-filter-clear
+            >
+              {{ 'collections.filtering.clear_all' | t }}
+            </a>
+          {%- endif -%}
+          <button type="button" class="btn btn--primary btn--sm flex-1" data-filter-close>
+            {{ 'collections.filtering.apply' | t }} ({{ results_count }})
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="drawer__overlay" data-filter-overlay></div>
+  {%- endif -%}
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "t:sections.main_collection.name",
+  "class": "section-main-collection",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main_collection.settings.general_heading"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "t:sections.main_collection.settings.products_per_page.label",
+      "default": 16,
+      "min": 4,
+      "max": 48,
+      "step": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "إظهار وصف المجموعة",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "description_position",
+      "label": "موقع الوصف",
+      "default": "after",
+      "options": [
+        { "value": "before", "label": "قبل المنتجات" },
+        { "value": "after", "label": "بعد المنتجات" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "إظهار البائع",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "إظهار عدد المنتجات",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "شريط الأدوات"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "t:sections.main_collection.settings.enable_filtering.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "t:sections.main_collection.settings.enable_sorting.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_layout_switch",
+      "label": "تفعيل تبديل التخطيط",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_list_view",
+      "label": "تفعيل عرض القائمة",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "default_list_view",
+      "label": "عرض القائمة افتراضياً",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "شبكة المنتجات"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "نسبة الصورة",
+      "default": "adapt",
+      "options": [
+        { "value": "adapt", "label": "تكيّف مع الصورة" },
+        { "value": "portrait", "label": "طولي (2:3)" },
+        { "value": "square", "label": "مربع (1:1)" },
+        { "value": "landscape", "label": "عرضي (4:3)" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "أعمدة سطح المكتب",
+      "default": "4",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" },
+        { "value": "5", "label": "5" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "أعمدة الجهاز اللوحي",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "أعمدة الجوال",
+      "default": "2",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "محاذاة محتوى المنتج",
+      "default": "start",
+      "options": [
+        { "value": "start", "label": "يمين" },
+        { "value": "center", "label": "وسط" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "التنقل بين الصفحات"
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": "نوع التنقل",
+      "default": "default",
+      "options": [
+        { "value": "default", "label": "افتراضي (مرقّم)" },
+        { "value": "load_more", "label": "زر تحميل المزيد" },
+        { "value": "infinite", "label": "تمرير لا نهائي" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_progress_bar",
+      "label": "إظهار شريط التقدم",
+      "info": "فقط لتحميل المزيد والتمرير اللانهائي",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

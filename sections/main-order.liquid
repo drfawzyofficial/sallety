@@ -1,0 +1,465 @@
+{%- comment -%}
+  Main Order Section
+  Simplified design using color_scheme
+  RTL layout - Order Details View
+{%- endcomment -%}
+
+{%- liquid
+  # Color scheme class (uses CSS classes from theme.liquid)
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+
+  # Layout Settings
+  assign card_radius = section.settings.card_radius | default: 16
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<section
+  class="main-order color-scheme-{{ scheme_number }} py-8 lg:py-12"
+  dir="{{ section_dir }}"
+  style="
+    --order-card-radius: {{ card_radius }}px;
+    min-height: 100vh;
+  "
+>
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+    <!-- Header -->
+    <div class="order-header mb-8">
+      <div class="flex items-center gap-4 mb-4">
+        <a
+          href="{{ routes.account_url }}"
+          class="order-back p-2 rounded-lg transition-colors"
+          style="color: var(--color-secondary-text);"
+        >
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="m9 18 6-6-6-6"/>
+          </svg>
+        </a>
+        <div>
+          <h1 class="order-title" style="color: var(--color-accent);">
+            {{ section.settings.page_title | default: 'تفاصيل الطلب' }}
+          </h1>
+          <p class="order-number mt-1" style="color: var(--color-secondary-text);">
+            {{ order.name }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+      <!-- Main Content - Order Items -->
+      <div class="lg:col-span-2">
+        <!-- Order Status -->
+        <div
+          class="order-status-card p-6 mb-6"
+          style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+        >
+          <div class="flex flex-wrap items-center gap-4">
+            <!-- Financial Status -->
+            <div
+              class="order-status-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              style="background: {% if order.financial_status == 'paid' %}color-mix(in srgb, var(--color-success) 10%, transparent){% else %}color-mix(in srgb, var(--color-warning) 10%, transparent){% endif %};"
+            >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="color: {% if order.financial_status == 'paid' %}var(--color-success){% else %}var(--color-warning){% endif %};"
+              >
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+                <path d="M12 18V6"/>
+              </svg>
+              <div>
+                <p class="text-xs mb-1" style="color: var(--color-secondary-text);">
+                  {{ 'customer.order.payment_status' | t }}
+                </p>
+                <p
+                  class="font-medium text-sm"
+                  style="color: {% if order.financial_status == 'paid' %}var(--color-success){% else %}var(--color-warning){% endif %};"
+                >
+                  {{ order.financial_status_label }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Fulfillment Status -->
+            <div
+              class="order-status-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              style="background: {% if order.fulfillment_status == 'fulfilled' %}color-mix(in srgb, var(--color-success) 10%, transparent){% elsif order.fulfillment_status == 'partial' %}color-mix(in srgb, var(--color-warning) 10%, transparent){% else %}color-mix(in srgb, var(--color-secondary-text) 10%, transparent){% endif %};"
+            >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="color: {% if order.fulfillment_status == 'fulfilled' %}var(--color-success){% elsif order.fulfillment_status == 'partial' %}var(--color-warning){% else %}var(--color-secondary-text){% endif %};"
+              >
+                <rect x="1" y="3" width="15" height="13" rx="2"/>
+                <path d="M16 8h4a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-6"/>
+              </svg>
+              <div>
+                <p class="text-xs mb-1" style="color: var(--color-secondary-text);">
+                  {{ 'customer.order.fulfillment_status' | t }}
+                </p>
+                <p
+                  class="font-medium text-sm"
+                  style="color: {% if order.fulfillment_status == 'fulfilled' %}var(--color-success){% elsif order.fulfillment_status == 'partial' %}var(--color-warning){% else %}var(--color-secondary-text){% endif %};"
+                >
+                  {{ order.fulfillment_status_label | default: 'قيد المعالجة' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Order Date -->
+            <div
+              class="order-status-item flex items-center gap-3 px-4 py-3 rounded-xl"
+              style="background: color-mix(in srgb, var(--color-accent) 10%, transparent);"
+            >
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="color: var(--color-accent);"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <div>
+                <p class="text-xs mb-1" style="color: var(--color-secondary-text);">{{ 'customer.order.date' | t }}</p>
+                <p class="font-medium text-sm" style="color: var(--color-accent);">
+                  {{ order.created_at | date: '%d/%m/%Y - %H:%M' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div
+          class="order-items-card p-6"
+          style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+        >
+          <h2 class="text-lg font-semibold mb-6" style="color: var(--color-accent);">
+            {{ section.settings.items_title | default: 'المنتجات' }} ({{ order.line_items.size }})
+          </h2>
+
+          <div class="order-items-list">
+            {%- for line_item in order.line_items -%}
+              <div
+                class="order-item flex gap-4 py-4 {% unless forloop.last %}border-b{% endunless %}"
+                style="border-color: var(--color-border);"
+              >
+                <!-- Product Image -->
+                <div
+                  class="order-item-image w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden"
+                  style="background: color-mix(in srgb, var(--color-secondary-text) 5%, transparent);"
+                >
+                  {%- if line_item.image -%}
+                    <img
+                      src="{{ line_item.image | image_url: width: 160 }}"
+                      alt="{{ line_item.image.alt | default: line_item.title }}"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                      width="80"
+                      height="80"
+                    >
+                  {%- else -%}
+                    <div
+                      class="w-full h-full flex items-center justify-center"
+                      style="color: var(--color-secondary-text);"
+                    >
+                      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                  {%- endif -%}
+                </div>
+
+                <!-- Product Info -->
+                <div class="order-item-info flex-1 min-w-0">
+                  <h3 class="font-medium mb-1 truncate" style="color: var(--color-accent);">
+                    {%- if line_item.product.url != blank -%}
+                      <a href="{{ line_item.product.url }}" class="hover:underline">{{ line_item.title }}</a>
+                    {%- else -%}
+                      {{ line_item.title }}
+                    {%- endif -%}
+                  </h3>
+
+                  {%- if line_item.sku != blank -%}
+                    <p class="text-sm mb-1" style="color: var(--color-secondary-text);">SKU: {{ line_item.sku }}</p>
+                  {%- endif -%}
+
+                  {%- unless line_item.variant.title == 'Default Title' -%}
+                    <p class="text-sm" style="color: var(--color-secondary-text);">{{ line_item.variant.title }}</p>
+                  {%- endunless -%}
+
+                  <div class="flex items-center gap-4 mt-2">
+                    <span class="text-sm" style="color: var(--color-secondary-text);">
+                      {{- 'customer.order.quantity' | t }}: {{ line_item.quantity -}}
+                    </span>
+                    <span class="font-semibold" style="color: var(--color-accent);">
+                      {{- line_item.final_line_price | money -}}
+                    </span>
+                  </div>
+
+                  {%- if line_item.fulfillment -%}
+                    <div
+                      class="order-item-tracking mt-3 p-3 rounded-lg"
+                      style="background: color-mix(in srgb, var(--color-success) 8%, transparent);"
+                    >
+                      <div class="flex items-center gap-2 text-sm" style="color: var(--color-success);">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        تم الشحن
+                        {%- if line_item.fulfillment.tracking_url -%}
+                          -
+                          <a href="{{ line_item.fulfillment.tracking_url }}" target="_blank" class="underline">
+                            {{- 'customer.order.track_shipment' | t -}}
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar - Order Summary -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Order Summary -->
+        <div
+          class="order-summary-card p-6"
+          style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+        >
+          <h2 class="text-lg font-semibold mb-4" style="color: var(--color-accent);">
+            {{ section.settings.summary_title | default: 'ملخص الطلب' }}
+          </h2>
+
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span style="color: var(--color-secondary-text);">{{ 'customer.order.subtotal' | t }}</span>
+              <span style="color: var(--color-text);">{{ order.line_items_subtotal_price | money }}</span>
+            </div>
+
+            {%- for discount in order.discounts -%}
+              <div class="flex justify-between">
+                <span style="color: var(--color-success);">{{ discount.code }}</span>
+                <span style="color: var(--color-success);">-{{ discount.savings | money }}</span>
+              </div>
+            {%- endfor -%}
+
+            {%- for shipping_method in order.shipping_methods -%}
+              <div class="flex justify-between">
+                <span style="color: var(--color-secondary-text);">
+                  {{- 'customer.order.shipping' | t }} ({{ shipping_method.title }})</span
+                >
+                <span style="color: var(--color-text);">{{ shipping_method.price | money }}</span>
+              </div>
+            {%- endfor -%}
+
+            {%- if order.tax_lines.size > 0 -%}
+              {%- for tax_line in order.tax_lines -%}
+                <div class="flex justify-between">
+                  <span style="color: var(--color-secondary-text);">
+                    {{- tax_line.title }} ({{ tax_line.rate_percentage }}%)</span
+                  >
+                  <span style="color: var(--color-text);">{{ tax_line.price | money }}</span>
+                </div>
+              {%- endfor -%}
+            {%- endif -%}
+
+            <div
+              class="flex justify-between pt-4 border-t text-lg font-bold"
+              style="border-color: var(--color-border);"
+            >
+              <span style="color: var(--color-accent);">{{ 'customer.order.total' | t }}</span>
+              <span style="color: var(--color-accent);">{{ order.total_price | money }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping Address -->
+        {%- if order.shipping_address -%}
+          <div
+            class="order-address-card p-6"
+            style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+          >
+            <div class="flex items-center gap-3 mb-4">
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="color: var(--color-accent);"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <h2 class="font-semibold" style="color: var(--color-accent);">
+                {{ section.settings.shipping_title | default: 'عنوان الشحن' }}
+              </h2>
+            </div>
+
+            <div style="color: var(--color-text); line-height: 1.7;">
+              <p class="font-medium" style="color: var(--color-accent);">
+                {{ order.shipping_address.first_name }}
+                {{ order.shipping_address.last_name }}
+              </p>
+              {%- if order.shipping_address.company != blank -%}
+                <p>{{ order.shipping_address.company }}</p>
+              {%- endif -%}
+              <p>{{ order.shipping_address.address1 }}</p>
+              {%- if order.shipping_address.address2 != blank -%}
+                <p>{{ order.shipping_address.address2 }}</p>
+              {%- endif -%}
+              <p>
+                {{ order.shipping_address.city }}, {{ order.shipping_address.province_code }}
+                {{ order.shipping_address.zip }}
+              </p>
+              <p>{{ order.shipping_address.country }}</p>
+              {%- if order.shipping_address.phone != blank -%}
+                <p dir="ltr" class="text-right">{{ order.shipping_address.phone }}</p>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        <!-- Billing Address -->
+        {%- if order.billing_address -%}
+          <div
+            class="order-address-card p-6"
+            style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
+          >
+            <div class="flex items-center gap-3 mb-4">
+              <svg
+                class="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                style="color: var(--color-accent);"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+              <h2 class="font-semibold" style="color: var(--color-accent);">
+                {{ section.settings.billing_title | default: 'عنوان الفاتورة' }}
+              </h2>
+            </div>
+
+            <div style="color: var(--color-text); line-height: 1.7;">
+              <p class="font-medium" style="color: var(--color-accent);">
+                {{ order.billing_address.first_name }}
+                {{ order.billing_address.last_name }}
+              </p>
+              {%- if order.billing_address.company != blank -%}
+                <p>{{ order.billing_address.company }}</p>
+              {%- endif -%}
+              <p>{{ order.billing_address.address1 }}</p>
+              {%- if order.billing_address.address2 != blank -%}
+                <p>{{ order.billing_address.address2 }}</p>
+              {%- endif -%}
+              <p>
+                {{ order.billing_address.city }}, {{ order.billing_address.province_code }}
+                {{ order.billing_address.zip }}
+              </p>
+              <p>{{ order.billing_address.country }}</p>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .main-order .order-back:hover {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .main-order * {
+      transition: none !important;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.main_order.name",
+  "tag": "section",
+  "class": "section-main-order",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_order.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_order.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "page_title",
+      "label": "t:sections.main_order.settings.page_title.label",
+      "default": "تفاصيل الطلب"
+    },
+    {
+      "type": "text",
+      "id": "items_title",
+      "label": "t:sections.main_order.settings.items_title.label",
+      "default": "المنتجات"
+    },
+    {
+      "type": "text",
+      "id": "summary_title",
+      "label": "t:sections.main_order.settings.summary_title.label",
+      "default": "ملخص الطلب"
+    },
+    {
+      "type": "text",
+      "id": "shipping_title",
+      "label": "t:sections.main_order.settings.shipping_title.label",
+      "default": "عنوان الشحن"
+    },
+    {
+      "type": "text",
+      "id": "billing_title",
+      "label": "t:sections.main_order.settings.billing_title.label",
+      "default": "عنوان الفاتورة"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_order.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "t:sections.main_order.settings.card_radius.label",
+      "default": 16,
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,630 @@
+{%- comment -%}
+  Sallety Theme — Timeline Section
+  Vertical timeline for brand history / milestones. RTL/LTR.
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  assign heading_weight = section.settings.heading_weight | default: '700'
+  assign show_heading = section.settings.show_heading
+  assign section_heading = section.settings.heading | default: 'رحلتنا'
+  assign section_subheading = section.settings.subheading
+  assign text_alignment = section.settings.text_alignment | default: 'center'
+  assign card_style = section.settings.card_style | default: 'bordered'
+  assign line_color = section.settings.line_color
+  assign dot_color = section.settings.dot_color
+  assign corner_radius = section.settings.corner_radius | default: 12
+  assign show_shapes = section.settings.show_shapes
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="timeline-{{ section.id }}"
+  class="tl-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  style="
+    --tl-pt: {{ padding_top }}px;
+    --tl-pb: {{ padding_bottom }}px;
+    --tl-radius: {{ corner_radius }}px;
+    --tl-line-color: {{ line_color | default: 'var(--color-border, rgba(0,0,0,0.1))' }};
+    --tl-dot-color: {{ dot_color | default: 'var(--color-primary, #1a2744)' }};
+    --tl-heading-weight: {{ heading_weight }};
+    font-family: var(--font-body-family);
+  "
+>
+  {%- if show_shapes -%}
+    <div class="tl-shapes" aria-hidden="true">
+      <div class="tl-shape tl-shape-1"></div>
+      <div class="tl-shape tl-shape-2"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="tl-container">
+    {%- if show_heading -%}
+      <header class="tl-header tl-align--{{ text_alignment }}">
+        <h2 class="tl-section-heading">{{ section_heading }}</h2>
+        {%- if section_subheading != blank -%}
+          <p class="tl-section-sub">{{ section_subheading }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="tl-timeline">
+      <div class="tl-line" aria-hidden="true"></div>
+
+      {%- for block in section.blocks -%}
+        {%- assign is_even = forloop.index | modulo: 2 -%}
+        <div
+          class="tl-item{% if is_even == 0 %} tl-item--right{% else %} tl-item--left{% endif %}"
+          {{ block.shopify_attributes }}
+          data-tl-index="{{ forloop.index }}"
+        >
+          <div class="tl-dot" aria-hidden="true">
+            <div class="tl-dot-inner"></div>
+          </div>
+
+          <div class="tl-card tl-card--{{ card_style }}">
+            {%- if block.settings.year != blank -%}
+              <span class="tl-card__year">{{ block.settings.year }}</span>
+            {%- endif -%}
+
+            {%- if block.settings.image != blank -%}
+              <div class="tl-card__image">
+                <img
+                  src="{{ block.settings.image | image_url: width: 600 }}"
+                  srcset="{{ block.settings.image | image_url: width: 300 }} 300w, {{ block.settings.image | image_url: width: 600 }} 600w"
+                  sizes="(max-width: 768px) 280px, 400px"
+                  alt="{{ block.settings.image.alt | escape }}"
+                  loading="lazy"
+                  width="{{ block.settings.image.width }}"
+                  height="{{ block.settings.image.height }}"
+                >
+              </div>
+            {%- endif -%}
+
+            {%- if block.settings.title != blank -%}
+              <h3 class="tl-card__title">{{ block.settings.title }}</h3>
+            {%- endif -%}
+
+            {%- if block.settings.description != blank -%}
+              <p class="tl-card__desc">{{ block.settings.description }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .tl-section {
+    padding-block-start: var(--tl-pt);
+    padding-block-end: var(--tl-pb);
+    position: relative;
+    overflow: hidden;
+  }
+  .tl-container {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+  @media (min-width: 768px) {
+    .tl-container {
+      padding-inline: 2rem;
+    }
+  }
+
+  .tl-header {
+    margin-block-end: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+  .tl-align--center {
+    text-align: center;
+    align-items: center;
+  }
+  .tl-align--start {
+    text-align: start;
+    align-items: flex-start;
+  }
+  .tl-align--end {
+    text-align: end;
+    align-items: flex-end;
+  }
+  .tl-section-heading {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--tl-heading-weight);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.3;
+  }
+  .tl-section-sub {
+    font-size: var(--font-body-size, 16px);
+    color: var(--color-secondary-text);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .tl-timeline {
+    position: relative;
+    padding-block: 2rem;
+  }
+
+  .tl-line {
+    position: absolute;
+    inset-inline-start: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--tl-line-color);
+    transform: translateX(-50%);
+  }
+  [dir='rtl'] .tl-line {
+    transform: translateX(50%);
+  }
+
+  .tl-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    margin-block-end: 3rem;
+    width: 100%;
+  }
+  .tl-item:last-child {
+    margin-block-end: 0;
+  }
+
+  .tl-item--left {
+    justify-content: flex-start;
+    padding-inline-end: calc(50% + 2rem);
+  }
+  .tl-item--right {
+    justify-content: flex-end;
+    padding-inline-start: calc(50% + 2rem);
+  }
+
+  .tl-dot {
+    position: absolute;
+    inset-inline-start: 50%;
+    top: 1.5rem;
+    width: 18px;
+    height: 18px;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+  [dir='rtl'] .tl-dot {
+    transform: translateX(50%);
+  }
+  .tl-dot-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--tl-dot-color);
+    border: 3px solid var(--color-background, #fff);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--tl-dot-color);
+    transition: transform 0.3s ease;
+  }
+  .tl-item:hover .tl-dot-inner {
+    transform: scale(1.3);
+  }
+
+  .tl-card {
+    padding: 1.5rem;
+    border-radius: var(--tl-radius);
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .tl-card:hover {
+    transform: translateY(-3px);
+  }
+
+  .tl-card--minimal {
+    background: transparent;
+  }
+  .tl-card--bordered {
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  }
+  .tl-card--bordered:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+  .tl-card--glass {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .tl-card--glass:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  .tl-card__year {
+    display: inline-block;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--tl-dot-color);
+    margin-block-end: 0.5rem;
+    letter-spacing: 1px;
+  }
+  .tl-card__image {
+    border-radius: calc(var(--tl-radius) / 2);
+    overflow: hidden;
+    margin-block-end: 1rem;
+  }
+  .tl-card__image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 200px;
+  }
+  .tl-card__title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.5rem;
+    line-height: 1.4;
+  }
+  .tl-card__desc {
+    font-size: 0.9375rem;
+    color: var(--color-secondary-text);
+    margin: 0;
+    line-height: 1.65;
+    opacity: 0.85;
+  }
+
+  /* Mobile: single column */
+  @media (max-width: 768px) {
+    .tl-line {
+      inset-inline-start: 1rem;
+      transform: none;
+    }
+    [dir='rtl'] .tl-line {
+      transform: none;
+    }
+    .tl-item--left,
+    .tl-item--right {
+      padding-inline: 0;
+      padding-inline-start: 3rem;
+      justify-content: flex-start;
+    }
+    .tl-dot {
+      inset-inline-start: 1rem;
+      transform: translateX(-50%);
+    }
+    [dir='rtl'] .tl-dot {
+      transform: translateX(50%);
+    }
+  }
+
+  /* Shapes */
+  .tl-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .tl-shape {
+    position: absolute;
+    opacity: 0.05;
+  }
+  .tl-shape-1 {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    inset-inline-end: -50px;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: tl-float 16s ease-in-out infinite;
+  }
+  .tl-shape-2 {
+    width: 80px;
+    height: 80px;
+    bottom: 15%;
+    inset-inline-start: 5%;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: tl-float 12s ease-in-out infinite reverse;
+  }
+  @keyframes tl-float {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-10px, 15px);
+    }
+  }
+
+  /* Scroll reveal animation */
+  .tl-item {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .tl-item.tl-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-item {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .tl-shape {
+      animation: none;
+    }
+    .tl-card {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const items = document.querySelectorAll('#timeline-{{ section.id }} .tl-item');
+    if (!items.length) return;
+    const obs = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('tl-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+    );
+    items.forEach(function (item) {
+      obs.observe(item);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.timeline.name",
+  "tag": "section",
+  "class": "section-timeline",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "t:sections.timeline.settings.show_heading.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:sections.timeline.settings.heading.label",
+      "default": "رحلتنا"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:sections.timeline.settings.subheading.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:sections.timeline.settings.text_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.timeline.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.timeline.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.timeline.settings.text_alignment.options.end"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "t:sections.timeline.settings.card_style.label",
+      "default": "bordered",
+      "options": [
+        {
+          "value": "minimal",
+          "label": "t:sections.timeline.settings.card_style.options.minimal"
+        },
+        {
+          "value": "bordered",
+          "label": "t:sections.timeline.settings.card_style.options.bordered"
+        },
+        {
+          "value": "glass",
+          "label": "t:sections.timeline.settings.card_style.options.glass"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "t:sections.timeline.settings.corner_radius.label",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "line_color",
+      "label": "t:sections.timeline.settings.line_color.label"
+    },
+    {
+      "type": "color",
+      "id": "dot_color",
+      "label": "t:sections.timeline.settings.dot_color.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.timeline.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.timeline.settings.show_shapes.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "t:sections.timeline.settings.heading_weight.label",
+      "default": "700",
+      "options": [
+        {
+          "value": "400",
+          "label": "t:sections.timeline.settings.heading_weight.options.400"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.timeline.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.timeline.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.timeline.settings.heading_weight.options.800"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.timeline.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.timeline.settings.padding_top.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.timeline.settings.padding_bottom.label",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "timeline_item",
+      "name": "t:sections.timeline.blocks.timeline_item.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "year",
+          "label": "t:sections.timeline.blocks.timeline_item.settings.year.label",
+          "default": "2024"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:sections.timeline.blocks.timeline_item.settings.title.label",
+          "default": "بداية الرحلة"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "t:sections.timeline.blocks.timeline_item.settings.description.label",
+          "default": "بدأنا رحلتنا بهدف تقديم أفضل المنتجات لعملائنا"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.timeline.blocks.timeline_item.settings.image.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.timeline.name",
+      "blocks": [
+        {
+          "type": "timeline_item",
+          "settings": {
+            "year": "2020",
+            "title": "التأسيس",
+            "description": "بدأنا رحلتنا بحلم كبير وفريق صغير"
+          }
+        },
+        {
+          "type": "timeline_item",
+          "settings": {
+            "year": "2021",
+            "title": "التوسع",
+            "description": "أضفنا مئات المنتجات الجديدة ووصلنا لآلاف العملاء"
+          }
+        },
+        {
+          "type": "timeline_item",
+          "settings": {
+            "year": "2022",
+            "title": "الإنجاز",
+            "description": "حصلنا على جائزة أفضل متجر إلكتروني في المنطقة"
+          }
+        },
+        {
+          "type": "timeline_item",
+          "settings": {
+            "year": "2024",
+            "title": "المستقبل",
+            "description": "نطمح للوصول إلى كل منزل في العالم العربي"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

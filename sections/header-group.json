@@ -1,0 +1,53 @@
+{
+  "type": "header",
+  "name": "t:sections.header.name",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement_1": {
+          "type": "announcement",
+          "settings": {
+            "content": "<p>مرحباً بكم في متجرنا! شحن مجاني للطلبات فوق 200 ريال [icon_arrow]</p>"
+          }
+        },
+        "announcement_2": {
+          "type": "announcement",
+          "settings": {
+            "content": "<p>العرض ينتهي خلال [countdown] - تسوق الآن! [icon_arrow]</p>",
+            "countdown_date": "2026/12/31",
+            "countdown_text_day": "يوم"
+          }
+        },
+        "announcement_3": {
+          "type": "announcement",
+          "settings": {
+            "content": "<p>وصلت تشكيلة جديدة! اكتشف أحدث المنتجات [icon_arrow]</p>"
+          }
+        }
+      },
+      "block_order": [
+        "announcement_1",
+        "announcement_2",
+        "announcement_3"
+      ],
+      "settings": {}
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "main-menu",
+        "enable_sticky": false,
+        "sticky_style": "slide-down",
+        "sticky_shadow": true,
+        "show_search": true,
+        "show_account": true,
+        "show_border": true
+      }
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
+}

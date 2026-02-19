@@ -1,0 +1,64 @@
+{%- comment -%}
+  Sallety Theme - Cart Item Snippet
+  Renders a single cart item.
+
+  Accepts:
+  - item: {Object} Line item Liquid object
+  - line_index: {Number} Line item index
+
+  Usage:
+  {% render 'cart-item', item: item, line_index: forloop.index %}
+{%- endcomment -%}
+
+<div class="cart-item" data-cart-item data-line="{{ line_index }}">
+  <div class="cart-item__image">
+    <a href="{{ item.url }}">
+      {%- if item.image -%}
+        <img
+          src="{{ item.image | image_url: width: 100 }}"
+          alt="{{ item.title | escape }}"
+          width="100"
+          height="{{ 100 | divided_by: item.image.aspect_ratio }}"
+          loading="lazy"
+        >
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </a>
+  </div>
+
+  <div class="cart-item__details">
+    <a href="{{ item.url }}" class="cart-item__title">{{ item.product.title }}</a>
+    
+    {%- unless item.product.has_only_default_variant -%}
+      <p class="cart-item__variant">{{ item.variant.title }}</p>
+    {%- endunless -%}
+    
+    {%- if item.selling_plan_allocation -%}
+      <p class="cart-item__selling-plan">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+    {%- endif -%}
+
+    <div class="cart-item__price">
+      {%- if item.original_line_price != item.final_line_price -%}
+        <span class="cart-item__price-sale">{{ item.final_line_price | money }}</span>
+        <span class="cart-item__price-original">{{ item.original_line_price | money }}</span>
+      {%- else -%}
+        <span>{{ item.final_line_price | money }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="cart-item__quantity">
+      {% render 'quantity-input', id: item.key, value: item.quantity, name: 'updates[]' %}
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="cart-item__remove"
+    data-cart-remove="{{ line_index }}"
+    aria-label="{{ 'cart.general.remove_title' | t: title: item.title }}"
+  >
+    {% render 'icon-close' %}
+  </button>
+</div>
+

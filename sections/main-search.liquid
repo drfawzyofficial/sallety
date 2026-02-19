@@ -1,0 +1,1495 @@
+{%- comment -%}
+  Sallety Theme - Search Page Section (Redesigned)
+  Pure CSS, RTL/LTR, Responsive, Theme Colors
+{%- endcomment -%}
+
+{%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+  assign products_per_page = section.settings.products_per_page | default: 16
+  assign show_vendor = section.settings.show_vendor
+  assign show_rating = section.settings.show_rating
+  assign col_desktop = section.settings.columns_desktop | default: 4
+  assign col_tablet = section.settings.columns_tablet | default: 3
+  assign col_mobile = section.settings.columns_mobile | default: '2'
+  assign space_h = section.settings.space_horizontal | default: 20
+  assign space_v = section.settings.space_vertical | default: 20
+  assign image_ratio = section.settings.image_ratio | default: '1-1'
+  assign content_align = section.settings.content_align | default: 'start'
+  assign pagination_type = section.settings.pagination_type | default: 'default'
+  assign enable_list_view = section.settings.enable_list_view
+  assign default_view = section.settings.default_view | default: 'grid'
+  assign suggest_collection = collections[section.settings.suggest_collection]
+  assign search_products = search.results | where: 'object_type', 'product'
+  assign search_articles = search.results | where: 'object_type', 'article'
+  assign search_pages = search.results | where: 'object_type', 'page'
+  assign has_products = false
+  if search_products.size > 0
+    assign has_products = true
+  endif
+  assign block_types = section.blocks | map: 'type'
+  assign has_filter = false
+  if block_types contains 'filter'
+    assign has_filter = true
+  endif
+  assign sort_by = search.sort_by | default: search.default_sort_by
+  assign sort_selected = search.sort_options | where: 'value', sort_by | first
+  assign total_active_filters = 0
+  for filter in search.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != null or filter.max_value.value != null
+        assign total_active_filters = total_active_filters | plus: 1
+      endif
+    else
+      assign total_active_filters = total_active_filters | plus: filter.active_values.size
+    endif
+  endfor
+
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
+      break
+    endif
+  endfor
+  assign section_dir = 'ltr'
+  if settings.enable_rtl and is_rtl_lang
+    assign section_dir = 'rtl'
+  endif
+
+  assign hero_style = section.settings.hero_style | default: 'gradient'
+  assign show_popular = section.settings.show_popular_searches | default: true
+  assign popular_terms_raw = section.settings.popular_search_terms | default: ''
+-%}
+
+{%- paginate search.results by products_per_page -%}
+  <section
+    id="main-search-{{ section.id }}"
+    class="sr-section color-scheme-{{ scheme_number }}"
+    dir="{{ section_dir }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="search"
+    style="
+      --sr-col-desk: {{ col_desktop }};
+      --sr-col-tab: {{ col_tablet }};
+      --sr-col-mob: {{ col_mobile }};
+      --sr-gap-h: {{ space_h }}px;
+      --sr-gap-v: {{ space_v }}px;
+      --sr-align: {{ content_align }};
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    "
+  >
+    <!-- ===== HERO ===== -->
+    <div class="sr-hero sr-hero--{{ hero_style }}">
+      <div class="sr-hero__decor" aria-hidden="true">
+        <div class="sr-hero__orb sr-hero__orb--1"></div>
+        <div class="sr-hero__orb sr-hero__orb--2"></div>
+      </div>
+      <div class="sr-hero__inner">
+        <h1 class="sr-hero__title">{{ 'templates.search.title' | t }}</h1>
+        <p class="sr-hero__sub">
+          {{ 'templates.search.subtitle' | t | default: 'ابحث عن المنتجات والمقالات والصفحات' }}
+        </p>
+
+        <form action="{{ routes.search_url }}" method="get" role="search" class="sr-hero__form" data-search-form>
+          <div class="sr-hero__bar">
+            <div class="sr-hero__field">
+              <svg
+                class="sr-hero__search-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                type="search"
+                name="q"
+                value="{{ search.terms | escape }}"
+                placeholder="{{ 'general.search.search_placeholder' | t | default: 'ابحث في المتجر...' }}"
+                class="sr-hero__input"
+                aria-label="{{ 'general.search.search' | t }}"
+                autocomplete="off"
+                autocapitalize="off"
+                autocorrect="off"
+                data-search-input
+              >
+            </div>
+            <button type="submit" class="sr-hero__btn" aria-label="{{ 'general.search.search' | t }}">
+              <span class="sr-hero__btn-text">{{ 'general.search.search' | t | default: 'بحث' }}</span>
+              <svg
+                class="sr-hero__btn-arrow"
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+
+          <input type="hidden" name="type" value="product,article,page">
+          {%- if sort_by != blank and sort_by != search.default_sort_by -%}
+            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+          {%- endif -%}
+
+          {%- if search.performed == false and show_popular -%}
+            <div class="sr-hero__popular">
+              <span class="sr-hero__popular-label">
+                {{- 'general.search.popular' | t | default: 'عمليات البحث الشائعة' }}:</span
+              >
+              <div class="sr-hero__tags">
+                {%- if popular_terms_raw != blank -%}
+                  {%- assign popular_searches = popular_terms_raw | split: ',' -%}
+                {%- else -%}
+                  {%- assign popular_searches = 'عطور,ملابس,اكسسوارات,أحذية,حقائب' | split: ',' -%}
+                {%- endif -%}
+                {%- for term in popular_searches -%}
+                  {%- assign term_stripped = term | strip -%}
+                  {%- if term_stripped != blank -%}
+                    <a href="{{ routes.search_url }}?q={{ term_stripped | url_encode }}" class="sr-tag">
+                      {{- term_stripped -}}
+                    </a>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div class="sr-content">
+      {%- if search.performed -%}
+        {%- if search.results_count > 0 -%}
+          <!-- Results Header -->
+          <div class="sr-results-header">
+            <div class="sr-results-header__info">
+              <p class="sr-results-header__count">
+                {{ 'templates.search.results_count' | t: count: search.results_count | default: search.results_count }}
+                {{ 'templates.search.result' | t | default: 'نتيجة' }}
+              </p>
+              <p class="sr-results-header__term">
+                {{ 'templates.search.for_term' | t | default: 'للبحث عن' }}
+                "<span class="sr-results-header__keyword">{{ search.terms }}</span>"
+              </p>
+            </div>
+
+            {%- if search_articles.size > 0 or search_pages.size > 0 -%}
+              <div class="sr-tabs" role="tablist">
+                <button type="button" class="sr-tabs__item is-active" data-tab="all" role="tab">
+                  {{ 'templates.search.all' | t | default: 'الكل' }}
+                  <span class="sr-tabs__badge">{{ search.results_count }}</span>
+                </button>
+                {%- if search_products.size > 0 -%}
+                  <button type="button" class="sr-tabs__item" data-tab="products" role="tab">
+                    {{ 'templates.search.products' | t | default: 'المنتجات' }}
+                    <span class="sr-tabs__badge">{{ search_products.size }}</span>
+                  </button>
+                {%- endif -%}
+                {%- if search_articles.size > 0 -%}
+                  <button type="button" class="sr-tabs__item" data-tab="articles" role="tab">
+                    {{ 'templates.search.articles' | t | default: 'المقالات' }}
+                    <span class="sr-tabs__badge">{{ search_articles.size }}</span>
+                  </button>
+                {%- endif -%}
+                {%- if search_pages.size > 0 -%}
+                  <button type="button" class="sr-tabs__item" data-tab="pages" role="tab">
+                    {{ 'templates.search.pages' | t | default: 'الصفحات' }}
+                    <span class="sr-tabs__badge">{{ search_pages.size }}</span>
+                  </button>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+
+          <!-- Toolbar -->
+          {%- if section.blocks.size > 0 and has_products -%}
+            <div class="sr-toolbar">
+              <div class="sr-toolbar__start">
+                {%- for block in section.blocks -%}
+                  {%- case block.type -%}
+                    {%- when 'filter' -%}
+                      {%- if search.filters.size > 0 -%}
+                        <button
+                          type="button"
+                          class="sr-toolbar__btn"
+                          data-filter-toggle
+                          aria-expanded="false"
+                          {{ block.shopify_attributes }}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                          </svg>
+                          <span class="sr-toolbar__label">{{ 'collections.filtering.filter' | t }}</span>
+                          {%- if total_active_filters > 0 -%}
+                            <span class="sr-toolbar__count">{{ total_active_filters }}</span>
+                          {%- endif -%}
+                        </button>
+                      {%- endif -%}
+
+                    {%- when 'sortby' -%}
+                      <div class="sr-sortby" data-sortby-dropdown {{ block.shopify_attributes }}>
+                        <button type="button" class="sr-toolbar__btn" data-sortby-trigger aria-expanded="false">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/>
+                          </svg>
+                          <span class="sr-toolbar__label">{{ 'collections.sorting.title' | t }}:</span>
+                          <span class="sr-sortby__current">{{ sort_selected.name | escape }}</span>
+                          <svg
+                            class="sr-sortby__chevron"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            data-sortby-icon
+                          >
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                        </button>
+                        <div class="sr-sortby__menu" data-sortby-menu>
+                          {%- for option in search.sort_options -%}
+                            <a
+                              href="{{ request.path }}?q={{ search.terms | url_encode }}&sort_by={{ option.value }}"
+                              class="sr-sortby__opt {% if option.value == sort_by %}sr-sortby__opt--active{% endif %}"
+                              data-value="{{ option.value }}"
+                            >
+                              {{ option.name | escape }}
+                              {%- if option.value == sort_by -%}
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2.5"
+                                >
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              {%- endif -%}
+                            </a>
+                          {%- endfor -%}
+                        </div>
+                      </div>
+
+                    {%- when 'layout_switch' -%}
+                      {%- if enable_list_view -%}
+                        <div class="sr-layout" {{ block.shopify_attributes }}>
+                          <button
+                            type="button"
+                            class="sr-layout__btn {% if default_view == 'grid' %}is-active{% endif %}"
+                            data-layout-switch="grid"
+                            aria-label="{{ 'collections.general.grid_view' | t }}"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            class="sr-layout__btn {% if default_view == 'list' %}is-active{% endif %}"
+                            data-layout-switch="list"
+                            aria-label="{{ 'collections.general.list_view' | t }}"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                            </svg>
+                          </button>
+                        </div>
+                      {%- endif -%}
+                  {%- endcase -%}
+                {%- endfor -%}
+              </div>
+
+              {%- if total_active_filters > 0 -%}
+                <div class="sr-toolbar__filters">
+                  {%- for filter in search.filters -%}
+                    {%- if filter.type == 'price_range' -%}
+                      {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+                        {%- assign min_value = filter.min_value.value | default: 0 -%}
+                        {%- assign max_value = filter.max_value.value | default: filter.range_max -%}
+                        <a href="{{ filter.url_to_remove }}" class="sr-filter-tag">
+                          <span>{{ min_value | money }} - {{ max_value | money }}</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                          </svg>
+                        </a>
+                      {%- endif -%}
+                    {%- else -%}
+                      {%- for fv in filter.active_values -%}
+                        <a href="{{ fv.url_to_remove }}" class="sr-filter-tag">
+                          <span>{{ fv.label }}</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                          </svg>
+                        </a>
+                      {%- endfor -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {%- if total_active_filters > 1 -%}
+                    <a
+                      href="{{ routes.search_url }}?q={{ search.terms | url_encode }}{% if sort_by != blank %}&sort_by={{ sort_by }}{% endif %}"
+                      class="sr-clear-all"
+                    >
+                      {{- 'collections.filtering.clear_all' | t -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          <!-- Filter Drawer -->
+          {%- if has_filter and search.filters.size > 0 -%}
+            <div class="sr-drawer-overlay" data-filter-drawer>
+              <div class="sr-drawer-bg" data-filter-close></div>
+              <div class="sr-drawer" data-filter-content>
+                <div class="sr-drawer__head">
+                  <div class="sr-drawer__head-info">
+                    <div class="sr-drawer__head-icon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="sr-drawer__title">{{ 'collections.filtering.filter' | t }}</h3>
+                      {%- if total_active_filters > 0 -%}
+                        <p class="sr-drawer__subtitle">
+                          {{ total_active_filters }}
+                          {{ 'collections.filtering.active' | t | default: 'فلتر نشط' }}
+                        </p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    class="sr-drawer__close"
+                    data-filter-close
+                    aria-label="{{ 'general.close' | t }}"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="sr-drawer__body">
+                  <form id="search-facets-form" action="{{ routes.search_url }}">
+                    <input type="hidden" name="q" value="{{ search.terms | escape }}">
+                    {%- if sort_by != blank -%}<input type="hidden" name="sort_by" value="{{ sort_by }}">{%- endif -%}
+
+                    {%- for filter in search.filters -%}
+                      <div class="sr-filter-group" data-filter-group>
+                        <button
+                          type="button"
+                          class="sr-filter-group__toggle"
+                          data-filter-toggle-group
+                          aria-expanded="true"
+                        >
+                          <span class="sr-filter-group__name">{{ filter.label }}</span>
+                          <svg
+                            class="sr-filter-group__arrow"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            data-filter-icon
+                          >
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                        </button>
+                        <div class="sr-filter-group__body" data-filter-content>
+                          {%- case filter.type -%}
+                            {%- when 'list', 'boolean' -%}
+                              <div class="sr-filter-list">
+                                {%- for value in filter.values -%}
+                                  <label class="sr-filter-check {% if value.count == 0 and value.active == false %}sr-filter-check--disabled{% endif %}">
+                                    <input
+                                      type="checkbox"
+                                      name="{{ value.param_name }}"
+                                      value="{{ value.value }}"
+                                      {% if value.active %}
+                                        checked
+                                      {% endif %}
+                                      {% if value.count == 0 and value.active == false %}
+                                        disabled
+                                      {% endif %}
+                                      class="sr-filter-check__input"
+                                    >
+                                    <span class="sr-filter-check__box">
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="12"
+                                        height="12"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="white"
+                                        stroke-width="3"
+                                      >
+                                        <polyline points="20 6 9 17 4 12"/>
+                                      </svg>
+                                    </span>
+                                    <span class="sr-filter-check__label">{{ value.label }}</span>
+                                    <span class="sr-filter-check__count">{{ value.count }}</span>
+                                  </label>
+                                {%- endfor -%}
+                              </div>
+
+                            {%- when 'price_range' -%}
+                              <div class="sr-filter-price">
+                                <div class="sr-filter-price__field">
+                                  <label for="filter-min-{{ section.id }}" class="sr-filter-price__label">
+                                    {{- 'collections.filtering.from' | t -}}
+                                  </label>
+                                  <div class="sr-filter-price__wrap">
+                                    <span class="sr-filter-price__symbol">{{ cart.currency.symbol }}</span>
+                                    <input
+                                      type="number"
+                                      id="filter-min-{{ section.id }}"
+                                      name="{{ filter.min_value.param_name }}"
+                                      value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                                      min="0"
+                                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                      class="sr-filter-price__input"
+                                      placeholder="{{ filter.range_min | money_without_currency }}"
+                                    >
+                                  </div>
+                                </div>
+                                <span class="sr-filter-price__sep">—</span>
+                                <div class="sr-filter-price__field">
+                                  <label for="filter-max-{{ section.id }}" class="sr-filter-price__label">
+                                    {{- 'collections.filtering.to' | t -}}
+                                  </label>
+                                  <div class="sr-filter-price__wrap">
+                                    <span class="sr-filter-price__symbol">{{ cart.currency.symbol }}</span>
+                                    <input
+                                      type="number"
+                                      id="filter-max-{{ section.id }}"
+                                      name="{{ filter.max_value.param_name }}"
+                                      value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                                      min="0"
+                                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                      class="sr-filter-price__input"
+                                      placeholder="{{ filter.range_max | money_without_currency }}"
+                                    >
+                                  </div>
+                                </div>
+                              </div>
+                          {%- endcase -%}
+                        </div>
+                      </div>
+                    {%- endfor -%}
+                  </form>
+                </div>
+
+                <div class="sr-drawer__foot">
+                  <button type="button" class="sr-drawer__foot-btn sr-drawer__foot-btn--reset" data-filter-reset>
+                    {{ 'collections.filtering.reset' | t }}
+                  </button>
+                  <button
+                    type="submit"
+                    form="search-facets-form"
+                    class="sr-drawer__foot-btn sr-drawer__foot-btn--apply"
+                  >
+                    {{ 'collections.filtering.apply' | t }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+
+          <!-- Results Grid -->
+          <div class="sr-results sr-results--{{ default_view }}" data-search-results data-view="{{ default_view }}">
+            {%- if search_products.size > 0 -%}
+              <div class="sr-section" data-section="products">
+                <div class="sr-grid" data-products-grid>
+                  {%- for product in search_products -%}
+                    <div class="sr-grid__item" data-product-item>
+                      {% render 'product-card',
+                        product: product,
+                        show_vendor: show_vendor,
+                        show_rating: show_rating,
+                        image_ratio: image_ratio
+                      %}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if search_articles.size > 0 -%}
+              <div class="sr-section sr-section--articles" data-section="articles">
+                <div class="sr-section__head">
+                  <div class="sr-section__icon sr-section__icon--accent">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                  </div>
+                  <h2 class="sr-section__title">{{ 'templates.search.articles' | t | default: 'المقالات' }}</h2>
+                </div>
+                <div class="sr-articles-grid">
+                  {%- for article in search_articles -%}
+                    <article class="sr-article-card">
+                      {%- if article.image -%}
+                        <a href="{{ article.url }}" class="sr-article-card__img-wrap">
+                          <img
+                            src="{{ article.image | image_url: width: 600 }}"
+                            alt="{{ article.image.alt | escape }}"
+                            width="600"
+                            height="375"
+                            loading="lazy"
+                            class="sr-article-card__img"
+                          >
+                        </a>
+                      {%- endif -%}
+                      <div class="sr-article-card__body">
+                        <div class="sr-article-card__meta">
+                          <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                            {{- article.published_at | date: format: 'abbreviated_date' -}}
+                          </time>
+                          {%- if article.tags.size > 0 -%}
+                            <span class="sr-article-card__dot"></span>
+                            <span>{{ article.tags.first }}</span>
+                          {%- endif -%}
+                        </div>
+                        <h3 class="sr-article-card__title">
+                          <a href="{{ article.url }}">{{ article.title }}</a>
+                        </h3>
+                        <p class="sr-article-card__excerpt">
+                          {{ article.excerpt_or_content | strip_html | truncate: 120 }}
+                        </p>
+                        <a href="{{ article.url }}" class="sr-article-card__link">
+                          {{ 'general.read_more' | t | default: 'اقرأ المزيد' }}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                          </svg>
+                        </a>
+                      </div>
+                    </article>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+
+            {%- if search_pages.size > 0 -%}
+              <div class="sr-section sr-section--pages" data-section="pages">
+                <div class="sr-section__head">
+                  <div class="sr-section__icon sr-section__icon--success">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </div>
+                  <h2 class="sr-section__title">{{ 'templates.search.pages' | t | default: 'الصفحات' }}</h2>
+                </div>
+                <div class="sr-pages-grid">
+                  {%- for page in search_pages -%}
+                    <a href="{{ page.url }}" class="sr-page-card">
+                      <div class="sr-page-card__icon">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                      </div>
+                      <div class="sr-page-card__body">
+                        <h3 class="sr-page-card__title">{{ page.title }}</h3>
+                        <p class="sr-page-card__desc">{{ page.content | strip_html | truncate: 100 }}</p>
+                      </div>
+                      <svg
+                        class="sr-page-card__arrow"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </a>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <!-- Pagination -->
+          {%- if paginate.pages > 1 -%}
+            <div class="sr-pagination-wrap">
+              {%- case pagination_type -%}
+                {%- when 'default' -%}
+                  {% render 'pagination', paginate: paginate %}
+                {%- when 'load_more' -%}
+                  {%- if paginate.next -%}
+                    <div class="sr-load-more">
+                      {%- if section.settings.show_progress_bar -%}
+                        <div class="sr-progress">
+                          <p class="sr-progress__text">
+                            {{
+                              'collections.pagination.showing_count'
+                              | t: current: paginate.current_offset
+                              | plus: search.results.size, total: search.results_count
+                            }}
+                          </p>
+                          <div class="sr-progress__track">
+                            <div
+                              class="sr-progress__bar"
+                              style="width:{{ paginate.current_offset | plus: search.results.size | times: 100.0 | divided_by: search.results_count }}%"
+                            ></div>
+                          </div>
+                        </div>
+                      {%- endif -%}
+                      <button
+                        type="button"
+                        class="sr-load-more__btn"
+                        data-load-more
+                        data-next-url="{{ paginate.next.url }}"
+                      >
+                        <span class="load-more-text">{{ 'collections.pagination.load_more' | t }}</span>
+                        <svg
+                          class="load-more-spinner"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  {%- endif -%}
+                {%- when 'infinite' -%}
+                  {%- if paginate.next -%}
+                    <div class="sr-infinite" data-infinite-scroll data-next-url="{{ paginate.next.url }}">
+                      <svg
+                        class="sr-infinite__spinner"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="32"
+                        height="32"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
+                      </svg>
+                    </div>
+                  {%- endif -%}
+              {%- endcase -%}
+            </div>
+          {%- endif -%}
+
+        {%- else -%}
+          <!-- No Results -->
+          <div class="sr-empty">
+            <div class="sr-empty__inner">
+              <div class="sr-empty__icon-wrap sr-empty__icon-wrap--muted">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="56"
+                  height="56"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+              </div>
+              <h2 class="sr-empty__title">
+                {{ 'templates.search.no_results_title' | t: terms: search.terms | default: 'لا توجد نتائج' }}
+              </h2>
+              <p class="sr-empty__desc">
+                {{
+                  'templates.search.no_results'
+                  | t: terms: search.terms
+                  | default: 'لم نتمكن من العثور على نتائج للبحث عن'
+                }}
+                "<span class="sr-empty__keyword">{{ search.terms }}</span>"
+              </p>
+              <div class="sr-empty__suggestions">
+                <p class="sr-empty__suggestions-label">
+                  {{ 'templates.search.suggestions_title' | t | default: 'جرب البحث عن:' }}
+                </p>
+                <div class="sr-empty__suggestions-tags">
+                  {%- assign suggestions = 'عطور,ملابس,اكسسوارات,أحذية' | split: ',' -%}
+                  {%- for term in suggestions -%}
+                    <a href="{{ routes.search_url }}?q={{ term | url_encode }}" class="sr-tag">{{ term }}</a>
+                  {%- endfor -%}
+                </div>
+              </div>
+            </div>
+
+            {%- if suggest_collection != blank and suggest_collection.products.size > 0 -%}
+              <div class="sr-suggested">
+                <h3 class="sr-suggested__title">
+                  {{ 'templates.search.suggestions' | t | default: 'قد يعجبك أيضاً' }}
+                </h3>
+                <div class="sr-grid" style="--sr-col-mob:2;--sr-col-tab:3;--sr-col-desk:4;">
+                  {%- for product in suggest_collection.products limit: 4 -%}
+                    <div class="sr-grid__item">
+                      {% render 'product-card', product: product, show_vendor: show_vendor, show_rating: show_rating %}
+                    </div>
+                  {%- endfor -%}
+                </div>
+                <div class="sr-suggested__action">
+                  <a href="{{ suggest_collection.url }}" class="sr-suggested__link">
+                    {{ 'collections.general.view_all' | t }}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+      {%- else -%}
+        <!-- Initial State -->
+        <div class="sr-empty">
+          <div class="sr-empty__inner">
+            <div class="sr-empty__icon-wrap sr-empty__icon-wrap--primary">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="56"
+                height="56"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h2 class="sr-empty__title">{{ 'templates.search.search_for' | t | default: 'ابدأ البحث' }}</h2>
+            <p class="sr-empty__desc">
+              {{
+                'templates.search.search_description'
+                | t
+                | default: 'اكتب كلمة البحث في الأعلى للعثور على المنتجات والمقالات والصفحات'
+              }}
+            </p>
+
+            <div class="sr-quick-links">
+              <a href="{{ routes.collections_url }}" class="sr-quick-link">
+                <div class="sr-quick-link__icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                </div>
+                <span class="sr-quick-link__text">{{ 'general.search.collections' | t | default: 'المجموعات' }}</span>
+              </a>
+              <a href="{{ routes.all_products_collection_url }}" class="sr-quick-link">
+                <div class="sr-quick-link__icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                </div>
+                <span class="sr-quick-link__text">{{ 'general.search.products' | t | default: 'المنتجات' }}</span>
+              </a>
+              {%- if blogs.size > 0 -%}
+                <a href="{{ blogs.first.url }}" class="sr-quick-link">
+                  <div class="sr-quick-link__icon">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                  </div>
+                  <span class="sr-quick-link__text">{{ 'general.search.articles' | t | default: 'المقالات' }}</span>
+                </a>
+              {%- endif -%}
+              <a href="{{ routes.root_url }}pages/contact" class="sr-quick-link">
+                <div class="sr-quick-link__icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </div>
+                <span class="sr-quick-link__text">{{ 'general.search.contact' | t | default: 'تواصل معنا' }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endpaginate -%}
+
+{% render 'search-styles' %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var S = document.getElementById('main-search-{{ section.id }}');
+    if (!S) return;
+    var isRtl = S.getAttribute('dir') === 'rtl';
+
+    /* Sortby */
+    var sdds = S.querySelectorAll('[data-sortby-dropdown]');
+    sdds.forEach(function (dd) {
+      var tr = dd.querySelector('[data-sortby-trigger]');
+      tr &&
+        tr.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var open = dd.hasAttribute('data-open');
+          sdds.forEach(function (d) {
+            d.removeAttribute('data-open');
+          });
+          if (!open) dd.setAttribute('data-open', '');
+        });
+    });
+    document.addEventListener('click', function () {
+      sdds.forEach(function (d) {
+        d.removeAttribute('data-open');
+      });
+    });
+
+    /* Filter Drawer */
+    var fd = S.querySelector('[data-filter-drawer]'),
+      ft = S.querySelector('[data-filter-toggle]'),
+      fcs = S.querySelectorAll('[data-filter-close]'),
+      fr = S.querySelector('[data-filter-reset]');
+    ft &&
+      ft.addEventListener('click', function () {
+        fd && fd.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      });
+    fcs &&
+      fcs.forEach(function (b) {
+        b.addEventListener('click', function () {
+          fd && fd.classList.remove('is-open');
+          document.body.style.overflow = '';
+        });
+      });
+    fr &&
+      fr.addEventListener('click', function () {
+        var f = S.querySelector('#search-facets-form');
+        f &&
+          f.querySelectorAll('input[type=checkbox]').forEach(function (c) {
+            c.checked = false;
+          });
+        f &&
+          f.querySelectorAll('input[type=number]').forEach(function (i) {
+            i.value = '';
+          });
+      });
+
+    /* Filter Groups */
+    S.querySelectorAll('[data-filter-toggle-group]').forEach(function (t) {
+      t.addEventListener('click', function () {
+        var g = this.closest('[data-filter-group]');
+        if (g.hasAttribute('data-collapsed')) {
+          g.removeAttribute('data-collapsed');
+          this.setAttribute('aria-expanded', 'true');
+        } else {
+          g.setAttribute('data-collapsed', '');
+          this.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    /* Layout */
+    var lbs = S.querySelectorAll('[data-layout-switch]'),
+      rc = S.querySelector('[data-search-results]');
+    lbs &&
+      lbs.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = this.getAttribute('data-layout-switch');
+          lbs.forEach(function (x) {
+            x.classList.remove('is-active');
+          });
+          this.classList.add('is-active');
+          rc &&
+            ((rc.className = rc.className.replace(/sr-results--\w+/g, '')),
+            rc.classList.add('sr-results--' + v),
+            rc.setAttribute('data-view', v));
+        });
+      });
+
+    /* Tabs */
+    var tabs = S.querySelectorAll('.sr-tabs__item'),
+      secs = S.querySelectorAll('[data-section]');
+    tabs &&
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          var tg = this.getAttribute('data-tab');
+          tabs.forEach(function (x) {
+            x.classList.remove('is-active');
+          });
+          this.classList.add('is-active');
+          secs.forEach(function (s) {
+            s.style.display = tg === 'all' || s.getAttribute('data-section') === tg ? '' : 'none';
+          });
+        });
+      });
+
+    /* Load More */
+    var lm = S.querySelector('[data-load-more]');
+    lm &&
+      lm.addEventListener('click', async function () {
+        var url = this.getAttribute('data-next-url');
+        if (!url) return;
+        this.classList.add('is-loading');
+        this.disabled = true;
+        try {
+          var r = await fetch(url),
+            h = await r.text(),
+            p = new DOMParser(),
+            d = p.parseFromString(h, 'text/html');
+          var np = d.querySelector('[data-products-grid]'),
+            cg = S.querySelector('[data-products-grid]');
+          if (np && cg) {
+            np.querySelectorAll('.sr-grid__item').forEach(function (i, x) {
+              i.style.animationDelay = x * 0.05 + 's';
+              cg.appendChild(i);
+            });
+          }
+          var nl = d.querySelector('[data-load-more]');
+          if (nl) {
+            this.setAttribute('data-next-url', nl.getAttribute('data-next-url'));
+            var pb = S.querySelector('.sr-progress__bar'),
+              npb = d.querySelector('.sr-progress__bar');
+            if (pb && npb) pb.style.width = npb.style.width;
+          } else this.parentElement.remove();
+        } catch (e) {
+          console.error(e);
+        }
+        this.classList.remove('is-loading');
+        this.disabled = false;
+      });
+
+    /* Infinite Scroll */
+    var is = S.querySelector('[data-infinite-scroll]');
+    if (is) {
+      var il = false;
+      new IntersectionObserver(
+        async function (en) {
+          if (en[0].isIntersecting && !il) {
+            var u = is.getAttribute('data-next-url');
+            if (!u) return;
+            il = true;
+            try {
+              var r = await fetch(u),
+                h = await r.text(),
+                p = new DOMParser(),
+                d = p.parseFromString(h, 'text/html');
+              var np = d.querySelector('[data-products-grid]'),
+                cg = S.querySelector('[data-products-grid]');
+              if (np && cg) {
+                np.querySelectorAll('.sr-grid__item').forEach(function (i, x) {
+                  i.style.animationDelay = x * 0.05 + 's';
+                  cg.appendChild(i);
+                });
+              }
+              var ni = d.querySelector('[data-infinite-scroll]');
+              if (ni) is.setAttribute('data-next-url', ni.getAttribute('data-next-url'));
+              else is.remove();
+            } catch (e) {
+              console.error(e);
+            }
+            il = false;
+          }
+        },
+        { threshold: 0.1, rootMargin: '200px' }
+      ).observe(is);
+    }
+
+    /* Esc key */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        fd && fd.classList.remove('is-open');
+        document.body.style.overflow = '';
+        sdds.forEach(function (d) {
+          d.removeAttribute('data-open');
+        });
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main_search.name",
+  "tag": "section",
+  "class": "section-main-search",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_search.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "hero_style",
+      "label": "t:sections.main_search.settings.hero_style.label",
+      "default": "gradient",
+      "options": [
+        {
+          "value": "gradient",
+          "label": "t:sections.main_search.settings.hero_style.options.gradient"
+        },
+        {
+          "value": "solid",
+          "label": "t:sections.main_search.settings.hero_style.options.solid"
+        },
+        {
+          "value": "minimal",
+          "label": "t:sections.main_search.settings.hero_style.options.minimal"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_popular_searches",
+      "label": "t:sections.main_search.settings.show_popular_searches.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "popular_search_terms",
+      "label": "t:sections.main_search.settings.popular_search_terms.label",
+      "info": "t:sections.main_search.settings.popular_search_terms.info",
+      "default": "عطور,ملابس,اكسسوارات,أحذية,حقائب"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "t:sections.main_search.settings.products_per_page.label",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.main_search.settings.show_vendor.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "t:sections.main_search.settings.show_rating.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "t:sections.main_search.settings.columns_desktop.label",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "label": "t:sections.main_search.settings.columns_tablet.label",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.main_search.settings.columns_mobile.label",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.main_search.settings.columns_mobile.options.1"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.main_search.settings.columns_mobile.options.2"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "space_horizontal",
+      "label": "t:sections.main_search.settings.space_horizontal.label",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "space_vertical",
+      "label": "t:sections.main_search.settings.space_vertical.label",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "default": 20,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:sections.main_search.settings.image_ratio.label",
+      "default": "1-1",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main_search.settings.image_ratio.options.adapt"
+        },
+        {
+          "value": "1-1",
+          "label": "t:sections.main_search.settings.image_ratio.options.1-1"
+        },
+        {
+          "value": "2-3",
+          "label": "t:sections.main_search.settings.image_ratio.options.2-3"
+        },
+        {
+          "value": "3-2",
+          "label": "t:sections.main_search.settings.image_ratio.options.3-2"
+        },
+        {
+          "value": "4-3",
+          "label": "t:sections.main_search.settings.image_ratio.options.4-3"
+        },
+        {
+          "value": "16-9",
+          "label": "t:sections.main_search.settings.image_ratio.options.16-9"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_align",
+      "label": "t:sections.main_search.settings.content_align.label",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.main_search.settings.content_align.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.main_search.settings.content_align.options.center"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_list_view",
+      "label": "t:sections.main_search.settings.enable_list_view.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "default_view",
+      "label": "t:sections.main_search.settings.default_view.label",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "t:sections.main_search.settings.default_view.options.grid"
+        },
+        {
+          "value": "list",
+          "label": "t:sections.main_search.settings.default_view.options.list"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": "t:sections.main_search.settings.pagination_type.label",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "t:sections.main_search.settings.pagination_type.options.default"
+        },
+        {
+          "value": "load_more",
+          "label": "t:sections.main_search.settings.pagination_type.options.load_more"
+        },
+        {
+          "value": "infinite",
+          "label": "t:sections.main_search.settings.pagination_type.options.infinite"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "t:sections.main_search.settings.show_progress_bar.label",
+      "info": "t:sections.main_search.settings.show_progress_bar.info",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.main_search.settings.button_style.label",
+      "default": "primary",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.main_search.settings.button_style.options.primary"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.main_search.settings.button_style.options.secondary"
+        },
+        {
+          "value": "outline",
+          "label": "t:sections.main_search.settings.button_style.options.outline"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "collection",
+      "id": "suggest_collection",
+      "label": "t:sections.main_search.settings.suggest_collection.label",
+      "info": "t:sections.main_search.settings.suggest_collection.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_search.settings.header.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.main_search.settings.padding_top.label",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.main_search.settings.padding_bottom.label",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 60,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "sortby",
+      "name": "t:sections.main_search.blocks.sortby.name",
+      "limit": 1
+    },
+    {
+      "type": "filter",
+      "name": "t:sections.main_search.blocks.filter.name",
+      "limit": 1
+    },
+    {
+      "type": "layout_switch",
+      "name": "t:sections.main_search.blocks.layout_switch.name",
+      "limit": 1
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.main_search.name",
+      "blocks": [
+        {
+          "type": "filter"
+        },
+        {
+          "type": "layout_switch"
+        },
+        {
+          "type": "sortby"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

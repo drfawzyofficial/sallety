@@ -1,0 +1,1780 @@
+{%- comment -%}
+  Sallety Theme — Featured Product Section
+  Premium single product spotlight with image gallery, variant picker,
+  add-to-cart, RTL/LTR support, and comprehensive customizer settings.
+{%- endcomment -%}
+
+{%- liquid
+  assign fp_product = section.settings.product
+  assign current_variant = fp_product.selected_or_first_available_variant
+
+  # Color scheme
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
+
+  # Section settings
+  assign show_heading = section.settings.show_heading
+  assign section_heading = section.settings.heading | default: 'المنتج المميز'
+  assign section_subheading = section.settings.subheading
+  assign text_alignment = section.settings.text_alignment | default: 'center'
+  assign layout = section.settings.layout | default: 'image_left'
+  assign image_ratio = section.settings.image_ratio | default: 'square'
+  assign enable_zoom = section.settings.enable_zoom
+  assign corner_radius = section.settings.corner_radius | default: 16
+
+  # Product info display
+  assign show_badges = section.settings.show_badges
+
+  # Colors
+  assign card_bg = section.settings.card_background
+  assign heading_weight = section.settings.heading_weight | default: '700'
+
+  # Decorative
+  assign show_shapes = section.settings.show_shapes
+  assign full_width = section.settings.full_width
+
+  # Spacing
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
+  id="featured-product-{{ section.id }}"
+  class="fp-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="featured-product"
+  style="
+    --fp-pt: {{ padding_top }}px;
+    --fp-pb: {{ padding_bottom }}px;
+    --fp-corner: {{ corner_radius }}px;
+    --fp-card-bg: {{ card_bg | default: 'var(--color-card-background, rgba(255,255,255,0.03))' }};
+    --fp-heading-weight: {{ heading_weight }};
+    font-family: var(--font-body-family);
+  "
+>
+  {%- comment -%} Decorative Shapes {%- endcomment -%}
+  {%- if show_shapes -%}
+    <div class="fp-shapes" aria-hidden="true">
+      <div class="fp-shape fp-shape-1"></div>
+      <div class="fp-shape fp-shape-2"></div>
+      <div class="fp-shape fp-shape-3"></div>
+      <div class="fp-shape fp-shape-4"></div>
+    </div>
+  {%- endif -%}
+
+  <div class="fp-container{% unless full_width %} fp-container--constrained{% endunless %}">
+    {%- comment -%} Section Header {%- endcomment -%}
+    {%- if show_heading -%}
+      <header class="fp-header fp-align--{{ text_alignment }}">
+        <h2 class="fp-section-heading">{{ section_heading }}</h2>
+        {%- if section_subheading != blank -%}
+          <p class="fp-section-subheading">{{ section_subheading }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    {%- if fp_product != blank -%}
+      <div class="fp-product fp-product--{{ layout }}" data-product-id="{{ fp_product.id }}">
+        {%- comment -%} Product Images {%- endcomment -%}
+        <div class="fp-product__media">
+          <div class="fp-gallery" data-fp-gallery>
+            {%- comment -%} Main Image {%- endcomment -%}
+            <div class="fp-gallery__main" data-fp-gallery-main>
+              {%- if fp_product.media.size > 0 -%}
+                {%- for media in fp_product.media -%}
+                  <div
+                    class="fp-gallery__slide{% if forloop.first %} is-active{% endif %}"
+                    data-fp-slide
+                    data-index="{{ forloop.index0 }}"
+                  >
+                    {%- if media.media_type == 'image' -%}
+                      <div
+                        class="fp-gallery__image-wrap fp-gallery__image-wrap--{{ image_ratio }}{% if enable_zoom %} fp-gallery__image-wrap--zoomable{% endif %}"
+                        {% if enable_zoom %}
+                          data-zoom-src="{{ media | image_url: width: 2048 }}"
+                        {% endif %}
+                      >
+                        <img
+                          src="{{ media | image_url: width: 800 }}"
+                          srcset="
+                            {{ media | image_url: width: 400 }} 400w,
+                            {{ media | image_url: width: 600 }} 600w,
+                            {{ media | image_url: width: 800 }} 800w,
+                            {{ media | image_url: width: 1200 }} 1200w
+                          "
+                          sizes="(max-width: 639px) 100vw, (max-width: 1024px) 50vw, 45vw"
+                          alt="{{ media.alt | default: fp_product.title | escape }}"
+                          width="{{ media.width }}"
+                          height="{{ media.height }}"
+                          loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                          class="fp-gallery__img"
+                        >
+                      </div>
+                    {%- elsif media.media_type == 'video' -%}
+                      <div class="fp-gallery__video">
+                        {{ media | video_tag: autoplay: false, loop: true, controls: true, muted: false }}
+                      </div>
+                    {%- elsif media.media_type == 'external_video' -%}
+                      <div class="fp-gallery__video">
+                        {{ media | external_video_tag }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- endfor -%}
+
+                {%- if fp_product.media.size > 1 -%}
+                  <button class="fp-gallery__nav fp-gallery__nav--prev" data-fp-prev aria-label="السابق" type="button">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                  </button>
+                  <button class="fp-gallery__nav fp-gallery__nav--next" data-fp-next aria-label="التالي" type="button">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </button>
+
+                  <div class="fp-gallery__counter" data-fp-counter>
+                    <span data-fp-current>1</span> / <span>{{ fp_product.media.size }}</span>
+                  </div>
+                {%- endif -%}
+              {%- else -%}
+                <div class="fp-gallery__placeholder">
+                  {{ 'product-1' | placeholder_svg_tag: 'fp-placeholder-svg' }}
+                </div>
+              {%- endif -%}
+            </div>
+
+            {%- comment -%} Thumbnails {%- endcomment -%}
+            {%- if fp_product.media.size > 1 -%}
+              <div class="fp-gallery__thumbs" data-fp-thumbs>
+                {%- for media in fp_product.media -%}
+                  <button
+                    type="button"
+                    class="fp-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                    data-fp-thumb
+                    data-index="{{ forloop.index0 }}"
+                    aria-label="عرض الصورة {{ forloop.index }}"
+                  >
+                    <img
+                      src="{{ media.preview_image | default: media | image_url: width: 100, height: 100, crop: 'center' }}"
+                      alt="{{ media.alt | default: fp_product.title | escape }}"
+                      width="80"
+                      height="80"
+                      loading="lazy"
+                    >
+                    {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                      <span class="fp-gallery__thumb-play">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                      </span>
+                    {%- endif -%}
+                  </button>
+                {%- endfor -%}
+              </div>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Badges {%- endcomment -%}
+          {%- if show_badges -%}
+            <div class="fp-badges">
+              {%- if fp_product.compare_at_price > fp_product.price -%}
+                {%- assign save_percent = fp_product.compare_at_price
+                  | minus: fp_product.price
+                  | times: 100.0
+                  | divided_by: fp_product.compare_at_price
+                  | round
+                -%}
+                <span class="fp-badge fp-badge--sale">-{{ save_percent }}%</span>
+              {%- endif -%}
+              {%- unless fp_product.available -%}
+                <span class="fp-badge fp-badge--soldout">
+                  {{- 'products.product.sold_out' | t | default: 'نفذت الكمية' -}}
+                </span>
+              {%- endunless -%}
+              {%- assign product_published_at = fp_product.published_at | date: '%s' -%}
+              {%- assign now = 'now' | date: '%s' -%}
+              {%- assign diff_seconds = now | minus: product_published_at -%}
+              {%- assign diff_days = diff_seconds | divided_by: 86400 -%}
+              {%- if diff_days <= 30 and fp_product.available -%}
+                <span class="fp-badge fp-badge--new">{{ 'products.product.new' | t | default: 'جديد' }}</span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Product Info — blocks-based like main-product {%- endcomment -%}
+        <div class="fp-product__info">
+          <div class="fp-product__info-inner">
+            <script type="application/json" data-product-json>
+              {{ fp_product | json }}
+            </script>
+
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'title' -%}
+                  <div class="fp-product__block" {{ block.shopify_attributes }}>
+                    <h3 class="fp-product__title">
+                      <a href="{{ fp_product.url }}">{{ fp_product.title }}</a>
+                    </h3>
+                  </div>
+
+                {%- when 'vendor' -%}
+                  {%- if fp_product.vendor != blank -%}
+                    <div class="fp-product__block" {{ block.shopify_attributes }}>
+                      <p class="fp-product__vendor">
+                        <a href="{{ fp_product.vendor | url_for_vendor }}">{{ fp_product.vendor }}</a>
+                      </p>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'price' -%}
+                  <div class="fp-product__block" {{ block.shopify_attributes }}>
+                    <div class="fp-product__price" data-fp-price>
+                      {% render 'price', product: fp_product, use_variant: true %}
+                    </div>
+                  </div>
+
+                {%- when 'sku' -%}
+                  {%- if current_variant.sku != blank -%}
+                    <div class="fp-product__block" {{ block.shopify_attributes }}>
+                      <p class="fp-product__sku">
+                        {{ 'products.product.sku' | t | default: 'رمز المنتج' }}:
+                        <span data-fp-sku>{{ current_variant.sku }}</span>
+                      </p>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'description' -%}
+                  {%- if fp_product.description != blank -%}
+                    <div class="fp-product__block fp-product__description" {{ block.shopify_attributes }}>
+                      <p>
+                        {{
+                          fp_product.description
+                          | strip_html
+                          | truncatewords: block.settings.words_count
+                          | default: 40
+                        }}
+                      </p>
+                    </div>
+                  {%- endif -%}
+
+                {%- when 'variant_picker' -%}
+                  <div class="fp-product__block fp-product__variants" {{ block.shopify_attributes }}>
+                    {% render 'variant-picker',
+                      product: fp_product,
+                      picker_type: block.settings.picker_type,
+                      color_option_name: block.settings.color_option_name,
+                      size_option_name: block.settings.size_option_name
+                    %}
+                  </div>
+
+                {%- when 'buy_buttons' -%}
+                  <div class="fp-product__block fp-product__buy" {{ block.shopify_attributes }}>
+                    {%- form 'product',
+                      fp_product,
+                      data-product-form: '',
+                      novalidate: 'novalidate',
+                      class: 'fp-form'
+                    -%}
+                      <input type="hidden" name="id" value="{{ current_variant.id }}">
+                      <input type="hidden" name="quantity" value="1" data-form-quantity>
+
+                      <div class="fp-product__buy-row">
+                        {%- if block.settings.show_quantity -%}
+                          <div class="fp-product__quantity">
+                            {%- liquid
+                              assign max_qty = 99
+                              if current_variant.inventory_management != blank and current_variant.inventory_policy != 'continue'
+                                if current_variant.inventory_quantity > 0 and current_variant.inventory_quantity < max_qty
+                                  assign max_qty = current_variant.inventory_quantity
+                                endif
+                              endif
+                            -%}
+                            {% render 'quantity-input',
+                              id: fp_product.id,
+                              max: max_qty,
+                              min: 1,
+                              variant: current_variant
+                            %}
+                          </div>
+                        {%- endif -%}
+
+                        <button
+                          type="submit"
+                          name="add"
+                          class="fp-product__add-btn btn btn--primary"
+                          {% unless current_variant.available %}
+                            disabled
+                          {% endunless %}
+                          data-add-to-cart
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="flex-shrink-0 pointer-events-none"
+                          >
+                            <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                          </svg>
+                          <span data-add-to-cart-text>
+                            {%- if current_variant.available -%}
+                              {{ 'products.product.add_to_cart' | t | default: 'أضف إلى السلة' }}
+                            {%- else -%}
+                              {{ 'products.product.sold_out' | t | default: 'نفذت الكمية' }}
+                            {%- endif -%}
+                          </span>
+                          <span class="btn__loading-spinner" aria-hidden="true">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/></circle>
+                            </svg>
+                          </span>
+                        </button>
+
+                        {%- if block.settings.show_wishlist and settings.enable_wishlist -%}
+                          <button
+                            type="button"
+                            class="fp-product__wishlist-btn"
+                            data-wishlist-add="{{ fp_product.id }}"
+                            data-product-handle="{{ fp_product.handle }}"
+                            data-product-title="{{ fp_product.title | escape }}"
+                            data-product-image="{{ fp_product.featured_media | image_url: width: 400 }}"
+                            data-product-price="{{ current_variant.price }}"
+                            data-product-url="{{ fp_product.url }}"
+                            aria-label="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+                            title="{{ 'products.product.add_to_wishlist' | t | default: 'أضف للمفضلة' }}"
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="1.8"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            >
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                          </button>
+                        {%- endif -%}
+                      </div>
+
+                      {%- if block.settings.show_dynamic_checkout -%}
+                        <div class="fp-product__dynamic-checkout">
+                          {{ form | payment_button }}
+                        </div>
+                      {%- endif -%}
+                    {%- endform -%}
+                  </div>
+
+                {%- when 'reviews' -%}
+                  {%- assign fp_pr_raw = fp_product.metafields.custom.product_reviews -%}
+                  <div
+                    class="fp-product__block fp-product__reviews-rating"
+                    {{ block.shopify_attributes }}
+                    data-fp-reviews-rating-block
+                    data-star-color="{{ block.settings.star_color | default: '#fbbf24' }}"
+                    data-text-color="{{ block.settings.text_color | default: '' }}"
+                  >
+                    {%- if fp_pr_raw != blank -%}
+                      <script type="text/plain" data-fp-product-reviews-raw>
+                        {
+                          {
+                            fp_pr_raw;
+                          }
+                        }
+                      </script>
+                    {%- endif -%}
+                    <div class="fp-reviews-inline" data-fp-reviews-inline style="display: none;">
+                      <div class="fp-reviews-inline__stars" data-fp-inline-stars></div>
+                      <span class="fp-reviews-inline__avg" data-fp-inline-avg></span>
+                      <span class="fp-reviews-inline__count" data-fp-inline-count></span>
+                    </div>
+                  </div>
+
+                {%- when 'share' -%}
+                  <div class="fp-product__block fp-product__share" {{ block.shopify_attributes }}>
+                    {% render 'social-share',
+                      share_title: fp_product.title,
+                      share_permalink: fp_product.url,
+                      share_image: fp_product.featured_media
+                    %}
+                  </div>
+              {%- endcase -%}
+            {%- endfor -%}
+
+            {%- comment -%} View Full Details Link {%- endcomment -%}
+            <a href="{{ fp_product.url }}" class="fp-product__details-link">
+              {{ 'products.product.view_full_details' | t | default: 'عرض كل التفاصيل' }}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    {%- else -%}
+      {%- comment -%} Empty State {%- endcomment -%}
+      <div class="fp-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="2" y="2" width="20" height="20" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <p>اختر منتجاً من إعدادات القسم لعرضه هنا</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  /* ================================
+     FEATURED PRODUCT - BASE
+     ================================ */
+  .fp-section {
+    padding-block-start: var(--fp-pt);
+    padding-block-end: var(--fp-pb);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fp-container {
+    width: 100%;
+    padding-inline: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .fp-container--constrained {
+    max-width: 1400px;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 768px) {
+    .fp-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .fp-container {
+      padding-inline: 4rem;
+    }
+  }
+
+  /* ================================
+     SECTION HEADER
+     ================================ */
+  .fp-header {
+    margin-block-end: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .fp-align--center {
+    text-align: center;
+    align-items: center;
+  }
+  .fp-align--start {
+    text-align: start;
+    align-items: flex-start;
+  }
+  .fp-align--end {
+    text-align: end;
+    align-items: flex-end;
+  }
+
+  .fp-section-heading {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--fp-heading-weight);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .fp-section-subheading {
+    font-size: var(--font-body-size, 16px);
+    color: var(--color-secondary-text);
+    margin: 0;
+    max-width: 600px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+
+  .fp-align--center .fp-section-subheading {
+    margin-inline: auto;
+  }
+
+  /* ================================
+     PRODUCT LAYOUT
+     ================================ */
+  .fp-product {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .fp-product {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    .fp-product--image_right .fp-product__media {
+      order: 2;
+    }
+
+    .fp-product--image_right .fp-product__info {
+      order: 1;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .fp-product {
+      gap: 3.5rem;
+    }
+  }
+
+  /* ================================
+     PRODUCT MEDIA / GALLERY
+     ================================ */
+  .fp-product__media {
+    position: relative;
+  }
+
+  .fp-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fp-gallery__main {
+    position: relative;
+    border-radius: var(--fp-corner);
+    overflow: hidden;
+    background: var(--fp-card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .fp-gallery__slide {
+    display: none;
+  }
+
+  .fp-gallery__slide.is-active {
+    display: block;
+  }
+
+  .fp-gallery__image-wrap {
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+  }
+
+  .fp-gallery__image-wrap--square {
+    aspect-ratio: 1 / 1;
+  }
+  .fp-gallery__image-wrap--portrait {
+    aspect-ratio: 3 / 4;
+  }
+  .fp-gallery__image-wrap--landscape {
+    aspect-ratio: 4 / 3;
+  }
+  .fp-gallery__image-wrap--auto {
+    aspect-ratio: auto;
+  }
+
+  .fp-gallery__image-wrap--zoomable {
+    cursor: zoom-in;
+  }
+
+  .fp-gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .fp-gallery__image-wrap--zoomable:hover .fp-gallery__img {
+    transform: scale(1.08);
+  }
+
+  .fp-gallery__video {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .fp-gallery__video video,
+  .fp-gallery__video iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fp-gallery__placeholder {
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--fp-corner);
+  }
+
+  .fp-placeholder-svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.4;
+  }
+
+  /* Gallery Navigation Arrows */
+  .fp-gallery__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 4;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+  }
+
+  .fp-gallery__main:hover .fp-gallery__nav {
+    opacity: 1;
+  }
+
+  .fp-gallery__nav:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .fp-gallery__nav--prev {
+    inset-inline-start: 0.75rem;
+  }
+  .fp-gallery__nav--next {
+    inset-inline-end: 0.75rem;
+  }
+
+  /* RTL: flip arrow icons to match main product page */
+  [dir='rtl'] .fp-gallery__nav svg {
+    transform: scaleX(-1);
+  }
+
+  /* Counter */
+  .fp-gallery__counter {
+    position: absolute;
+    bottom: 0.75rem;
+    inset-inline-end: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    color: #fff;
+    z-index: 4;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* Thumbnails */
+  .fp-gallery__thumbs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block: 0.25rem;
+  }
+
+  .fp-gallery__thumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fp-gallery__thumb {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    border-radius: calc(var(--fp-corner) * 0.5);
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    background: var(--fp-card-bg);
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .fp-gallery__thumb.is-active {
+    border-color: var(--color-primary, #1a2744);
+    box-shadow: 0 0 0 1px var(--color-primary, #1a2744), 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .fp-gallery__thumb:hover:not(.is-active) {
+    border-color: rgba(var(--color-text-rgb, 0, 0, 0), 0.3);
+    transform: translateY(-2px);
+  }
+
+  .fp-gallery__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fp-gallery__thumb-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+  }
+
+  @media (min-width: 768px) {
+    .fp-gallery__thumb {
+      flex: 0 0 72px;
+      width: 72px;
+      height: 72px;
+    }
+  }
+
+  /* ================================
+     BADGES
+     ================================ */
+  .fp-badges {
+    position: absolute;
+    top: 0.75rem;
+    inset-inline-start: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    z-index: 5;
+  }
+
+  .fp-badge {
+    display: inline-flex;
+    padding: 0.25rem 0.625rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .fp-badge--sale {
+    background: var(--color-error, #dc3545);
+    color: #fff;
+  }
+
+  .fp-badge--new {
+    background: var(--color-success, #22c55e);
+    color: #fff;
+  }
+
+  .fp-badge--soldout {
+    background: var(--color-text);
+    color: var(--color-background);
+  }
+
+  /* ================================
+     PRODUCT INFO
+     ================================ */
+  .fp-product__info {
+    display: flex;
+    align-items: center;
+  }
+
+  .fp-product__info-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .fp-product__vendor {
+    margin: 0;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    opacity: 0.6;
+  }
+
+  .fp-product__vendor a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .fp-product__vendor a:hover {
+    color: var(--color-primary);
+  }
+
+  .fp-product__title {
+    font-size: clamp(1.375rem, 3vw, 2rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  .fp-product__title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .fp-product__title a:hover {
+    color: var(--color-primary);
+  }
+
+  .fp-product__sku {
+    font-size: 0.8125rem;
+    color: var(--color-secondary-text);
+    margin: 0;
+    opacity: 0.7;
+  }
+
+  .fp-product__price {
+    margin: 0;
+  }
+
+  .fp-product__price .price {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .fp-product__price .price__sale {
+    color: var(--color-error, #dc3545);
+  }
+
+  .fp-product__price .price__compare {
+    font-size: 1rem;
+    opacity: 0.5;
+    text-decoration: line-through;
+    font-weight: 400;
+    margin-inline-start: 0.5rem;
+  }
+
+  .fp-product__description {
+    color: var(--color-secondary-text);
+    line-height: 1.7;
+    font-size: var(--font-body-size, 15px);
+  }
+
+  .fp-product__description p {
+    margin: 0;
+  }
+
+  /* Variant Picker */
+  .fp-product__variants {
+    padding-block: 0.25rem;
+  }
+
+  /* Buy Row */
+  .fp-product__buy-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+  }
+
+  .fp-product__quantity {
+    flex: 0 0 auto;
+  }
+
+  .fp-product__add-btn {
+    flex: 1;
+    min-width: 160px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .fp-product__add-btn .btn__loading-spinner {
+    display: none;
+    position: absolute;
+  }
+
+  .fp-product__add-btn.is-loading .btn__loading-spinner {
+    display: flex;
+  }
+
+  .fp-product__add-btn.is-loading [data-add-to-cart-text] {
+    visibility: hidden;
+  }
+
+  .fp-product__add-btn.is-loading > svg {
+    visibility: hidden;
+  }
+
+  .fp-product__wishlist-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    min-width: 48px;
+    border-radius: calc(var(--fp-corner) * 0.5);
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
+    background: transparent;
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .fp-product__wishlist-btn:hover {
+    border-color: var(--color-error, #dc3545);
+    color: var(--color-error, #dc3545);
+    background: rgba(220, 53, 69, 0.06);
+    transform: scale(1.05);
+  }
+
+  .fp-product__wishlist-btn.is-wishlisted {
+    color: var(--color-error, #dc3545);
+    border-color: var(--color-error, #dc3545);
+  }
+
+  .fp-product__wishlist-btn.is-wishlisted svg {
+    fill: var(--color-error, #dc3545);
+  }
+
+  .fp-product__dynamic-checkout {
+    margin-block-start: 0.5rem;
+  }
+
+  /* Share */
+  .fp-product__share {
+    padding-block-start: 0.25rem;
+  }
+
+  /* View Details Link */
+  .fp-product__details-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-primary, #1a2744);
+    text-decoration: none;
+    padding-block-start: 0.25rem;
+    transition: gap 0.3s ease, color 0.3s ease;
+  }
+
+  .fp-product__details-link:hover {
+    gap: 0.75rem;
+  }
+
+  [dir='rtl'] .fp-product__details-link svg {
+    transform: scaleX(-1);
+  }
+
+  /* ================================
+     EMPTY STATE
+     ================================ */
+  .fp-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--color-secondary-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .fp-empty svg {
+    opacity: 0.3;
+  }
+  .fp-empty p {
+    margin: 0;
+    font-size: var(--font-body-size, 16px);
+  }
+
+  /* ================================
+     DECORATIVE SHAPES
+     ================================ */
+  .fp-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .fp-shape {
+    position: absolute;
+    opacity: 0.06;
+  }
+
+  .fp-shape-1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    inset-inline-end: -80px;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: fp-float-1 18s ease-in-out infinite;
+  }
+
+  .fp-shape-2 {
+    width: 80px;
+    height: 80px;
+    top: 40%;
+    inset-inline-start: 3%;
+    background: var(--color-primary, #1a2744);
+    border-radius: 50%;
+    animation: fp-float-2 14s ease-in-out infinite;
+    animation-delay: -4s;
+  }
+
+  .fp-shape-3 {
+    width: 60px;
+    height: 60px;
+    bottom: 10%;
+    inset-inline-end: 8%;
+    background: var(--color-text);
+    transform: rotate(45deg);
+    animation: fp-pulse 10s ease-in-out infinite;
+  }
+
+  .fp-shape-4 {
+    width: 90px;
+    height: 90px;
+    bottom: 20%;
+    inset-inline-start: 12%;
+    border: 6px solid var(--color-primary, #1a2744);
+    border-radius: 50%;
+    background: transparent;
+    animation: fp-float-3 16s ease-in-out infinite;
+    animation-delay: -6s;
+    opacity: 0.04;
+  }
+
+  @keyframes fp-float-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(-20px, 15px) scale(1.04);
+    }
+    50% {
+      transform: translate(-10px, 28px) scale(0.96);
+    }
+    75% {
+      transform: translate(-25px, 10px) scale(1.02);
+    }
+  }
+
+  @keyframes fp-float-2 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    33% {
+      transform: translate(14px, -10px);
+    }
+    66% {
+      transform: translate(-10px, -18px);
+    }
+  }
+
+  @keyframes fp-float-3 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(18px, -14px) scale(1.1);
+    }
+  }
+
+  @keyframes fp-pulse {
+    0%,
+    100% {
+      transform: rotate(45deg) scale(1);
+      opacity: 0.06;
+    }
+    50% {
+      transform: rotate(45deg) scale(1.18);
+      opacity: 0.1;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .fp-shape-1 {
+      width: 200px;
+      height: 200px;
+    }
+    .fp-shape-4 {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .fp-shape-1 {
+      width: 140px;
+      height: 140px;
+    }
+    .fp-shape-2 {
+      width: 50px;
+      height: 50px;
+    }
+    .fp-shape-3 {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .fp-shape-1 {
+      width: 100px;
+      height: 100px;
+      opacity: 0.04;
+    }
+    .fp-shape-2 {
+      display: none;
+    }
+  }
+
+  /* ================================
+     RESPONSIVE
+     ================================ */
+  @media (max-width: 767px) {
+    .fp-product {
+      grid-template-columns: 1fr;
+    }
+
+    .fp-product__info-inner {
+      gap: 0.875rem;
+    }
+
+    .fp-product__title {
+      font-size: 1.375rem;
+    }
+
+    .fp-product__price .price {
+      font-size: 1.25rem;
+    }
+
+    .fp-gallery__nav {
+      width: 34px;
+      height: 34px;
+      opacity: 1;
+    }
+
+    .fp-gallery__nav svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .fp-gallery__nav--prev {
+      inset-inline-start: 0.5rem;
+    }
+    .fp-gallery__nav--next {
+      inset-inline-end: 0.5rem;
+    }
+
+    /* Mobile: show icon only for add-to-cart */
+    .fp-product__add-btn {
+      min-width: 46px;
+      width: auto;
+      flex: none;
+      padding: 0.75rem;
+    }
+
+    .fp-product__add-btn [data-add-to-cart-text] {
+      display: none;
+    }
+  }
+
+  /* ================================
+     REDUCED MOTION
+     ================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .fp-gallery__img,
+    .fp-gallery__nav,
+    .fp-gallery__thumb,
+    .fp-product__add-btn,
+    .fp-product__wishlist-btn,
+    .fp-product__details-link,
+    .fp-product__vendor a,
+    .fp-product__title a {
+      transition: none !important;
+    }
+
+    .fp-shape {
+      animation: none;
+    }
+  }
+
+  /* ================================
+     PRINT
+     ================================ */
+  @media print {
+    .fp-section {
+      break-inside: avoid;
+    }
+    .fp-shapes,
+    .fp-gallery__nav,
+    .fp-gallery__counter,
+    .fp-product__buy {
+      display: none;
+    }
+  }
+</style>
+
+{%- comment -%} ── Gallery Script ── {%- endcomment -%}
+<script>
+  (function () {
+    const section = document.getElementById('featured-product-{{ section.id }}');
+    if (!section) return;
+
+    const gallery = section.querySelector('[data-fp-gallery]');
+    if (!gallery) return;
+
+    const slides = gallery.querySelectorAll('[data-fp-slide]');
+    const thumbs = gallery.querySelectorAll('[data-fp-thumb]');
+    const prevBtn = gallery.querySelector('[data-fp-prev]');
+    const nextBtn = gallery.querySelector('[data-fp-next]');
+    const currentEl = gallery.querySelector('[data-fp-current]');
+
+    let currentIndex = 0;
+    const total = slides.length;
+
+    function goTo(index) {
+      if (index < 0) index = total - 1;
+      if (index >= total) index = 0;
+
+      slides.forEach((s) => s.classList.remove('is-active'));
+      thumbs.forEach((t) => t.classList.remove('is-active'));
+
+      slides[index]?.classList.add('is-active');
+      thumbs[index]?.classList.add('is-active');
+
+      if (currentEl) currentEl.textContent = index + 1;
+      currentIndex = index;
+
+      /* Scroll thumb into view */
+      thumbs[index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        goTo(parseInt(thumb.dataset.index));
+      });
+    });
+
+    /* Touch / Swipe */
+    let startX = 0,
+      diff = 0;
+    const mainEl = gallery.querySelector('[data-fp-gallery-main]');
+    if (mainEl) {
+      const isRTL = document.documentElement.dir === 'rtl';
+      mainEl.addEventListener(
+        'touchstart',
+        (e) => {
+          startX = e.touches[0].clientX;
+          diff = 0;
+        },
+        { passive: true }
+      );
+      mainEl.addEventListener(
+        'touchmove',
+        (e) => {
+          diff = startX - e.touches[0].clientX;
+        },
+        { passive: true }
+      );
+      mainEl.addEventListener('touchend', () => {
+        if (Math.abs(diff) > 40) {
+          const dir = diff > 0 ? 1 : -1;
+          const actual = isRTL ? -dir : dir;
+          goTo(currentIndex + actual);
+        }
+      });
+    }
+  })();
+</script>
+
+<script>
+  window.variantStrings = window.variantStrings || {};
+  window.variantStrings.addToCart = {{ 'products.product.add_to_cart' | t | default: 'أضف إلى السلة' | json }};
+  window.variantStrings.soldOut = {{ 'products.product.sold_out' | t | default: 'نفذت الكمية' | json }};
+  window.variantStrings.unavailable = {{ 'products.product.unavailable' | t | default: 'غير متوفر' | json }};
+</script>
+
+<style>
+  /* ===== Featured Product Inline Rating ===== */
+  .fp-reviews-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .fp-reviews-inline__stars {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .fp-reviews-inline__avg {
+    font-weight: 700;
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fp-reviews-inline__count {
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+</style>
+
+<script>
+  (function () {
+    document.querySelectorAll('[data-fp-reviews-rating-block]').forEach(function (block) {
+      var rawEl = block.querySelector('[data-fp-product-reviews-raw]');
+      if (!rawEl) return;
+
+      var text = rawEl.textContent;
+      if (!text || !text.trim()) return;
+
+      var starColor = block.dataset.starColor || '#fbbf24';
+      var textColor = block.dataset.textColor || '';
+
+      /* Parse reviews from multi-line text */
+      var entries = text.split(/(?=\d+\s*[-\u2013]\s*Name\s*:)/i).filter(function (s) {
+        return s.trim();
+      });
+      var ratings = [];
+
+      entries.forEach(function (entry) {
+        var starsMatch = entry.match(/(?:stars?|starts?)\s*:\s*(\d+)/i);
+        if (starsMatch) {
+          var r = Math.min(5, Math.max(1, parseInt(starsMatch[1])));
+          ratings.push(r);
+        }
+      });
+
+      if (ratings.length === 0) return;
+
+      var total = ratings.reduce(function (a, b) {
+        return a + b;
+      }, 0);
+      var avg = (total / ratings.length).toFixed(1);
+      var avgNum = parseFloat(avg);
+
+      /* Generate star SVGs */
+      var starsHtml = '';
+      for (var i = 1; i <= 5; i++) {
+        if (i <= Math.floor(avgNum)) {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20" fill="' +
+            starColor +
+            '"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
+        } else if (i - 0.5 <= avgNum) {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient id="fphalf' +
+            i +
+            '"><stop offset="50%" stop-color="' +
+            starColor +
+            '"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z" fill="url(#fphalf' +
+            i +
+            ')" stroke="' +
+            starColor +
+            '" stroke-width="1"/></svg>';
+        } else {
+          starsHtml +=
+            '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="' +
+            starColor +
+            '" stroke-width="1"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
+        }
+      }
+
+      var inlineEl = block.querySelector('[data-fp-reviews-inline]');
+      var starsEl = block.querySelector('[data-fp-inline-stars]');
+      var avgEl = block.querySelector('[data-fp-inline-avg]');
+      var countEl = block.querySelector('[data-fp-inline-count]');
+
+      if (starsEl) starsEl.innerHTML = starsHtml;
+      if (avgEl) {
+        avgEl.textContent = avg;
+        if (textColor) avgEl.style.color = textColor;
+      }
+      if (countEl) {
+        countEl.textContent = '(' + ratings.length + ' {{ "products.product.reviews_count" | t | default: "تقييم" }})';
+        if (textColor) countEl.style.color = textColor;
+      }
+      if (inlineEl) inlineEl.style.display = '';
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.featured_product.name",
+  "tag": "section",
+  "class": "section-featured-product",
+  "blocks": [
+    {
+      "type": "title",
+      "name": "العنوان",
+      "limit": 1
+    },
+    {
+      "type": "vendor",
+      "name": "البائع",
+      "limit": 1
+    },
+    {
+      "type": "price",
+      "name": "السعر",
+      "limit": 1
+    },
+    {
+      "type": "sku",
+      "name": "رمز المنتج SKU",
+      "limit": 1
+    },
+    {
+      "type": "description",
+      "name": "الوصف",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "range",
+          "id": "words_count",
+          "label": "عدد كلمات الوصف",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "default": 40
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "اختيار الخيارات",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "نوع عرض الخيارات",
+          "options": [
+            { "value": "buttons", "label": "أزرار" },
+            { "value": "swatches", "label": "ألوان + أزرار مقاسات" },
+            { "value": "dropdown", "label": "قائمة منسدلة" }
+          ],
+          "default": "swatches"
+        },
+        {
+          "type": "text",
+          "id": "color_option_name",
+          "label": "اسم خيار اللون",
+          "default": "اللون"
+        },
+        {
+          "type": "text",
+          "id": "size_option_name",
+          "label": "اسم خيار المقاس",
+          "default": "المقاس"
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "أزرار الشراء",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_quantity",
+          "label": "إظهار محدد الكمية",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "إظهار زر الدفع السريع",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_wishlist",
+          "label": "إظهار زر المفضلة",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "reviews",
+      "name": "التقييم",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "لتفعيل التقييمات، أضف حقل ميتا (Metafield) للمنتج باسم custom.product_reviews من نوع نص متعدد الأسطر (Multi-line text). أدخل البيانات بالتنسيق التالي: 1- Name: أحمد, comment: منتج رائع, stars: 5 — سطر لكل تقييم."
+        },
+        {
+          "type": "color",
+          "id": "star_color",
+          "label": "لون النجوم",
+          "default": "#fbbf24"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "لون النص",
+          "default": "#6b7280"
+        }
+      ]
+    },
+    {
+      "type": "share",
+      "name": "مشاركة",
+      "limit": 1
+    }
+  ],
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "المنتج"
+    },
+    {
+      "type": "header",
+      "content": "العنوان"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_heading",
+      "label": "إظهار عنوان القسم",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "عنوان القسم",
+      "default": "المنتج المميز"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "العنوان الفرعي"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "محاذاة العنوان",
+      "options": [
+        { "value": "start", "label": "بداية" },
+        { "value": "center", "label": "وسط" },
+        { "value": "end", "label": "نهاية" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "التخطيط"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "موضع الصورة",
+      "options": [
+        { "value": "image_left", "label": "صورة يسار - معلومات يمين" },
+        { "value": "image_right", "label": "صورة يمين - معلومات يسار" }
+      ],
+      "default": "image_left"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "نسبة الصورة",
+      "options": [
+        { "value": "square", "label": "مربع (1:1)" },
+        { "value": "portrait", "label": "عمودي (3:4)" },
+        { "value": "landscape", "label": "أفقي (4:3)" },
+        { "value": "auto", "label": "تلقائي" }
+      ],
+      "default": "square"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "تفعيل تكبير الصورة",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "استدارة الزوايا",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "عرض كامل",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badges",
+      "label": "إظهار الشارات",
+      "default": true,
+      "info": "شارات التخفيض، جديد، ونفذت الكمية"
+    },
+    {
+      "type": "header",
+      "content": "الألوان"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "نظام الألوان",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "خلفية بطاقة الصورة"
+    },
+    {
+      "type": "header",
+      "content": "التزيين"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "إظهار الأشكال الزخرفية",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "الخط"
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "وزن العنوان",
+      "default": "700",
+      "options": [
+        { "value": "400", "label": "عادي" },
+        { "value": "500", "label": "متوسط" },
+        { "value": "600", "label": "شبه عريض" },
+        { "value": "700", "label": "عريض" },
+        { "value": "800", "label": "عريض جداً" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "الهوامش"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "الهامش العلوي",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "الهامش السفلي",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "المنتج المميز",
+      "blocks": [
+        { "type": "title" },
+        { "type": "vendor" },
+        { "type": "price" },
+        { "type": "description" },
+        { "type": "variant_picker" },
+        { "type": "buy_buttons" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,38 @@
+{%- comment -%}
+  Sallety Theme - Product Media Snippet
+  Renders a product media (image, video, 3D model).
+
+  Accepts:
+  - media: {Object} Product media Liquid object
+
+  Usage:
+  {% render 'product-media', media: media %}
+{%- endcomment -%}
+
+{%- case media.media_type -%}
+  {%- when 'image' -%}
+    <img
+      src="{{ media | image_url: width: 800 }}"
+      alt="{{ media.alt | escape }}"
+      width="800"
+      height="{{ 800 | divided_by: media.aspect_ratio }}"
+      loading="lazy"
+    >
+
+  {%- when 'video' -%}
+    <div class="product-media__video">
+      {{ media | video_tag: autoplay: false, loop: true, controls: true }}
+    </div>
+
+  {%- when 'external_video' -%}
+    <div class="product-media__external-video">
+      {{ media | external_video_tag }}
+    </div>
+
+  {%- when 'model' -%}
+    <div class="product-media__model">
+      {{ media | model_viewer_tag }}
+    </div>
+
+{%- endcase -%}
+

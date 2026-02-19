@@ -1,0 +1,398 @@
+{%- comment -%}
+  Sallety Theme - Search Modal Snippet
+  Renders a premium search modal with predictive search.
+
+  Usage:
+  {% render 'search-modal' %}
+{%- endcomment -%}
+
+<!-- Search Modal Overlay -->
+<div 
+  class="search-modal-overlay fixed inset-0 z-[999] bg-foreground/60 backdrop-blur-sm opacity-0 invisible transition-all duration-300 ease-out"
+  id="search-modal-overlay"
+  data-search-overlay
+></div>
+
+<!-- Search Modal -->
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+<div 
+  class="search-modal fixed inset-x-0 top-0 z-[1000] transform -translate-y-full opacity-0 invisible transition-all duration-300 ease-out"
+  id="search-modal" 
+  dir="{{ section_dir }}"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{ 'general.search.search' | t }}"
+>
+  <div class="bg-background shadow-2xl">
+    <!-- Search Header -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-4 sm:py-6">
+        <!-- Search Form -->
+        <form 
+          action="{{ routes.search_url }}" 
+          method="get" 
+          role="search" 
+          class="relative"
+          data-search-form
+        >
+          <div class="relative flex items-center gap-3 sm:gap-4 flex-row-reverse">
+            <!-- Close Modal Button -->
+            <button 
+              type="button" 
+              class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-border/30 hover:bg-border text-secondary hover:text-foreground transition-all duration-200"
+              data-search-close
+              aria-label="{{ 'accessibility.close' | t }}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            <!-- Clear Button -->
+            <button 
+              type="button" 
+              class="search-modal__clear flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full text-secondary hover:text-foreground hover:bg-border/50 transition-all duration-200 opacity-0 invisible"
+              aria-label="{{ 'general.search.clear' | t }}"
+              data-search-clear
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            <!-- Search Input -->
+            <input
+              type="search"
+              name="q"
+              class="flex-1 w-full text-lg sm:text-xl font-medium bg-transparent border-none outline-none placeholder:text-secondary/60 text-foreground focus:ring-0 p-0 text-right"
+              placeholder="{{ 'general.search.search_placeholder' | t }}"
+              aria-label="{{ 'general.search.search' | t }}"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              dir="{{ section_dir }}"
+              data-predictive-search-input
+            >
+
+            <!-- Search Icon -->
+            <div class="flex-shrink-0 text-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 sm:w-6 sm:h-6">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+          </div>
+
+          <input type="hidden" name="type" value="product,article,page">
+        </form>
+
+        <!-- Search Divider -->
+        <div class="mt-4 sm:mt-6 h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+      </div>
+    </div>
+
+    <!-- Search Results Container -->
+    <div 
+      class="search-modal__results max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 max-h-[60vh] overflow-y-auto overscroll-contain"
+      data-predictive-search-results
+    >
+      <!-- Loading State -->
+      <div class="search-modal__loading hidden py-12 text-center">
+        <div class="inline-flex items-center gap-3 text-secondary">
+          <svg class="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="text-sm font-medium">{{ 'general.search.loading' | t | default: 'جاري البحث...' }}</span>
+        </div>
+      </div>
+
+      <!-- Empty State (shown by default) -->
+      <div class="search-modal__empty py-8 sm:py-12 text-right">
+        <!-- Popular Searches -->
+        <div class="mb-8">
+          <h3 class="text-xs font-semibold text-secondary uppercase tracking-wider mb-4">
+            {{ 'general.search.popular' | t | default: 'عمليات البحث الشائعة' }}
+          </h3>
+          <div class="flex flex-wrap gap-2 flex-row-reverse justify-end">
+            {%- assign popular_searches = 'عطور,ملابس,اكسسوارات,أحذية' | split: ',' -%}
+            {%- for search_term in popular_searches -%}
+              <a 
+                href="{{ routes.search_url }}?q={{ search_term | url_encode }}" 
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-border/30 hover:bg-primary hover:text-white text-sm font-medium text-foreground transition-all duration-200 flex-row-reverse"
+              >
+                {{ search_term }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h3 class="text-xs font-semibold text-secondary uppercase tracking-wider mb-4">
+            {{ 'general.search.quick_links' | t | default: 'روابط سريعة' }}
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <a href="{{ routes.collections_url }}" class="group flex items-center gap-3 p-3 rounded-xl bg-border/20 hover:bg-primary/10 transition-all duration-200 flex-row-reverse text-right">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-primary transition-colors flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-foreground">{{ 'general.search.collections' | t | default: 'المجموعات' }}</span>
+            </a>
+            <a href="{{ routes.all_products_collection_url }}" class="group flex items-center gap-3 p-3 rounded-xl bg-border/20 hover:bg-primary/10 transition-all duration-200 flex-row-reverse text-right">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-primary transition-colors flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-foreground">{{ 'general.search.products' | t | default: 'المنتجات' }}</span>
+            </a>
+            {%- if blogs.size > 0 -%}
+              <a href="{{ blogs.first.url }}" class="group flex items-center gap-3 p-3 rounded-xl bg-border/20 hover:bg-primary/10 transition-all duration-200 flex-row-reverse text-right">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-primary transition-colors flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                  </svg>
+                </div>
+                <span class="text-sm font-medium text-foreground">{{ 'general.search.articles' | t | default: 'المقالات' }}</span>
+              </a>
+            {%- endif -%}
+            <a href="{{ routes.root_url }}pages/contact" class="group flex items-center gap-3 p-3 rounded-xl bg-border/20 hover:bg-primary/10 transition-all duration-200 flex-row-reverse text-right">
+              <div class="w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center text-primary transition-colors flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-foreground">{{ 'general.search.contact' | t | default: 'تواصل معنا' }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results will be injected here via JavaScript -->
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Search Modal Animations */
+  .search-modal.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .search-modal-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Clear button visibility */
+  .search-modal__clear.is-visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Results styling */
+  .search-modal__results::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .search-modal__results::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .search-modal__results::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
+
+  .search-modal__results::-webkit-scrollbar-thumb:hover {
+    background: var(--color-secondary);
+  }
+
+  /* Predictive Search Results Styling */
+  .predictive-search__results-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .predictive-search__result-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .predictive-search__result-group-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-secondary);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .predictive-search__result-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+  }
+
+  .predictive-search__result-item:hover {
+    background-color: rgba(var(--color-primary-rgb, 26, 39, 68), 0.05);
+  }
+
+  .predictive-search__result-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    background-color: var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .predictive-search__result-item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .predictive-search__result-item-title {
+    font-weight: 500;
+    color: var(--color-foreground);
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .predictive-search__result-item-price {
+    font-size: 0.875rem;
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .predictive-search__result-item-vendor {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+  }
+
+  /* No results state */
+  .predictive-search__no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-secondary);
+  }
+
+  .predictive-search__no-results-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    opacity: 0.5;
+  }
+
+  /* View all link */
+  .predictive-search__view-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 0.75rem;
+    background-color: var(--color-primary);
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .predictive-search__view-all:hover {
+    background-color: var(--color-primary-hover, #0f172a);
+    transform: translateY(-1px);
+  }
+
+  /* Loading state */
+  .search-modal__loading.is-visible {
+    display: block;
+  }
+
+  .search-modal__empty.is-hidden {
+    display: none;
+  }
+
+  /* RTL Support */
+  .search-modal[dir="rtl"] {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .search-modal__results {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-group-title {
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-item {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-item-content {
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-item-title {
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-item-price {
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__result-item-vendor {
+    text-align: right;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__no-results {
+    text-align: center;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__view-all {
+    flex-direction: row-reverse;
+  }
+
+  .search-modal[dir="rtl"] .predictive-search__view-all svg {
+    transform: scaleX(-1);
+  }
+
+  /* RTL scrollbar position */
+  .search-modal[dir="rtl"] .search-modal__results::-webkit-scrollbar {
+    left: 0;
+    right: auto;
+  }
+
+  /* RTL divider gradient */
+  .search-modal[dir="rtl"] .bg-gradient-to-r {
+    background: linear-gradient(to left, transparent, var(--color-border), transparent);
+  }
+</style>

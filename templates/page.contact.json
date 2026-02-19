@@ -1,0 +1,66 @@
+{
+  "sections": {
+    "page-banner": {
+      "type": "page-banner",
+      "settings": {
+        "show_banner": true,
+        "banner_height": 280,
+        "overlay_opacity": 45,
+        "banner_title": "تواصل معنا",
+        "banner_subtitle": "نسعد بتواصلك معنا! فريق خدمة العملاء لدينا متاح للإجابة على استفساراتك",
+        "breadcrumb_label": "تواصل معنا",
+        "text_alignment": "center",
+        "show_breadcrumbs": true,
+        "show_wave": true
+      }
+    },
+    "contact-form": {
+      "type": "contact-form",
+      "blocks": {
+        "form": {
+          "type": "contact_form",
+          "settings": {
+            "form_heading": "أرسل لنا رسالة",
+            "show_name_field": true,
+            "show_phone_field": true,
+            "show_subject_field": true,
+            "subject_options": "استفسار عام, طلب دعم فني, اقتراح أو شكوى, استفسار عن الطلبات, أخرى",
+            "button_text": "إرسال الرسالة",
+            "success_message": "شكراً لتواصلك معنا! سنرد عليك في أقرب وقت."
+          }
+        },
+        "details": {
+          "type": "contact_details",
+          "settings": {
+            "details_heading": "معلومات التواصل",
+            "email": "support@sallety-theme.dev",
+            "phone": "+201027706834",
+            "whatsapp": "+201027706834",
+            "address": "المملكة العربية السعودية",
+            "working_hours": "<p><strong>السبت - الخميس:</strong> 9:00 ص - 9:00 م</p><p><strong>الجمعة:</strong> 2:00 م - 9:00 م</p><p><strong>الدعم عبر البريد الإلكتروني:</strong> متاح على مدار الساعة</p>",
+            "show_social_icons": true
+          }
+        }
+      },
+      "block_order": [
+        "form",
+        "details"
+      ],
+      "settings": {
+        "show_heading": false,
+        "heading": "تواصل معنا",
+        "subheading": "نسعد بتواصلك معنا! فريق خدمة العملاء لدينا متاح للإجابة على استفساراتك ومساعدتك في أي وقت.",
+        "layout": "form-right",
+        "color_scheme": "scheme-1",
+        "show_shapes": true,
+        "card_radius": 16,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    }
+  },
+  "order": [
+    "page-banner",
+    "contact-form"
+  ]
+}

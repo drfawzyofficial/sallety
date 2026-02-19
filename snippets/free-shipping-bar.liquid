@@ -1,0 +1,35 @@
+{%- comment -%}
+  Sallety Theme - Free Shipping Bar Snippet
+  Displays a progress bar toward free shipping.
+
+  Usage:
+  {% render 'free-shipping-bar' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign threshold = settings.free_shipping_threshold | times: 100
+  assign cart_total = cart.total_price
+  assign remaining = threshold | minus: cart_total
+  assign percentage = cart_total | times: 100 | divided_by: threshold
+  if percentage > 100
+    assign percentage = 100
+  endif
+-%}
+
+<div class="free-shipping-bar">
+  {%- if cart_total >= threshold -%}
+    <p class="free-shipping-bar__message free-shipping-bar__message--achieved">
+      {% render 'icon-check' %}
+      {{ 'cart.free_shipping.achieved' | t }}
+    </p>
+  {%- else -%}
+    <p class="free-shipping-bar__message">
+      {{ 'cart.free_shipping.remaining_html' | t: remaining: remaining | money }}
+    </p>
+  {%- endif -%}
+  
+  <div class="free-shipping-bar__progress">
+    <div class="free-shipping-bar__fill" style="width: {{ percentage }}%;"></div>
+  </div>
+</div>
+

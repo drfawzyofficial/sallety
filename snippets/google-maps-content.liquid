@@ -1,0 +1,38 @@
+{%- comment -%}
+  Google Maps Content Snippet
+  Renders the heading, subheading, description and location info
+  
+  Parameters:
+  - show_heading: Boolean - Whether to show the heading
+  - section_heading: String - Main heading text
+  - section_subheading: String - Subheading text
+  - section_content: Richtext - Description content
+  - content_alignment: String - Text alignment (start, center, end)
+  - show_location_icon: Boolean - Whether to show location icon with address
+  - map_address: String - Address to display
+{%- endcomment -%}
+
+{%- if show_heading and section_heading != blank -%}
+  <h2 class="gmap-heading">{{ section_heading }}</h2>
+{%- endif -%}
+
+{%- if section_subheading != blank -%}
+  <p class="gmap-subheading">{{ section_subheading }}</p>
+{%- endif -%}
+
+{%- if section_content != blank -%}
+  <div class="gmap-description rte">
+    {{ section_content }}
+  </div>
+{%- endif -%}
+
+{%- if show_location_icon and map_address != blank -%}
+  <div class="gmap-location-info">
+    <svg class="gmap-location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+    <p class="gmap-location-address">{{ map_address }}</p>
+  </div>
+{%- endif -%}
+

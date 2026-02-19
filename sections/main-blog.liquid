@@ -1,0 +1,409 @@
+{%- comment -%}
+  Sallety Theme - Main Blog Section
+  Enhanced blog listing page with full configurability and modern design.
+  Background color: #F9FAFC
+{%- endcomment -%}
+
+{%- liquid
+  # RTL detection
+  assign is_rtl = false
+  assign rtl_languages = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  for rtl_lang in rtl_languages
+    assign rtl_lang_trimmed = rtl_lang | strip
+    if request.locale.iso_code == rtl_lang_trimmed or localization.language.iso_code == rtl_lang_trimmed
+      assign is_rtl = true
+      break
+    endif
+  endfor
+  if settings.enable_rtl
+    assign is_rtl = true
+  endif
+
+  # Layout settings
+  assign posts_per_page = section.settings.posts_per_page | default: 12
+  assign columns_desktop = section.settings.columns_desktop | default: '3'
+  assign columns_mobile = section.settings.columns_mobile | default: '1'
+  assign show_tags = section.settings.show_tags | default: true
+  assign show_description = section.settings.show_description | default: false
+
+  # Color settings
+  assign bg_color = section.settings.background_color | default: '#F9FAFC'
+  assign heading_color = section.settings.heading_color | default: '#1a2744'
+  assign tag_active_bg = section.settings.tag_active_bg | default: '#1a2744'
+  assign tag_active_color = section.settings.tag_active_color | default: '#ffffff'
+
+  # Padding
+  assign padding_top = section.settings.padding_top | default: 60
+  assign padding_bottom = section.settings.padding_bottom | default: 60
+
+  # Grid columns mapping
+  case columns_desktop
+    when '2'
+      assign grid_cols_desktop = 'repeat(2, 1fr)'
+    when '3'
+      assign grid_cols_desktop = 'repeat(3, 1fr)'
+    when '4'
+      assign grid_cols_desktop = 'repeat(4, 1fr)'
+    else
+      assign grid_cols_desktop = 'repeat(3, 1fr)'
+  endcase
+
+  case columns_mobile
+    when '1'
+      assign grid_cols_mobile = '1fr'
+    when '2'
+      assign grid_cols_mobile = 'repeat(2, 1fr)'
+    else
+      assign grid_cols_mobile = '1fr'
+  endcase
+-%}
+
+<style>
+  .main-blog-section {
+    --main-blog-bg: {{ bg_color }};
+    --main-blog-heading-color: {{ heading_color }};
+    --main-blog-tag-active-bg: {{ tag_active_bg }};
+    --main-blog-tag-active-color: {{ tag_active_color }};
+    --main-blog-grid-desktop: {{ grid_cols_desktop }};
+    --main-blog-grid-mobile: {{ grid_cols_mobile }};
+
+    background-color: var(--main-blog-bg);
+    padding-top: {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+  }
+
+  .main-blog__container {
+    width: 100%;
+    max-width: var(--page-width, 1200px);
+    margin: 0 auto;
+    padding-inline: var(--container-padding, 20px);
+    text-align: start;
+  }
+
+  .main-blog__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .main-blog__title {
+    font-size: var(--font-heading-size, 32px);
+    font-weight: var(--font-heading-weight, 700);
+    color: var(--main-blog-heading-color);
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+  }
+
+  .main-blog__description {
+    font-size: 16px;
+    color: #6b7280;
+    max-width: 600px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+  }
+
+  .main-blog__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .main-blog__tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 100px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .main-blog__tag:hover {
+    border-color: var(--main-blog-tag-active-bg);
+    color: var(--main-blog-tag-active-bg);
+  }
+
+  .main-blog__tag.is-active {
+    background-color: var(--main-blog-tag-active-bg);
+    border-color: var(--main-blog-tag-active-bg);
+    color: var(--main-blog-tag-active-color);
+  }
+
+  .main-blog__grid {
+    display: grid;
+    grid-template-columns: var(--main-blog-grid-desktop);
+    gap: var(--grid-gap, 20px);
+  }
+
+  .main-blog__empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    border-radius: var(--border-radius-medium, 8px);
+  }
+
+  .main-blog__empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    color: #9ca3af;
+  }
+
+  .main-blog__empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+  }
+
+  .main-blog__empty-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  /* Pagination styling */
+  .main-blog__pagination {
+    margin-top: 48px;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .main-blog__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main-blog-section {
+      padding-top: {{ padding_top | divided_by: 1.5 | round }}px;
+      padding-bottom: {{ padding_bottom | divided_by: 1.5 | round }}px;
+    }
+
+    .main-blog__header {
+      margin-bottom: 24px;
+    }
+
+    .main-blog__title {
+      font-size: calc(var(--font-heading-size, 32px) * 0.75);
+    }
+
+    .main-blog__tags {
+      gap: 8px;
+    }
+
+    .main-blog__tag {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .main-blog__grid {
+      grid-template-columns: var(--main-blog-grid-mobile);
+      gap: 16px;
+    }
+
+    .main-blog__pagination {
+      margin-top: 32px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-blog__description {
+      font-size: 14px;
+    }
+  }
+</style>
+
+{%- paginate blog.articles by posts_per_page -%}
+  <section
+    class="main-blog-section"
+    data-section-id="{{ section.id }}"
+    data-section-type="main-blog"
+    {% if is_rtl %}
+      dir="rtl"
+    {% else %}
+      dir="ltr"
+    {% endif %}
+  >
+    <div class="main-blog__container">
+      <header class="main-blog__header">
+        <h1 class="main-blog__title">{{ blog.title }}</h1>
+
+        {%- if show_description and blog.metafields.custom.description != blank -%}
+          <p class="main-blog__description">{{ blog.metafields.custom.description }}</p>
+        {%- endif -%}
+
+        {%- if show_tags and blog.all_tags.size > 0 -%}
+          <nav class="main-blog__tags" aria-label="{{ 'blogs.article.tags' | t | default: 'Tags' }}">
+            <a
+              href="{{ blog.url }}"
+              class="main-blog__tag{% unless current_tags %} is-active{% endunless %}"
+            >
+              {{ 'blogs.article.all' | t }}
+            </a>
+            {%- for tag in blog.all_tags -%}
+              <a
+                href="{{ blog.url }}/tagged/{{ tag | handle }}"
+                class="main-blog__tag{% if current_tags contains tag %} is-active{% endif %}"
+              >
+                {{ tag }}
+              </a>
+            {%- endfor -%}
+          </nav>
+        {%- endif -%}
+      </header>
+
+      {%- if blog.articles.size > 0 -%}
+        <div class="main-blog__grid">
+          {%- for article in blog.articles -%}
+            <article class="main-blog__article">
+              {% render 'card-article', article: article %}
+            </article>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="main-blog__pagination">
+            {% render 'pagination', paginate: paginate %}
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        <div class="main-blog__empty">
+          <svg
+            class="main-blog__empty-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <h2 class="main-blog__empty-title">{{ 'blogs.article.no_articles' | t }}</h2>
+          <p class="main-blog__empty-text">
+            {{ 'blogs.sections.blogs.placeholder_excerpt' | t | default: 'Check back later for new articles.' }}
+          </p>
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "t:sections.main_blog.name",
+  "class": "section-main-blog",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.main_blog.settings.layout.header"
+    },
+    {
+      "type": "range",
+      "id": "posts_per_page",
+      "label": "t:sections.main_blog.settings.posts_per_page.label",
+      "default": 12,
+      "min": 6,
+      "max": 24,
+      "step": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "t:sections.main_blog.settings.columns_desktop.label",
+      "default": "3",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:sections.main_blog.settings.columns_mobile.label",
+      "default": "1",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "t:sections.main_blog.settings.show_tags.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "t:sections.main_blog.settings.show_description.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main_blog.settings.colors.header"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.main_blog.settings.background_color.label",
+      "default": "#F9FAFC"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.main_blog.settings.heading_color.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "color",
+      "id": "tag_active_bg",
+      "label": "t:sections.main_blog.settings.tag_active_bg.label",
+      "default": "#1a2744"
+    },
+    {
+      "type": "color",
+      "id": "tag_active_color",
+      "label": "t:sections.main_blog.settings.tag_active_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 60,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    }
+  ]
+}
+{% endschema %}

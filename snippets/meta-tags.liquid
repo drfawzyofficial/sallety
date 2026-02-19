@@ -1,0 +1,61 @@
+{%- comment -%}
+  Sallety Theme - Meta Tags Snippet
+  Renders SEO meta tags.
+
+  Usage:
+  {% render 'meta-tags' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  assign og_description = page_description | default: shop.description | default: shop.name
+  assign og_type = 'website'
+  assign og_image = nil
+  
+  if request.page_type == 'product'
+    assign og_type = 'product'
+    if product.featured_media
+      assign og_image = product.featured_media | image_url: width: 1200
+    endif
+  elsif request.page_type == 'article'
+    assign og_type = 'article'
+    if article.image
+      assign og_image = article.image | image_url: width: 1200
+    endif
+  elsif request.page_type == 'collection'
+    if collection.image
+      assign og_image = collection.image | image_url: width: 1200
+    endif
+  endif
+  
+  if og_image == nil and settings.share_image
+    assign og_image = settings.share_image | image_url: width: 1200
+  endif
+-%}
+
+{%- comment -%} Open Graph tags {%- endcomment -%}
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ og_title }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description | strip_html | truncate: 200 }}">
+{%- if og_image -%}
+  <meta property="og:image" content="https:{{ og_image }}">
+  <meta property="og:image:secure_url" content="https:{{ og_image }}">
+{%- endif -%}
+
+{%- comment -%} Twitter Card tags {%- endcomment -%}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_description | strip_html | truncate: 200 }}">
+{%- if og_image -%}
+  <meta name="twitter:image" content="https:{{ og_image }}">
+{%- endif -%}
+
+{%- comment -%} Product specific meta {%- endcomment -%}
+{%- if request.page_type == 'product' -%}
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency }}">
+  <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  <meta property="product:availability" content="{{ product.available | json }}">
+{%- endif -%}
+

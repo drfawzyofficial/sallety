@@ -1,0 +1,392 @@
+{%- comment -%}
+  Floating Action Button (FAB) Menu - Desktop
+  Mobile Bottom Navigation Bar with Dynamic Blocks
+  Uses global button settings from theme customizer
+{%- endcomment -%}
+
+{%- if settings.enable_floating_menu -%}
+{%- liquid
+  # Check current page for active state
+  assign current_path = request.path
+-%}
+
+<!-- Mobile Bottom Navigation (Hidden on Desktop) -->
+<nav 
+  class="mobile-bottom-nav" 
+  id="mobileBottomNav"
+  aria-label="التنقل السريع"
+>
+  {%- comment -%} Dynamic Nav Items - Order: Cart, Search, Account, Home (RTL) {%- endcomment -%}
+  
+  {%- # Cart Item -%}
+  {%- if settings.mobile_nav_show_cart != false -%}
+    {%- assign is_cart_active = false -%}
+    {%- if current_path == '/cart' -%}
+      {%- assign is_cart_active = true -%}
+    {%- endif -%}
+    <a 
+      href="{{ routes.cart_url }}" 
+      class="mobile-nav-item{% if is_cart_active %} is-active{% endif %}" 
+      aria-label="{{ settings.mobile_nav_cart_label | default: 'سلة التسوق' }}"
+      data-nav-type="cart"
+    >
+      <div class="mobile-nav-icon-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 6h15l-1.5 9h-12z"/>
+          <circle cx="9" cy="20" r="1.5" fill="currentColor"/>
+          <circle cx="17" cy="20" r="1.5" fill="currentColor"/>
+          <path d="M3 3h3l1 3"/>
+        </svg>
+        {%- if cart.item_count > 0 -%}
+          <span class="mobile-nav-badge">{{ cart.item_count }}</span>
+        {%- endif -%}
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_cart_label | default: 'السلة' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+
+  {%- # Search Item -%}
+  {%- if settings.mobile_nav_show_search != false -%}
+    {%- assign is_search_active = false -%}
+    {%- if current_path contains '/search' -%}
+      {%- assign is_search_active = true -%}
+    {%- endif -%}
+    <a 
+      href="{{ routes.search_url }}" 
+      class="mobile-nav-item{% if is_search_active %} is-active{% endif %}" 
+      aria-label="{{ settings.mobile_nav_search_label | default: 'البحث' }}"
+      data-nav-type="search"
+    >
+      <div class="mobile-nav-icon-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_search_label | default: 'البحث' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+
+  {%- # Account Item -%}
+  {%- if settings.mobile_nav_show_account != false -%}
+    {%- assign is_account_active = false -%}
+    {%- if current_path contains '/account' -%}
+      {%- assign is_account_active = true -%}
+    {%- endif -%}
+    <a 
+      href="{{ routes.account_url }}"
+      class="mobile-nav-item{% if is_account_active %} is-active{% endif %}" 
+      aria-label="{{ settings.mobile_nav_account_label | default: 'حسابي' }}"
+      data-nav-type="account"
+    >
+      <div class="mobile-nav-icon-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+        </svg>
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_account_label | default: 'حسابي' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+
+  {%- # Home Item -%}
+  {%- if settings.mobile_nav_show_home != false -%}
+    {%- assign is_home_active = false -%}
+    {%- if current_path == '/' -%}
+      {%- assign is_home_active = true -%}
+    {%- endif -%}
+    <a 
+      href="{{ routes.root_url }}" 
+      class="mobile-nav-item mobile-nav-item--home{% if is_home_active %} is-active{% endif %}" 
+      aria-label="{{ settings.mobile_nav_home_label | default: 'الرئيسية' }}"
+      data-nav-type="home"
+    >
+      <div class="mobile-nav-icon-wrapper mobile-nav-icon--home">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.97 2.59a1.5 1.5 0 0 0-1.94 0l-7.5 6.363A1.5 1.5 0 0 0 3 10.097V19.5A1.5 1.5 0 0 0 4.5 21h4.75a.75.75 0 0 0 .75-.75V14h4v6.25c0 .414.336.75.75.75h4.75a1.5 1.5 0 0 0 1.5-1.5v-9.403a1.5 1.5 0 0 0-.53-1.144l-7.5-6.363Z"/>
+        </svg>
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_home_label | default: 'الرئيسية' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+
+  {%- # Custom Link 1 -%}
+  {%- if settings.mobile_nav_custom_1_url != blank -%}
+    <a 
+      href="{{ settings.mobile_nav_custom_1_url }}" 
+      class="mobile-nav-item" 
+      aria-label="{{ settings.mobile_nav_custom_1_label | default: 'رابط مخصص' }}"
+      data-nav-type="custom"
+    >
+      <div class="mobile-nav-icon-wrapper">
+        {%- if settings.mobile_nav_custom_1_icon == 'heart' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_1_icon == 'star' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_1_icon == 'gift' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="20 12 20 22 4 22 4 12"/>
+            <rect x="2" y="7" width="20" height="5"/>
+            <line x1="12" y1="22" x2="12" y2="7"/>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_1_icon == 'tag' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_1_icon == 'phone' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        {%- else -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        {%- endif -%}
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_custom_1_label | default: 'رابط' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+
+  {%- # Custom Link 2 -%}
+  {%- if settings.mobile_nav_custom_2_url != blank -%}
+    <a 
+      href="{{ settings.mobile_nav_custom_2_url }}" 
+      class="mobile-nav-item" 
+      aria-label="{{ settings.mobile_nav_custom_2_label | default: 'رابط مخصص' }}"
+      data-nav-type="custom"
+    >
+      <div class="mobile-nav-icon-wrapper">
+        {%- if settings.mobile_nav_custom_2_icon == 'heart' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_2_icon == 'star' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_2_icon == 'gift' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polyline points="20 12 20 22 4 22 4 12"/>
+            <rect x="2" y="7" width="20" height="5"/>
+            <line x1="12" y1="22" x2="12" y2="7"/>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_2_icon == 'tag' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+        {%- elsif settings.mobile_nav_custom_2_icon == 'phone' -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        {%- else -%}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        {%- endif -%}
+      </div>
+      {%- if settings.mobile_nav_show_labels -%}
+        <span class="mobile-nav-label">{{ settings.mobile_nav_custom_2_label | default: 'رابط' }}</span>
+      {%- endif -%}
+    </a>
+  {%- endif -%}
+</nav>
+
+<style>
+  /* ================================
+     Mobile Bottom Navigation
+     Uses global button settings
+     ================================ */
+  
+  .mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--button-primary-bg, #1a2744);
+    z-index: 1000;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    /* Border Radius on Top Corners */
+    border-radius: var(--button-border-radius, 24px) var(--button-border-radius, 24px) 0 0;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--button-primary-text, #ffffff);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: calc(var(--button-border-radius, 8px) * 1.5);
+    transition: all var(--button-transition-duration, 300ms) ease;
+    position: relative;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    gap: 4px;
+    font-family: var(--font-body-family);
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+  }
+
+  /* Active State */
+  .mobile-nav-item.is-active {
+    color: var(--button-primary-text-hover, #ffffff);
+  }
+
+  .mobile-nav-item.is-active .mobile-nav-icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 4px;
+  }
+
+  .mobile-nav-icon-wrapper {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--button-transition-duration, 300ms) ease;
+  }
+
+  .mobile-nav-icon-wrapper svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  /* Nav Label */
+  .mobile-nav-label {
+    font-size: 10px;
+    font-weight: var(--button-font-weight, 500);
+    opacity: 0.9;
+    white-space: nowrap;
+  }
+
+  /* Home Button - Special Styling */
+  .mobile-nav-item--home {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: calc(var(--button-border-radius, 8px) * 2);
+    padding: 12px 20px;
+  }
+
+  .mobile-nav-item--home.is-active {
+    background: var(--button-primary-text, #ffffff);
+    color: var(--button-primary-bg, #1a2744);
+  }
+
+  .mobile-nav-icon--home svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Badge for Cart */
+  .mobile-nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    background: var(--input-error-border, #ef4444);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: var(--button-font-weight, 600);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    line-height: 1;
+  }
+
+  /* ================================
+     Responsive - Hide/Show
+     ================================ */
+  
+  @media (max-width: 768px) {
+    .mobile-bottom-nav {
+      display: flex;
+    }
+
+    body {
+      padding-bottom: 80px;
+    }
+
+    .back-to-top {
+      bottom: 100px !important;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-bottom-nav {
+      display: none !important;
+    }
+  }
+
+  /* ================================
+     Reduced Motion
+     ================================ */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-item {
+      transition: none !important;
+    }
+  }
+
+  @media print {
+    .mobile-bottom-nav {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('cart:updated', function(e) {
+      const cartCounts = document.querySelectorAll('.mobile-nav-badge');
+      cartCounts.forEach(function(cartCount) {
+        if (e.detail && e.detail.itemCount !== undefined) {
+          if (e.detail.itemCount > 0) {
+            cartCount.textContent = e.detail.itemCount;
+            cartCount.style.display = 'flex';
+          } else {
+            cartCount.style.display = 'none';
+          }
+        }
+      });
+    });
+  });
+</script>
+{%- endif -%}
