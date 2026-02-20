@@ -7,15 +7,15 @@
 {%- liquid
   # Color scheme class (uses CSS classes from theme.liquid)
   assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
-  
+
   # Typography - Responsive sizes
   assign heading_size_desktop = section.settings.heading_size_desktop | default: 28
   assign heading_size_tablet = section.settings.heading_size_tablet | default: 24
   assign heading_size_mobile = section.settings.heading_size_mobile | default: 20
-  
+
   # Typography - Weights
   assign heading_weight = section.settings.heading_weight | default: '600'
-  
+
   # Section settings
   assign image_1 = section.settings.image_1
   assign image_2 = section.settings.image_2
@@ -32,10 +32,10 @@
   assign border_radius = section.settings.border_radius | default: 16
   assign padding_top = section.settings.padding_top | default: 40
   assign padding_bottom = section.settings.padding_bottom | default: 40
-  
+
   # Calculate overlay
   assign overlay_decimal = overlay_opacity | divided_by: 100.0
-  
+
   # Layout ratios
   case layout_ratio
     when '50-50'
@@ -57,9 +57,9 @@
 -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
-<section 
-  class="banner-two-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
-  dir="{{ section_dir }}" 
+<section
+  class="banner-two-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
   style="
     --two-banner-text: {{ text_color_override }};
     --two-banner-overlay: {{ overlay_decimal }};
@@ -77,55 +77,69 @@
 >
   <!-- Decorative Parallax Shapes -->
   {%- if show_shapes -%}
-    {% render 'decorative-shapes', accent_color: accent_color, text_color: text_color, prefix: 'twobanner' %}
+    {% render 'decorative-shapes', prefix: 'twobanner' %}
   {%- endif -%}
 
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-5 lg:gap-6" style="gap: var(--two-banner-gap);">
-      
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-5 lg:gap-6"
+      style="gap: var(--two-banner-gap);"
+    >
       <!-- Image 1 -->
       <div class="col-span-1 sm:col-span-1 {{ col_1_class }} animate-on-scroll aos-fade-right">
-        <div class="two-banner-item relative rounded-xl overflow-hidden" style="border-radius: var(--two-banner-radius);">
+        <div
+          class="two-banner-item relative rounded-xl overflow-hidden"
+          style="border-radius: var(--two-banner-radius);"
+        >
           {%- if link_1 != blank -%}
             <a href="{{ link_1 }}" class="two-banner-link block">
           {%- endif -%}
 
-            <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
-              {%- if image_1 != blank -%}
-                <img 
-                  src="{{ image_1 | image_url: width: 1200 }}"
-                  srcset="
-                    {{ image_1 | image_url: width: 400 }} 400w,
-                    {{ image_1 | image_url: width: 800 }} 800w,
-                    {{ image_1 | image_url: width: 1200 }} 1200w
-                  "
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  alt="{{ image_1.alt | default: heading_1 | default: 'Banner image 1' }}"
-                  class="two-banner-image w-full h-full object-cover"
-                  loading="lazy"
-                  width="{{ image_1.width }}"
-                  height="{{ image_1.height }}"
+          <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
+            {%- if image_1 != blank -%}
+              <img
+                src="{{ image_1 | image_url: width: 1200 }}"
+                srcset="
+                  {{ image_1 | image_url: width: 400 }} 400w,
+                  {{ image_1 | image_url: width: 800 }} 800w,
+                  {{ image_1 | image_url: width: 1200 }} 1200w
+                "
+                sizes="(max-width: 640px) 100vw, 50vw"
+                alt="{{ image_1.alt | default: heading_1 | default: 'Banner image 1' }}"
+                class="two-banner-image w-full h-full object-cover"
+                loading="lazy"
+                width="{{ image_1.width }}"
+                height="{{ image_1.height }}"
+              >
+            {%- else -%}
+              <div
+                class="banner-placeholder w-full h-full flex items-center justify-center"
+                style="background-color: #f3f4f6; min-height: 200px;"
+              >
+                {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {%- endif -%}
+
+            <!-- Overlay -->
+            {%- if overlay_opacity > 0 -%}
+              <div
+                class="two-banner-overlay absolute inset-0"
+                style="background: rgba(0, 0, 0, var(--two-banner-overlay));"
+              ></div>
+            {%- endif -%}
+
+            <!-- Heading -->
+            {%- if heading_1 != blank -%}
+              <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
+                <h2
+                  class="two-banner-heading m-0"
+                  style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);"
                 >
-              {%- else -%}
-                <div class="banner-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 200px;">
-                  {{ 'collection-2' | placeholder_svg_tag: 'placeholder-svg' }}
-                </div>
-              {%- endif -%}
-
-              <!-- Overlay -->
-              {%- if overlay_opacity > 0 -%}
-                <div class="two-banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--two-banner-overlay));"></div>
-              {%- endif -%}
-
-              <!-- Heading -->
-              {%- if heading_1 != blank -%}
-                <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
-                  <h3 class="two-banner-heading m-0" style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);">
-                    {{ heading_1 }}
-                  </h3>
-                </div>
-              {%- endif -%}
-            </div>
+                  {{ heading_1 }}
+                </h2>
+              </div>
+            {%- endif -%}
+          </div>
 
           {%- if link_1 != blank -%}
             </a>
@@ -135,54 +149,65 @@
 
       <!-- Image 2 -->
       <div class="col-span-1 sm:col-span-1 {{ col_2_class }} animate-on-scroll aos-fade-left" data-aos-delay="150">
-        <div class="two-banner-item relative rounded-xl overflow-hidden" style="border-radius: var(--two-banner-radius);">
+        <div
+          class="two-banner-item relative rounded-xl overflow-hidden"
+          style="border-radius: var(--two-banner-radius);"
+        >
           {%- if link_2 != blank -%}
             <a href="{{ link_2 }}" class="two-banner-link block">
           {%- endif -%}
 
-            <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
-              {%- if image_2 != blank -%}
-                <img 
-                  src="{{ image_2 | image_url: width: 1200 }}"
-                  srcset="
-                    {{ image_2 | image_url: width: 400 }} 400w,
-                    {{ image_2 | image_url: width: 800 }} 800w,
-                    {{ image_2 | image_url: width: 1200 }} 1200w
-                  "
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  alt="{{ image_2.alt | default: heading_2 | default: 'Banner image 2' }}"
-                  class="two-banner-image w-full h-full object-cover"
-                  loading="lazy"
-                  width="{{ image_2.width }}"
-                  height="{{ image_2.height }}"
+          <div class="two-banner-wrapper" style="height: var(--two-banner-height);">
+            {%- if image_2 != blank -%}
+              <img
+                src="{{ image_2 | image_url: width: 1200 }}"
+                srcset="
+                  {{ image_2 | image_url: width: 400 }} 400w,
+                  {{ image_2 | image_url: width: 800 }} 800w,
+                  {{ image_2 | image_url: width: 1200 }} 1200w
+                "
+                sizes="(max-width: 640px) 100vw, 50vw"
+                alt="{{ image_2.alt | default: heading_2 | default: 'Banner image 2' }}"
+                class="two-banner-image w-full h-full object-cover"
+                loading="lazy"
+                width="{{ image_2.width }}"
+                height="{{ image_2.height }}"
+              >
+            {%- else -%}
+              <div
+                class="banner-placeholder w-full h-full flex items-center justify-center"
+                style="background-color: #f3f4f6; min-height: 200px;"
+              >
+                {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {%- endif -%}
+
+            <!-- Overlay -->
+            {%- if overlay_opacity > 0 -%}
+              <div
+                class="two-banner-overlay absolute inset-0"
+                style="background: rgba(0, 0, 0, var(--two-banner-overlay));"
+              ></div>
+            {%- endif -%}
+
+            <!-- Heading -->
+            {%- if heading_2 != blank -%}
+              <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
+                <h2
+                  class="two-banner-heading m-0"
+                  style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);"
                 >
-              {%- else -%}
-                <div class="banner-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 200px;">
-                  {{ 'collection-3' | placeholder_svg_tag: 'placeholder-svg' }}
-                </div>
-              {%- endif -%}
-
-              <!-- Overlay -->
-              {%- if overlay_opacity > 0 -%}
-                <div class="two-banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--two-banner-overlay));"></div>
-              {%- endif -%}
-
-              <!-- Heading -->
-              {%- if heading_2 != blank -%}
-                <div class="two-banner-content absolute inset-0 flex items-end justify-start p-5 sm:p-6">
-                  <h3 class="two-banner-heading m-0" style="color: var(--two-banner-text); font-weight: var(--two-banner-heading-weight);">
-                    {{ heading_2 }}
-                  </h3>
-                </div>
-              {%- endif -%}
-            </div>
+                  {{ heading_2 }}
+                </h2>
+              </div>
+            {%- endif -%}
+          </div>
 
           {%- if link_2 != blank -%}
             </a>
           {%- endif -%}
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -269,6 +294,9 @@
   "name": "t:sections.banner_two_images.name",
   "tag": "section",
   "class": "section-banner-two-images",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
     {
       "type": "color_scheme",
@@ -515,4 +543,3 @@
   ]
 }
 {% endschema %}
-

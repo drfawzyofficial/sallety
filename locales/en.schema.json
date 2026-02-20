@@ -1044,12 +1044,15 @@
     "footer": {
       "name": "الفوتر",
       "settings": {
-        "header": {
-          "content": "الإعدادات"
+        "header_logo": {
+          "content": "الشعار والمعلومات"
         },
         "logo": {
           "label": "الشعار",
           "info": "يُعرض في أعلى الفوتر"
+        },
+        "logo_width": {
+          "label": "عرض الشعار"
         },
         "store_name": {
           "label": "اسم المتجر",
@@ -1062,12 +1065,25 @@
           "label": "رابط المتجر",
           "info": "الرابط عند الضغط على الشعار"
         },
+        "header_links": {
+          "content": "الروابط والقوائم"
+        },
         "links_title": {
           "label": "عنوان الروابط"
         },
         "footer_menu": {
           "label": "قائمة الروابط",
           "info": "اختر قائمة من التنقل"
+        },
+        "second_links_title": {
+          "label": "عنوان القائمة الثانية"
+        },
+        "second_menu": {
+          "label": "القائمة الثانية",
+          "info": "اختر قائمة ثانية من التنقل"
+        },
+        "header_contact": {
+          "content": "معلومات التواصل"
         },
         "contact_title": {
           "label": "عنوان التواصل"
@@ -1084,13 +1100,28 @@
           "label": "البريد الإلكتروني",
           "placeholder": "email@example.com"
         },
+        "whatsapp_contact": {
+          "label": "رقم الواتساب",
+          "placeholder": "+966501234567"
+        },
         "telegram": {
           "label": "حساب تيليجرام",
           "placeholder": "username"
         },
+        "address": {
+          "label": "العنوان",
+          "placeholder": "أدخل عنوان المتجر"
+        },
+        "working_hours": {
+          "label": "ساعات العمل",
+          "placeholder": "مثال: 9 صباحاً - 9 مساءً"
+        },
         "show_social_icons": {
           "label": "إظهار أيقونات التواصل الاجتماعي",
           "info": "تُعرض الروابط المُعدّة في إعدادات القالب"
+        },
+        "header_newsletter": {
+          "content": "النشرة البريدية"
         },
         "show_newsletter": {
           "label": "إظهار النشرة البريدية"
@@ -1103,6 +1134,9 @@
         },
         "newsletter_button": {
           "label": "نص زر الاشتراك"
+        },
+        "header_app": {
+          "content": "قسم التطبيق"
         },
         "show_app_section": {
           "label": "إظهار قسم التطبيق"
@@ -1122,21 +1156,47 @@
           "label": "إظهار شارة التطبيق",
           "info": "إظهار شارة متوفر على المتجر"
         },
+        "header_trust": {
+          "content": "التوثيق والثقة"
+        },
         "show_saudi_auth": {
           "label": "إظهار شعار التوثيق السعودي",
           "info": "شعار هيئة الاتصالات وتقنية المعلومات"
+        },
+        "maroof_image": {
+          "label": "صورة شعار التوثيق",
+          "info": "صورة مخصصة لشعار التوثيق (اختياري)"
         },
         "saudi_auth_url": {
           "label": "رابط صفحة التوثيق",
           "info": "رابط صفحة التوثيق الرسمية"
         },
+        "saudi_auth_text": {
+          "label": "نص التوثيق"
+        },
+        "header_localization": {
+          "content": "اللغة والعملة"
+        },
         "show_localization": {
           "label": "إظهار خيارات اللغة والعملة",
           "info": "إظهار محدد اللغة والعملة في الفوتر"
         },
+        "header_bottom": {
+          "content": "أسفل الفوتر"
+        },
+        "show_copyright": {
+          "label": "إظهار حقوق النشر"
+        },
         "copyright_text": {
           "label": "نص حقوق النشر",
           "info": "يظهر في أسفل الفوتر"
+        },
+        "show_payment_icons": {
+          "label": "إظهار أيقونات الدفع",
+          "info": "إظهار أيقونات وسائل الدفع المفعّلة"
+        },
+        "header_design": {
+          "content": "التصميم والمظهر"
         },
         "show_parallax_shapes": {
           "label": "إظهار الأشكال الزخرفية"
@@ -1147,11 +1207,23 @@
         "footer_newsletter_bg": {
           "label": "لون خلفية النشرة البريدية"
         },
+        "padding_top": {
+          "label": "الهامش العلوي"
+        },
+        "padding_bottom": {
+          "label": "الهامش السفلي"
+        },
+        "header_typography_desktop": {
+          "content": "الخطوط - سطح المكتب"
+        },
         "heading_size_desktop": {
           "label": "حجم العنوان (الكمبيوتر)"
         },
         "body_size_desktop": {
           "label": "حجم النص (الكمبيوتر)"
+        },
+        "header_typography_tablet": {
+          "content": "الخطوط - التابلت"
         },
         "heading_size_tablet": {
           "label": "حجم العنوان (التابلت)"
@@ -1159,11 +1231,17 @@
         "body_size_tablet": {
           "label": "حجم النص (التابلت)"
         },
+        "header_typography_mobile": {
+          "content": "الخطوط - الجوال"
+        },
         "heading_size_mobile": {
           "label": "حجم العنوان (الجوال)"
         },
         "body_size_mobile": {
           "label": "حجم النص (الجوال)"
+        },
+        "header_font_weight": {
+          "content": "وزن الخطوط"
         },
         "footer_heading_weight": {
           "label": "وزن خط العناوين",
@@ -2025,11 +2103,23 @@
     "image_banner": {
       "name": "بانر صورة",
       "settings": {
+        "color_scheme": {
+          "label": "نظام الألوان"
+        },
+        "headers": {
+          "image": "الصورة",
+          "content": "المحتوى",
+          "button": "الزر",
+          "overlay": "طبقة التعتيم والرابط"
+        },
         "image": {
           "label": "الصورة"
         },
-        "image_overlay_opacity": {
-          "label": "شفافية طبقة التعتيم"
+        "image_height": {
+          "label": "ارتفاع الصورة"
+        },
+        "full_width": {
+          "label": "عرض كامل"
         },
         "heading": {
           "label": "العنوان"
@@ -2037,11 +2127,55 @@
         "text": {
           "label": "النص"
         },
+        "text_color": {
+          "label": "لون النص"
+        },
+        "text_position": {
+          "label": "موضع النص",
+          "options": {
+            "start-start": "أعلى بداية",
+            "start-center": "أعلى وسط",
+            "start-end": "أعلى نهاية",
+            "center-start": "وسط بداية",
+            "center-center": "وسط",
+            "center-end": "وسط نهاية",
+            "end-start": "أسفل بداية",
+            "end-center": "أسفل وسط",
+            "end-end": "أسفل نهاية"
+          }
+        },
+        "content_width": {
+          "label": "عرض المحتوى",
+          "options": {
+            "small": "صغير",
+            "medium": "متوسط",
+            "large": "كبير",
+            "full": "كامل"
+          }
+        },
         "button_label": {
           "label": "نص الزر"
         },
         "button_link": {
           "label": "رابط الزر"
+        },
+        "button_style": {
+          "label": "نمط الزر",
+          "options": {
+            "primary": "أساسي",
+            "secondary": "ثانوي",
+            "outline": "محدد"
+          }
+        },
+        "link": {
+          "label": "رابط القسم",
+          "info": "جعل البانر بأكمله قابل للنقر"
+        },
+        "image_overlay_opacity": {
+          "label": "شفافية طبقة التعتيم"
+        },
+        "show_shapes": {
+          "label": "إظهار الأشكال الزخرفية"
         }
       }
     },
@@ -2410,6 +2544,9 @@
         "name": "بانر ترويجي"
       },
       "settings": {
+        "color_scheme": {
+          "label": "نظام الألوان"
+        },
         "layout": {
           "header": "التخطيط"
         },

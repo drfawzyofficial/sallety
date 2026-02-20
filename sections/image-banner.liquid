@@ -1,47 +1,384 @@
 {%- comment -%}
   Sallety Theme - Image Banner Section
-  Add your custom image banner design here.
+  Full-width or contained image banner with overlay, heading, text, and CTA button.
+  Supports RTL/LTR, color schemes, and responsive design.
 {%- endcomment -%}
 
-<section class="image-banner section" data-section-id="{{ section.id }}" data-section-type="image-banner">
-  <div class="image-banner__container{% if section.settings.full_width %} image-banner--full-width{% endif %}">
-    <div class="image-banner__image">
-      {%- if section.settings.image != blank -%}
-        <img
-          src="{{ section.settings.image | image_url: width: 1920 }}"
-          alt="{{ section.settings.heading | escape }}"
-          width="1920"
-          height="{{ 1920 | divided_by: section.settings.image.aspect_ratio }}"
-          loading="lazy"
-        >
-      {%- else -%}
-        {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+{%- liquid
+  assign image = section.settings.image
+  assign heading = section.settings.heading
+  assign text = section.settings.text
+  assign button_label = section.settings.button_label
+  assign button_link = section.settings.button_link
+  assign button_style = section.settings.button_style | default: 'primary'
+  assign full_width = section.settings.full_width
+  assign overlay_opacity = section.settings.overlay_opacity | default: 30
+  assign overlay_decimal = overlay_opacity | divided_by: 100.0
+  assign image_height = section.settings.image_height | default: 500
+  assign text_position = section.settings.text_position | default: 'center-center'
+  assign text_color = section.settings.text_color | default: '#ffffff'
+  assign content_width = section.settings.content_width | default: 'medium'
+  assign show_shapes = section.settings.show_shapes
+  assign padding_top = section.settings.padding_top | default: 0
+  assign padding_bottom = section.settings.padding_bottom | default: 0
+
+  assign position_parts = text_position | split: '-'
+  assign v_position = position_parts[0] | default: 'center'
+  assign h_position = position_parts[1] | default: 'center'
+-%}
+
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+{%- style -%}
+  #ImageBanner-{{ section.id }} {
+    --ib-height: {{ image_height }}px;
+    --ib-overlay: {{ overlay_decimal }};
+    --ib-text-color: {{ text_color }};
+    --ib-padding-top: {{ padding_top | times: 0.75 | round: 0 }}px;
+    --ib-padding-bottom: {{ padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 768px) {
+    #ImageBanner-{{ section.id }} {
+      --ib-padding-top: {{ padding_top }}px;
+      --ib-padding-bottom: {{ padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section
+  id="ImageBanner-{{ section.id }}"
+  class="ib-section color-{{ section.settings.color_scheme }}"
+  dir="{{ section_dir }}"
+  style="padding-top: var(--ib-padding-top); padding-bottom: var(--ib-padding-bottom);"
+>
+  {%- if show_shapes -%}
+    {% render 'decorative-shapes', prefix: 'ib' %}
+  {%- endif -%}
+
+  <div class="{% unless full_width %}max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16{% endunless %} relative z-10">
+    <div class="ib-container {% unless full_width %}rounded-2xl{% endunless %} overflow-hidden relative">
+      {%- if section.settings.link != blank -%}
+        <a href="{{ section.settings.link }}" class="ib-link block">
       {%- endif -%}
-    </div>
-    
-    <div class="image-banner__overlay" style="opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"></div>
-    
-    <div class="image-banner__content">
-      {%- if section.settings.heading != blank -%}
-        <h2 class="image-banner__heading">{{ section.settings.heading }}</h2>
-      {%- endif -%}
-      {%- if section.settings.text != blank -%}
-        <p class="image-banner__text">{{ section.settings.text }}</p>
-      {%- endif -%}
-      {%- if section.settings.button_label != blank -%}
-        <a href="{{ section.settings.button_link }}" class="image-banner__button button button--primary">
-          {{ section.settings.button_label }}
+
+      <div class="ib-wrapper" style="height: var(--ib-height);">
+        {%- if image != blank -%}
+          <img
+            src="{{ image | image_url: width: 1920 }}"
+            srcset="
+              {{ image | image_url: width: 640 }} 640w,
+              {{ image | image_url: width: 1024 }} 1024w,
+              {{ image | image_url: width: 1440 }} 1440w,
+              {{ image | image_url: width: 1920 }} 1920w
+            "
+            sizes="100vw"
+            alt="{{ image.alt | default: heading | escape }}"
+            class="ib-image"
+            loading="lazy"
+            width="{{ image.width }}"
+            height="{{ image.height }}"
+          >
+        {%- else -%}
+          <div class="ib-placeholder">
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'ib-placeholder-svg' }}
+          </div>
+        {%- endif -%}
+
+        {%- if overlay_opacity > 0 -%}
+          <div class="ib-overlay" style="opacity: var(--ib-overlay);"></div>
+        {%- endif -%}
+
+        {%- if heading != blank or text != blank or button_label != blank -%}
+          <div class="ib-content ib-content--v-{{ v_position }} ib-content--h-{{ h_position }}">
+            <div class="ib-content__inner ib-content__inner--{{ content_width }}" style="color: var(--ib-text-color);">
+              {%- if heading != blank -%}
+                <h2 class="ib-heading">{{ heading }}</h2>
+              {%- endif -%}
+
+              {%- if text != blank -%}
+                <p class="ib-text">{{ text }}</p>
+              {%- endif -%}
+
+              {%- if button_label != blank -%}
+                <a
+                  href="{{ button_link | default: '#' }}"
+                  class="ib-btn ib-btn--{{ button_style }}"
+                  {% if button_link == blank %}
+                    aria-disabled="true"
+                  {% endif %}
+                >
+                  <span>{{ button_label }}</span>
+                  <svg
+                    class="ib-btn__arrow"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.link != blank -%}
         </a>
       {%- endif -%}
     </div>
   </div>
 </section>
 
+<style>
+  /* ===== Image Banner Section ===== */
+  .ib-section {
+    position: relative;
+  }
+
+  .ib-container {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  .ib-link {
+    text-decoration: none;
+    display: block;
+  }
+
+  .ib-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Image */
+  .ib-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .ib-link:hover .ib-image {
+    transform: scale(1.05);
+  }
+
+  /* Placeholder */
+  .ib-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e5e7eb;
+  }
+
+  .ib-placeholder-svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    color: #9ca3af;
+  }
+
+  /* Overlay */
+  .ib-overlay {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Content Positioning */
+  .ib-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: 20px 16px;
+    z-index: 5;
+  }
+
+  @media screen and (min-width: 640px) {
+    .ib-content {
+      padding: 28px 32px;
+    }
+  }
+  @media screen and (min-width: 768px) {
+    .ib-content {
+      padding: 40px 48px;
+    }
+  }
+
+  /* Vertical */
+  .ib-content--v-start {
+    align-items: flex-start;
+  }
+  .ib-content--v-center {
+    align-items: center;
+  }
+  .ib-content--v-end {
+    align-items: flex-end;
+  }
+
+  /* Horizontal */
+  .ib-content--h-start {
+    justify-content: flex-start;
+    text-align: start;
+  }
+  .ib-content--h-center {
+    justify-content: center;
+    text-align: center;
+  }
+  .ib-content--h-end {
+    justify-content: flex-end;
+    text-align: end;
+  }
+
+  /* Content inner widths */
+  .ib-content__inner {
+    position: relative;
+  }
+  .ib-content__inner--small {
+    max-width: 400px;
+  }
+  .ib-content__inner--medium {
+    max-width: 560px;
+  }
+  .ib-content__inner--large {
+    max-width: 720px;
+  }
+  .ib-content__inner--full {
+    max-width: 100%;
+  }
+
+  /* Heading */
+  .ib-heading {
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    font-size: clamp(1.5rem, 5vw, 2.75rem);
+  }
+
+  /* Text */
+  .ib-text {
+    margin: 0 0 24px;
+    line-height: 1.7;
+    opacity: 0.9;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+  }
+  .ib-content--h-center .ib-text {
+    margin-inline: auto;
+  }
+  .ib-content--h-end .ib-text {
+    margin-inline-start: auto;
+  }
+
+  /* Buttons — using color scheme variables */
+  .ib-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    padding: 12px 28px;
+    border-radius: var(--button-border-radius, 12px);
+    font-size: 0.95rem;
+  }
+
+  .ib-btn--primary {
+    background: var(--color-button, #fff);
+    color: var(--color-button-label, #1a2744);
+    border-color: var(--color-button, #fff);
+  }
+  .ib-btn--primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .ib-btn--secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .ib-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .ib-btn--outline {
+    background: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  .ib-btn--outline:hover {
+    background: #ffffff;
+    color: #1a2744;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* RTL arrow flip */
+  [dir='rtl'] .ib-btn__arrow {
+    transform: scaleX(-1);
+  }
+
+  /* Responsive heights */
+  @media (max-width: 1023px) {
+    .ib-wrapper {
+      height: calc(var(--ib-height) * 0.8) !important;
+    }
+  }
+  @media (max-width: 767px) {
+    .ib-wrapper {
+      height: calc(var(--ib-height) * 0.6) !important;
+      min-height: 280px;
+    }
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    .ib-image {
+      transition: none;
+    }
+    .ib-link:hover .ib-image {
+      transform: none;
+    }
+  }
+</style>
+
 {% schema %}
 {
   "name": "t:sections.image_banner.name",
+  "tag": "section",
   "class": "section-image-banner",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.image_banner.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image_banner.settings.headers.image"
+    },
     {
       "type": "image_picker",
       "id": "image",
@@ -49,19 +386,23 @@
     },
     {
       "type": "range",
-      "id": "overlay_opacity",
-      "label": "t:sections.image_banner.settings.image_overlay_opacity.label",
-      "default": 30,
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "unit": "%"
+      "id": "image_height",
+      "label": "t:sections.image_banner.settings.image_height.label",
+      "default": 500,
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px"
     },
     {
       "type": "checkbox",
       "id": "full_width",
       "label": "t:sections.image_banner.settings.full_width.label",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image_banner.settings.headers.content"
     },
     {
       "type": "text",
@@ -75,6 +416,45 @@
       "label": "t:sections.image_banner.settings.text.label"
     },
     {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.image_banner.settings.text_color.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "t:sections.image_banner.settings.text_position.label",
+      "default": "center-center",
+      "options": [
+        { "value": "start-start", "label": "t:sections.image_banner.settings.text_position.options.start-start" },
+        { "value": "start-center", "label": "t:sections.image_banner.settings.text_position.options.start-center" },
+        { "value": "start-end", "label": "t:sections.image_banner.settings.text_position.options.start-end" },
+        { "value": "center-start", "label": "t:sections.image_banner.settings.text_position.options.center-start" },
+        { "value": "center-center", "label": "t:sections.image_banner.settings.text_position.options.center-center" },
+        { "value": "center-end", "label": "t:sections.image_banner.settings.text_position.options.center-end" },
+        { "value": "end-start", "label": "t:sections.image_banner.settings.text_position.options.end-start" },
+        { "value": "end-center", "label": "t:sections.image_banner.settings.text_position.options.end-center" },
+        { "value": "end-end", "label": "t:sections.image_banner.settings.text_position.options.end-end" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "t:sections.image_banner.settings.content_width.label",
+      "default": "medium",
+      "options": [
+        { "value": "small", "label": "t:sections.image_banner.settings.content_width.options.small" },
+        { "value": "medium", "label": "t:sections.image_banner.settings.content_width.options.medium" },
+        { "value": "large", "label": "t:sections.image_banner.settings.content_width.options.large" },
+        { "value": "full", "label": "t:sections.image_banner.settings.content_width.options.full" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image_banner.settings.headers.button"
+    },
+    {
       "type": "text",
       "id": "button_label",
       "label": "t:sections.image_banner.settings.button_label.label",
@@ -84,6 +464,43 @@
       "type": "url",
       "id": "button_link",
       "label": "t:sections.image_banner.settings.button_link.label"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.image_banner.settings.button_style.label",
+      "default": "primary",
+      "options": [
+        { "value": "primary", "label": "t:sections.image_banner.settings.button_style.options.primary" },
+        { "value": "secondary", "label": "t:sections.image_banner.settings.button_style.options.secondary" },
+        { "value": "outline", "label": "t:sections.image_banner.settings.button_style.options.outline" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image_banner.settings.headers.overlay"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:sections.image_banner.settings.link.label",
+      "info": "t:sections.image_banner.settings.link.info"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "t:sections.image_banner.settings.image_overlay_opacity.label",
+      "default": 30,
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shapes",
+      "label": "t:sections.image_banner.settings.show_shapes.label",
+      "default": false
     },
     {
       "type": "header",
@@ -117,4 +534,3 @@
   ]
 }
 {% endschema %}
-

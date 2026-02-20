@@ -2,39 +2,54 @@
   Promotional Banner Section
   A split layout section with image and promotional content
   Design inspired by National Day promotional banners
+  Supports RTL/LTR, color schemes, and responsive design.
 {%- endcomment -%}
 
 {%- liquid
-  assign color_scheme = section.settings.color_scheme | default: 3
   assign content_position = section.settings.content_position | default: 'right'
   assign padding_top = section.settings.padding_top | default: 0
   assign padding_bottom = section.settings.padding_bottom | default: 0
 -%}
 
-<section 
+{%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
+
+<section
   id="promotional-banner-{{ section.id }}"
-  class="promotional-banner color-scheme-{{ color_scheme }}"
+  class="promotional-banner color-{{ section.settings.color_scheme }}"
+  dir="{{ section_dir }}"
   style="padding-top: {{ padding_top }}px; padding-bottom: {{ padding_bottom }}px;"
 >
   <div class="grid grid-cols-1 lg:grid-cols-2 relative">
     {%- if content_position == 'right' -%}
-      <!-- Image Section (Left in RTL) -->
-      <div class="promo-image relative bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 overflow-hidden order-1 lg:order-1">
+      <!-- Image Section -->
+      <div
+        class="promo-image relative overflow-hidden order-1 lg:order-1"
+        style="background-color: var(--color-background-secondary, #e5e7eb);"
+      >
         {%- render 'promo-image-content', section: section -%}
       </div>
-      
-      <!-- Content Section (Right in RTL) -->
-      <div class="promo-content flex items-center justify-center p-8 lg:p-16 order-2 lg:order-2" style="background-color: {{ section.settings.content_bg_color }};">
+
+      <!-- Content Section -->
+      <div
+        class="promo-content flex items-center justify-center p-8 lg:p-16 order-2 lg:order-2"
+        style="background-color: {{ section.settings.content_bg_color }};"
+      >
         {%- render 'promo-text-content', section: section -%}
       </div>
     {%- else -%}
-      <!-- Content Section (Left in RTL) -->
-      <div class="promo-content flex items-center justify-center p-8 lg:p-16 order-2 lg:order-1" style="background-color: {{ section.settings.content_bg_color }};">
+      <!-- Content Section -->
+      <div
+        class="promo-content flex items-center justify-center p-8 lg:p-16 order-2 lg:order-1"
+        style="background-color: {{ section.settings.content_bg_color }};"
+      >
         {%- render 'promo-text-content', section: section -%}
       </div>
-      
-      <!-- Image Section (Right in RTL) -->
-      <div class="promo-image relative bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 overflow-hidden order-1 lg:order-2">
+
+      <!-- Image Section -->
+      <div
+        class="promo-image relative overflow-hidden order-1 lg:order-2"
+        style="background-color: var(--color-background-secondary, #e5e7eb);"
+      >
         {%- render 'promo-image-content', section: section -%}
       </div>
     {%- endif -%}
@@ -49,13 +64,13 @@
     object-position: center;
     min-height: 250px;
   }
-  
+
   @media (min-width: 640px) {
     #promotional-banner-{{ section.id }} .promo-image img {
       min-height: 300px;
     }
   }
-  
+
   @media (min-width: 1024px) {
     #promotional-banner-{{ section.id }} .promo-image img {
       min-height: 600px;
@@ -63,24 +78,41 @@
   }
 
   #promotional-banner-{{ section.id }} .discount-badge {
-    animation: pulse-subtle 2s ease-in-out infinite;
+    animation: promo-pulse-subtle 2s ease-in-out infinite;
   }
 
-  @keyframes pulse-subtle {
+  @keyframes promo-pulse-subtle {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.02); }
   }
 
-  #promotional-banner-{{ section.id }} .promo-cta:hover svg {
-    transform: translateX(-4px);
-  }
-  
-  [dir="rtl"] #promotional-banner-{{ section.id }} .promo-cta:hover svg {
+  /* Arrow hover animation */
+  #promotional-banner-{{ section.id }} .promo-cta:hover .promo-cta__arrow {
     transform: translateX(4px);
+  }
+
+  /* RTL: flip arrow icon and reverse hover direction */
+  [dir="rtl"] #promotional-banner-{{ section.id }} .promo-cta__arrow {
+    transform: scaleX(-1);
+  }
+  [dir="rtl"] #promotional-banner-{{ section.id }} .promo-cta:hover .promo-cta__arrow {
+    transform: scaleX(-1) translateX(4px);
+  }
+
+  /* Outline button hover */
+  #promotional-banner-{{ section.id }} .promo-cta--outline:hover {
+    background-color: {{ section.settings.content_text_color }};
+    color: {{ section.settings.content_bg_color }};
   }
 
   #promotional-banner-{{ section.id }} .dots-decoration {
     backdrop-filter: blur(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #promotional-banner-{{ section.id }} .discount-badge {
+      animation: none;
+    }
   }
 </style>
 
@@ -89,34 +121,15 @@
   "name": "t:sections.promotional_banner.name",
   "tag": "section",
   "class": "section-promotional-banner",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
     {
-      "type": "select",
+      "type": "color_scheme",
       "id": "color_scheme",
-      "label": "t:sections.all.colors.label",
-      "default": "3",
-      "options": [
-        {
-          "value": "1",
-          "label": "t:sections.all.colors.scheme_1"
-        },
-        {
-          "value": "2",
-          "label": "t:sections.all.colors.scheme_2"
-        },
-        {
-          "value": "3",
-          "label": "t:sections.all.colors.scheme_3"
-        },
-        {
-          "value": "4",
-          "label": "t:sections.all.colors.scheme_4"
-        },
-        {
-          "value": "5",
-          "label": "t:sections.all.colors.scheme_5"
-        }
-      ]
+      "label": "t:sections.promotional_banner.settings.color_scheme.label",
+      "default": "scheme-1"
     },
     {
       "type": "header",
@@ -237,12 +250,12 @@
     },
     {
       "type": "header",
-      "content": "الهوامش"
+      "content": "t:sections.all.padding.section_padding_heading"
     },
     {
       "type": "range",
       "id": "padding_top",
-      "label": "الهامش العلوي",
+      "label": "t:sections.all.padding.padding_top",
       "default": 0,
       "min": 0,
       "max": 100,
@@ -252,7 +265,7 @@
     {
       "type": "range",
       "id": "padding_bottom",
-      "label": "الهامش السفلي",
+      "label": "t:sections.all.padding.padding_bottom",
       "default": 0,
       "min": 0,
       "max": 100,
@@ -267,4 +280,3 @@
   ]
 }
 {% endschema %}
-

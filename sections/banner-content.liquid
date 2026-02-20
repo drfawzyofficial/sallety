@@ -7,7 +7,7 @@
 {%- liquid
   # Color scheme class (uses CSS classes from theme.liquid)
   assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
-  
+
   # Typography - Responsive sizes
   assign heading_size_desktop = section.settings.heading_size_desktop | default: 36
   assign heading_size_tablet = section.settings.heading_size_tablet | default: 30
@@ -15,11 +15,11 @@
   assign body_size_desktop = section.settings.body_size_desktop | default: 18
   assign body_size_tablet = section.settings.body_size_tablet | default: 16
   assign body_size_mobile = section.settings.body_size_mobile | default: 15
-  
+
   # Typography - Weights
   assign heading_weight = section.settings.heading_weight | default: '700'
   assign body_weight = section.settings.body_weight | default: '400'
-  
+
   # Section settings
   assign image = section.settings.image
   assign heading = section.settings.heading
@@ -31,11 +31,11 @@
   assign content_alignment = section.settings.content_alignment | default: 'center'
   assign image_border_radius = section.settings.image_border_radius | default: 16
   assign show_shapes = section.settings.show_shapes
-  
+
   # Padding settings
   assign padding_top = section.settings.padding_top | default: 60
   assign padding_bottom = section.settings.padding_bottom | default: 60
-  
+
   # Layout order for RTL
   if layout == 'image-right'
     assign image_order = 'order-1 lg:order-2'
@@ -47,9 +47,9 @@
 -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
-<section 
-  class="banner-content-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
-  dir="{{ section_dir }}" 
+<section
+  class="banner-content-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
   style="
     --content-image-radius: {{ image_border_radius }}px;
     --content-heading-desktop: {{ heading_size_desktop }}px;
@@ -81,12 +81,14 @@
 
   <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16 relative z-10">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-center">
-      
       <!-- Image Column -->
       <div class="{{ image_order }} animate-on-scroll aos-fade-right">
-        <div class="content-image-wrapper relative rounded-2xl overflow-hidden" style="border-radius: var(--content-image-radius);">
+        <div
+          class="content-image-wrapper relative rounded-2xl overflow-hidden"
+          style="border-radius: var(--content-image-radius);"
+        >
           {%- if image != blank -%}
-            <img 
+            <img
               src="{{ image | image_url: width: 1200 }}"
               srcset="
                 {{ image | image_url: width: 400 }} 400w,
@@ -97,9 +99,14 @@
               alt="{{ image.alt | default: heading | default: 'Banner image' }}"
               class="content-image w-full h-auto object-cover"
               loading="lazy"
+              width="{{ image.width }}"
+              height="{{ image.height }}"
             >
           {%- else -%}
-            <div class="content-placeholder aspect-[4/3] w-full flex items-center justify-center" style="background-color: #f3f4f6;">
+            <div
+              class="content-placeholder aspect-[4/3] w-full flex items-center justify-center"
+              style="background-color: #f3f4f6;"
+            >
               {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
             </div>
           {%- endif -%}
@@ -110,28 +117,42 @@
       <div class="{{ content_order }} animate-on-scroll aos-fade-left" data-aos-delay="200">
         <div class="content-text-wrapper text-{{ content_alignment }}">
           {%- if heading != blank -%}
-            <h2 class="content-heading m-0 mb-4 sm:mb-5 leading-tight" style="color: var(--color-text); font-weight: var(--content-heading-weight);">
+            <h2
+              class="content-heading m-0 mb-4 sm:mb-5 leading-tight"
+              style="color: var(--color-text); font-weight: var(--content-heading-weight);"
+            >
               {{ heading }}
             </h2>
           {%- endif -%}
 
           {%- if description != blank -%}
-            <div class="content-description mb-6 sm:mb-8" style="color: var(--color-secondary-text); font-weight: var(--content-body-weight);">
+            <div
+              class="content-description mb-6 sm:mb-8"
+              style="color: var(--color-secondary-text); font-weight: var(--content-body-weight);"
+            >
               {{ description }}
             </div>
           {%- endif -%}
 
           {%- if button_text_content != blank and button_link != blank -%}
-            <a href="{{ button_link }}" class="content-button content-button--{{ button_style }} inline-flex items-center gap-2">
+            <a
+              href="{{ button_link }}"
+              class="content-button content-button--{{ button_style }} inline-flex items-center gap-2"
+            >
               <span>{{ button_text_content }}</span>
-              <svg class="w-5 h-5 rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                class="w-5 h-5 rtl:rotate-180"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </a>
           {%- endif -%}
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -198,10 +219,6 @@
   }
 
   /* Text Alignment */
-  .text-center { text-align: center; }
-  .text-right { text-align: right; }
-  .text-left { text-align: left; }
-
   .text-center .content-button {
     justify-content: center;
   }
@@ -370,44 +387,86 @@
   }
 
   @keyframes contentFloat1 {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(-25px, 35px) scale(1.05); }
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-25px, 35px) scale(1.05);
+    }
   }
 
   @keyframes contentFloat2 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(30px, -25px); }
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(30px, -25px);
+    }
   }
 
   @keyframes contentPulse {
-    0%, 100% { transform: scale(1); opacity: 0.06; }
-    50% { transform: scale(1.3); opacity: 0.1; }
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.06;
+    }
+    50% {
+      transform: scale(1.3);
+      opacity: 0.1;
+    }
   }
 
   @keyframes contentRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* Responsive Shapes */
   @media (max-width: 1023px) {
-    .content-shape-1 { width: 200px; height: 200px; }
-    .content-shape-4 { display: none; }
-    .content-shape-6 { display: none; }
+    .content-shape-1 {
+      width: 200px;
+      height: 200px;
+    }
+    .content-shape-4 {
+      display: none;
+    }
+    .content-shape-6 {
+      display: none;
+    }
   }
 
   @media (max-width: 767px) {
-    .content-shape-1 { width: 150px; height: 150px; }
-    .content-shape-2 { width: 100px; height: 100px; }
-    .content-shape-3 { display: none; }
-    .content-shape-5 { display: none; }
+    .content-shape-1 {
+      width: 150px;
+      height: 150px;
+    }
+    .content-shape-2 {
+      width: 100px;
+      height: 100px;
+    }
+    .content-shape-3 {
+      display: none;
+    }
+    .content-shape-5 {
+      display: none;
+    }
   }
 
   /* Mobile Layout - Content First */
   @media (max-width: 1023px) {
-    .order-1 { order: 2; }
-    .order-2 { order: 1; }
-    
+    .order-1 {
+      order: 2;
+    }
+    .order-2 {
+      order: 1;
+    }
+
     .content-text-wrapper {
       text-align: center;
     }
@@ -438,6 +497,9 @@
   "name": "t:sections.banner_content.name",
   "tag": "section",
   "class": "section-banner-content",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
     {
       "type": "color_scheme",
@@ -727,4 +789,3 @@
   ]
 }
 {% endschema %}
-

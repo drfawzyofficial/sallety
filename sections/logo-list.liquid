@@ -18,7 +18,7 @@
             {%- if block.settings.link != blank -%}
               <a href="{{ block.settings.link }}" class="logo-list__link">
             {%- endif -%}
-            
+
             {%- if block.settings.image != blank -%}
               <img
                 src="{{ block.settings.image | image_url: width: 200 }}"
@@ -30,7 +30,7 @@
             {%- else -%}
               {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
             {%- endif -%}
-            
+
             {%- if block.settings.link != blank -%}
               </a>
             {%- endif -%}
@@ -46,6 +46,9 @@
   "name": "t:sections.logo_list.name",
   "class": "section-logo-list",
   "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "blocks": [
     {
       "type": "logo",
@@ -117,4 +120,3 @@
   ]
 }
 {% endschema %}
-

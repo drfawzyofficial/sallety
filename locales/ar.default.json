@@ -299,7 +299,18 @@
       "title": "الحساب",
       "details": "تفاصيل الحساب",
       "view_addresses": "عرض العناوين",
-      "return": "العودة إلى تفاصيل الحساب"
+      "return": "العودة إلى تفاصيل الحساب",
+      "welcome": "مرحباً بك",
+      "logout": "تسجيل الخروج",
+      "orders_count": "الطلبات",
+      "addresses_count": "العناوين",
+      "quick_links": "روابط سريعة",
+      "orders_title": "طلباتي",
+      "product_count": "منتج",
+      "view_details": "عرض التفاصيل",
+      "empty_orders_title": "لا توجد طلبات بعد",
+      "empty_orders_text": "لم تقم بأي طلبات حتى الآن. ابدأ التسوق الآن!",
+      "shop_now": "تسوق الآن"
     },
     "account_fallback": "الحساب",
     "forms": {
@@ -358,12 +369,14 @@
     },
     "addresses": {
       "title": "العناوين",
+      "subtitle": "إدارة عناوين الشحن والتوصيل",
       "default": "الافتراضي",
       "add_new": "إضافة عنوان جديد",
       "edit_address": "تعديل العنوان",
       "first_name": "الاسم الأول",
       "last_name": "اسم العائلة",
       "company": "الشركة",
+      "company_optional": "اختياري",
       "address1": "العنوان 1",
       "address2": "العنوان 2",
       "city": "المدينة",
@@ -377,16 +390,23 @@
       "cancel": "إلغاء",
       "edit": "تعديل",
       "delete": "حذف",
-      "delete_confirm": "هل أنت متأكد من حذف هذا العنوان؟"
+      "delete_confirm": "هل أنت متأكد من حذف هذا العنوان؟",
+      "delete_modal_title": "حذف العنوان",
+      "delete_modal_desc": "هل أنت متأكد من حذف هذا العنوان؟ لا يمكن التراجع عن هذا الإجراء.",
+      "delete_confirm_btn": "نعم، احذف العنوان",
+      "empty_title": "لا توجد عناوين محفوظة",
+      "empty_text": "أضف عنوانك الأول لتسهيل عملية الشحن"
     },
     "log_in": "تسجيل الدخول",
     "log_out": "تسجيل الخروج",
     "login_page": {
       "title": "تسجيل الدخول",
+      "subtitle": "سجل دخولك للوصول إلى حسابك",
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
       "forgot_password": "نسيت كلمة المرور؟",
       "sign_in": "تسجيل الدخول",
+      "submit": "تسجيل الدخول",
       "create_account": "إنشاء حساب",
       "guest_title": "متابعة كضيف",
       "guest_continue": "متابعة كضيف",
@@ -407,6 +427,7 @@
     },
     "order": {
       "title": "الطلب {{ name }}",
+      "order_details": "تفاصيل الطلب",
       "date": "التاريخ",
       "date_html": "تم الطلب في {{ date }}",
       "cancelled_html": "تم إلغاء الطلب في {{ date }}",
@@ -425,7 +446,11 @@
       "total": "المجموع",
       "fulfilled_at_html": "تم التنفيذ في {{ date }}",
       "track_shipment": "تتبع الشحنة",
-      "subtotal": "المجموع الفرعي"
+      "subtotal": "المجموع الفرعي",
+      "items": "المنتجات",
+      "shipped": "تم الشحن",
+      "summary": "ملخص الطلب",
+      "processing": "قيد المعالجة"
     },
     "recover_password": {
       "title": "إعادة تعيين كلمة المرور",
@@ -435,8 +460,11 @@
     },
     "register": {
       "title": "إنشاء حساب",
+      "subtitle": "أنشئ حسابك للاستمتاع بتجربة تسوق مميزة",
       "first_name": "الاسم الأول",
+      "first_name_placeholder": "أدخل اسمك الأول",
       "last_name": "اسم العائلة",
+      "last_name_placeholder": "أدخل اسم العائلة",
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
       "submit": "إنشاء حساب",

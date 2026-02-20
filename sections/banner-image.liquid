@@ -7,7 +7,7 @@
 {%- liquid
   # Color scheme class (uses CSS classes from theme.liquid)
   assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
-  
+
   # Typography - Responsive sizes
   assign heading_size_desktop = section.settings.heading_size_desktop | default: 42
   assign heading_size_tablet = section.settings.heading_size_tablet | default: 32
@@ -15,11 +15,11 @@
   assign subheading_size_desktop = section.settings.subheading_size_desktop | default: 18
   assign subheading_size_tablet = section.settings.subheading_size_tablet | default: 16
   assign subheading_size_mobile = section.settings.subheading_size_mobile | default: 14
-  
+
   # Typography - Weights
   assign heading_weight = section.settings.heading_weight | default: '700'
   assign subheading_weight = section.settings.subheading_weight | default: '400'
-  
+
   # Section settings
   assign image = section.settings.image
   assign image_height = section.settings.image_height | default: 500
@@ -33,15 +33,15 @@
   assign show_shapes = section.settings.show_shapes
   assign padding_top = section.settings.padding_top | default: 40
   assign padding_bottom = section.settings.padding_bottom | default: 40
-  
+
   # Calculate overlay
   assign overlay_decimal = overlay_opacity | divided_by: 100.0
 -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
-<section 
-  class="banner-image-section color-scheme-{{ scheme_number }} relative overflow-hidden" 
-  dir="{{ section_dir }}" 
+<section
+  class="banner-image-section color-scheme-{{ scheme_number }} relative overflow-hidden"
+  dir="{{ section_dir }}"
   style="
     --banner-text: {{ text_color_override }};
     --banner-overlay: {{ overlay_decimal }};
@@ -63,7 +63,7 @@
 >
   <!-- Decorative Parallax Shapes -->
   {%- if show_shapes -%}
-    {% render 'decorative-shapes', accent_color: accent_color, text_color: text_color, prefix: 'banner' %}
+    {% render 'decorative-shapes', prefix: 'banner' %}
   {%- endif -%}
 
   <div class="{% unless full_width %}max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-16{% endunless %} relative z-10">
@@ -72,52 +72,61 @@
         <a href="{{ link }}" class="banner-link block">
       {%- endif -%}
 
-        <div class="banner-wrapper" style="height: var(--banner-height);">
-          {%- if image != blank -%}
-            <img 
-              src="{{ image | image_url: width: 1920 }}"
-              srcset="
-                {{ image | image_url: width: 640 }} 640w,
-                {{ image | image_url: width: 1024 }} 1024w,
-                {{ image | image_url: width: 1440 }} 1440w,
-                {{ image | image_url: width: 1920 }} 1920w
-              "
-              sizes="100vw"
-              alt="{{ image.alt | default: heading | default: 'Banner image' }}"
-              class="banner-image w-full h-full object-cover"
-              loading="lazy"
-              width="{{ image.width }}"
-              height="{{ image.height }}"
-            >
-          {%- else -%}
-            <div class="banner-placeholder w-full h-full flex items-center justify-center" style="background-color: #f3f4f6; min-height: 300px;">
-              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-            </div>
-          {%- endif -%}
+      <div class="banner-wrapper" style="height: var(--banner-height);">
+        {%- if image != blank -%}
+          <img
+            src="{{ image | image_url: width: 1920 }}"
+            srcset="
+              {{ image | image_url: width: 640 }} 640w,
+              {{ image | image_url: width: 1024 }} 1024w,
+              {{ image | image_url: width: 1440 }} 1440w,
+              {{ image | image_url: width: 1920 }} 1920w
+            "
+            sizes="100vw"
+            alt="{{ image.alt | default: heading | default: 'Banner image' }}"
+            class="banner-image w-full h-full object-cover"
+            loading="lazy"
+            width="{{ image.width }}"
+            height="{{ image.height }}"
+          >
+        {%- else -%}
+          <div
+            class="banner-placeholder w-full h-full flex items-center justify-center"
+            style="background-color: #f3f4f6; min-height: 300px;"
+          >
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {%- endif -%}
 
-          <!-- Overlay -->
-          {%- if overlay_opacity > 0 -%}
-            <div class="banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--banner-overlay));"></div>
-          {%- endif -%}
+        <!-- Overlay -->
+        {%- if overlay_opacity > 0 -%}
+          <div class="banner-overlay absolute inset-0" style="background: rgba(0, 0, 0, var(--banner-overlay));"></div>
+        {%- endif -%}
 
-          <!-- Text Content -->
-          {%- if heading != blank or subheading != blank -%}
-            <div class="banner-content absolute inset-0 flex items-{{ text_position | split: '-' | first | default: 'center' }} justify-{{ text_position | split: '-' | last | default: 'center' }} p-6 sm:p-8 lg:p-12">
-              <div class="banner-text-wrapper text-{{ text_position | split: '-' | last | default: 'center' }} max-w-2xl">
-                {%- if heading != blank -%}
-                  <h2 class="banner-heading m-0 mb-3 leading-tight" style="color: var(--banner-text); font-weight: var(--banner-heading-weight);">
-                    {{ heading }}
-                  </h2>
-                {%- endif -%}
-                {%- if subheading != blank -%}
-                  <p class="banner-subheading m-0 leading-relaxed" style="color: var(--banner-text); font-weight: var(--banner-subheading-weight); opacity: 0.9;">
-                    {{ subheading }}
-                  </p>
-                {%- endif -%}
-              </div>
+        <!-- Text Content -->
+        {%- if heading != blank or subheading != blank -%}
+          <div class="banner-content absolute inset-0 flex items-{{ text_position | split: '-' | first | default: 'center' }} justify-{{ text_position | split: '-' | last | default: 'center' }} p-6 sm:p-8 lg:p-12">
+            <div class="banner-text-wrapper text-{{ text_position | split: '-' | last | default: 'center' }} max-w-2xl">
+              {%- if heading != blank -%}
+                <h2
+                  class="banner-heading m-0 mb-3 leading-tight"
+                  style="color: var(--banner-text); font-weight: var(--banner-heading-weight);"
+                >
+                  {{ heading }}
+                </h2>
+              {%- endif -%}
+              {%- if subheading != blank -%}
+                <p
+                  class="banner-subheading m-0 leading-relaxed"
+                  style="color: var(--banner-text); font-weight: var(--banner-subheading-weight); opacity: 0.9;"
+                >
+                  {{ subheading }}
+                </p>
+              {%- endif -%}
             </div>
-          {%- endif -%}
-        </div>
+          </div>
+        {%- endif -%}
+      </div>
 
       {%- if link != blank -%}
         </a>
@@ -195,21 +204,6 @@
     }
   }
 
-  /* Text Position Classes */
-  .items-center { align-items: center; }
-  .items-end { align-items: flex-end; }
-  .items-start { align-items: flex-start; }
-  .justify-center { justify-content: center; }
-  .justify-start { justify-content: flex-start; }
-  .justify-end { justify-content: flex-end; }
-  .text-center { text-align: center; }
-  .text-right { text-align: right; }
-  .text-left { text-align: left; }
-
-  /* RTL Adjustments */
-  [dir="rtl"] .justify-start { justify-content: flex-end; }
-  [dir="rtl"] .justify-end { justify-content: flex-start; }
-
   /* Reduced Motion */
   @media (prefers-reduced-motion: reduce) {
     .banner-link:hover {
@@ -226,6 +220,9 @@
   "name": "t:sections.banner_image.name",
   "tag": "section",
   "class": "section-banner-image",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
   "settings": [
     {
       "type": "color_scheme",
@@ -519,4 +516,3 @@
   ]
 }
 {% endschema %}
-

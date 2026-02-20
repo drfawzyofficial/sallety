@@ -6,50 +6,56 @@
   - section: The section object
 {%- endcomment -%}
 
-<div class="max-w-xl text-right" style="color: {{ section.settings.content_text_color }};">
+<div class="max-w-xl text-start" style="color: {{ section.settings.content_text_color }};">
   {%- if section.settings.heading != blank -%}
-    <!-- Heading -->
     <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 leading-tight">
       {{ section.settings.heading }}
     </h2>
   {%- endif -%}
-  
+
   {%- if section.settings.description != blank -%}
-    <!-- Description -->
     <p class="text-base md:text-lg leading-relaxed mb-10 opacity-70">
       {{ section.settings.description }}
     </p>
   {%- endif -%}
-  
+
   {%- if section.settings.button_text != blank -%}
-    <!-- CTA Button -->
     {%- assign button_url = section.settings.button_link | default: '#' -%}
-    
+
     {%- if section.settings.button_style == 'outline' -%}
-      <a 
+      <a
         href="{{ button_url }}"
-        class="promo-cta inline-flex items-center gap-3 border-2 px-8 py-3 rounded-full font-medium transition-all duration-300 group"
+        class="promo-cta promo-cta--outline inline-flex items-center gap-3 border-2 px-8 py-3 rounded-full font-medium transition-all duration-300 group"
         style="border-color: {{ section.settings.content_text_color }}; color: {{ section.settings.content_text_color }};"
-        onmouseover="this.style.backgroundColor='{{ section.settings.content_text_color }}'; this.style.color='{{ section.settings.content_bg_color }}';"
-        onmouseout="this.style.backgroundColor='transparent'; this.style.color='{{ section.settings.content_text_color }}';"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5 promo-cta__arrow transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" />
         </svg>
         <span>{{ section.settings.button_text }}</span>
       </a>
     {%- else -%}
-      <a 
+      <a
         href="{{ button_url }}"
-        class="promo-cta inline-flex items-center gap-3 px-8 py-3 rounded-full font-medium transition-all duration-300 group hover:opacity-90"
+        class="promo-cta promo-cta--primary inline-flex items-center gap-3 px-8 py-3 rounded-full font-medium transition-all duration-300 group hover:opacity-90"
         style="background-color: {{ section.settings.content_text_color }}; color: {{ section.settings.content_bg_color }};"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-5 h-5 promo-cta__arrow transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" />
         </svg>
         <span>{{ section.settings.button_text }}</span>
       </a>
     {%- endif -%}
   {%- endif -%}
 </div>
-
