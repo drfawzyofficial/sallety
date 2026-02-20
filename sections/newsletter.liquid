@@ -10,6 +10,7 @@
 
 {%- comment -%} ── Settings aliases ── {%- endcomment -%}
 {%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
   assign nl_layout = section.settings.layout | default: 'stacked'
   assign nl_heading = section.settings.heading
   assign nl_subheading = section.settings.subheading
@@ -60,7 +61,7 @@
 
 <section
   id="newsletter-{{ section.id }}"
-  class="nl-section nl-section--{{ nl_layout }}{% if nl_full_width %} nl-section--full{% endif %}{% if nl_bg_style == 'image' and nl_bg_image != blank %} nl-section--has-image{% endif %}"
+  class="nl-section nl-section--{{ nl_layout }}{% if nl_full_width %} nl-section--full{% endif %}{% if nl_bg_style == 'image' and nl_bg_image != blank %} nl-section--has-image{% endif %} color-scheme-{{ scheme_number }}"
   dir="{{ section_dir }}"
   data-section-id="{{ section.id }}"
   data-section-type="newsletter"
@@ -480,16 +481,12 @@
     margin: 0;
   }
   .nl-heading--sm {
-    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
   }
   .nl-heading--md {
-    font-size: clamp(1.5rem, 3.5vw, 2.25rem);
   }
   .nl-heading--lg {
-    font-size: clamp(1.75rem, 4vw, 3rem);
   }
   .nl-heading--xl {
-    font-size: clamp(2rem, 5vw, 3.75rem);
   }
 
   /* Subheading */
@@ -621,7 +618,7 @@
     opacity: 0.6;
     color: var(--nl-text-color);
     margin: 0;
-    max-width: 480px;
+    max-width: 639px;
   }
   .nl-align--center .nl-consent {
     margin-inline: auto;
@@ -642,7 +639,7 @@
   }
 
   /* ===== Tablet (≤ 991px) ===== */
-  @media (max-width: 991px) {
+  @media (max-width: 1023px) {
     .nl-inner--side_by_side {
       flex-direction: column;
       text-align: center;
@@ -695,7 +692,7 @@
   }
 
   /* ===== Large screens (≥ 1200px) ===== */
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     .nl-container {
       padding-inline: 2rem;
     }
@@ -715,6 +712,12 @@
   "tag": "section",
   "class": "section-newsletter",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "المحتوى"

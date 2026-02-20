@@ -472,7 +472,7 @@
 
   {%- comment -%} ==================== FILTER DRAWER ==================== {%- endcomment -%}
   {%- if enable_filtering and collection.filters.size > 0 -%}
-    <div class="drawer drawer--right" id="filter-drawer" data-filter-drawer aria-hidden="true">
+    <div class="drawer" id="filter-drawer" data-filter-drawer aria-hidden="true">
       <div class="drawer__header">
         <h2 class="drawer__title">{{ 'collections.filtering.filter' | t }}</h2>
         <button type="button" class="drawer__close" data-filter-close aria-label="{{ 'accessibility.close' | t }}">

@@ -1,254 +1,6 @@
 /* Sallety Theme - Component Styles */
 /* Modern Salla-inspired components with full RTL support */
-
-/* ============================================
-   BUTTONS
-   ============================================ */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
-  font-size: 1rem;
-  font-weight: var(--button-font-weight, 500);
-  line-height: 1.5;
-  text-align: center;
-  text-decoration: none;
-  text-transform: var(--button-text-transform, none);
-  border-radius: var(--button-border-radius);
-  border: var(--button-border-thickness) solid transparent;
-  box-shadow: var(--button-shadow);
-  transition: all var(--button-transition-duration, 200ms) var(--transition-timing);
-  cursor: pointer;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
-/* Button Variants */
-.btn--primary {
-  background-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border-color: var(--button-primary-bg);
-}
-
-.btn--primary:hover {
-  background-color: var(--button-primary-bg-hover);
-  color: var(--button-primary-text-hover, var(--button-primary-text));
-  border-color: var(--button-primary-bg-hover);
-  box-shadow: var(--button-shadow-hover);
-}
-
-.btn--secondary {
-  background-color: var(--button-secondary-bg);
-  color: var(--button-secondary-text);
-  border-color: var(--button-secondary-border);
-}
-
-.btn--secondary:hover {
-  background-color: var(--button-secondary-bg-hover, var(--color-border));
-  color: var(--button-secondary-text-hover, var(--button-secondary-text));
-  border-color: var(--button-secondary-bg-hover, var(--color-border));
-  box-shadow: var(--button-shadow-hover);
-}
-
-.btn--outline {
-  background-color: transparent;
-  color: var(--button-outline-text, var(--button-primary-bg));
-  border-color: var(--button-outline-border, var(--button-primary-bg));
-}
-
-.btn--outline:hover {
-  background-color: var(--button-outline-bg-hover, var(--button-primary-bg));
-  color: var(--button-outline-text-hover, var(--button-primary-text));
-  border-color: var(--button-outline-bg-hover, var(--button-primary-bg));
-  box-shadow: var(--button-shadow-hover);
-}
-
-.btn--ghost {
-  background-color: transparent;
-  color: var(--color-foreground);
-  border-color: transparent;
-}
-
-.btn--ghost:hover {
-  background-color: var(--color-border);
-}
-
-.btn--link {
-  background: none;
-  color: var(--color-accent);
-  border: none;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-  box-shadow: none;
-}
-
-.btn--link:hover {
-  text-decoration: none;
-}
-
-/* Button Sizes */
-.btn--sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-}
-
-.btn--md {
-  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
-  font-size: 1rem;
-}
-
-.btn--lg {
-  padding: 1rem 2rem;
-  font-size: 1.125rem;
-}
-
-.btn--xl {
-  padding: 1.25rem 2.5rem;
-  font-size: 1.25rem;
-}
-
-/* Button Full Width */
-.btn--full {
-  width: 100%;
-}
-
-/* Button Icon Only */
-.btn--icon {
-  padding: var(--button-padding-vertical);
-  aspect-ratio: 1;
-}
-
-.btn--icon.btn--sm {
-  padding: 0.5rem;
-}
-
-.btn--icon.btn--lg {
-  padding: 1rem;
-}
-
-/* Button Hover Effects */
-.btn--hover-darken:hover {
-  filter: brightness(0.9);
-}
-
-.btn--hover-scale:hover {
-  transform: scale(var(--button-hover-scale, 1.02));
-}
-
-.btn--hover-shadow:hover {
-  box-shadow: var(--button-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.15));
-}
-
-/* Button States */
-.btn:disabled,
-.btn--disabled {
-  opacity: var(--button-disabled-opacity, 0.5);
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.btn--loading {
-  color: transparent;
-  pointer-events: none;
-}
-
-.btn--loading::after {
-  content: '';
-  position: absolute;
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-
-.btn--loading.btn--primary::after {
-  border-color: var(--button-primary-text);
-  border-right-color: transparent;
-}
-
-/* Button with Icon */
-.btn__icon {
-  width: 1.25em;
-  height: 1.25em;
-  flex-shrink: 0;
-}
-
-.btn__icon--start {
-  margin-inline-end: 0.25rem;
-}
-
-.btn__icon--end {
-  margin-inline-start: 0.25rem;
-}
-
-/* Legacy button classes for compatibility */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: var(--button-padding-vertical) var(--button-padding-horizontal);
-  font-size: 1rem;
-  font-weight: var(--button-font-weight, 500);
-  text-align: center;
-  text-decoration: none;
-  text-transform: var(--button-text-transform, none);
-  border-radius: var(--button-border-radius);
-  box-shadow: var(--button-shadow);
-  transition: all var(--button-transition-duration, 200ms) var(--transition-timing);
-  cursor: pointer;
-  border: var(--button-border-thickness) solid transparent;
-}
-
-.button--primary {
-  background-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  border-color: var(--button-primary-bg);
-}
-
-.button--primary:hover {
-  background-color: var(--button-primary-bg-hover);
-  color: var(--button-primary-text-hover, var(--button-primary-text));
-  box-shadow: var(--button-shadow-hover);
-}
-
-.button--secondary {
-  background-color: transparent;
-  color: var(--button-outline-text, var(--button-primary-bg));
-  border: var(--button-border-thickness) solid var(--button-outline-border, var(--button-primary-bg));
-}
-
-.button--secondary:hover {
-  background-color: var(--button-outline-bg-hover, var(--button-primary-bg));
-  color: var(--button-outline-text-hover, var(--button-primary-text));
-  box-shadow: var(--button-shadow-hover);
-}
-
-.button--link {
-  background: none;
-  padding: 0;
-  color: var(--color-accent);
-  text-decoration: underline;
-  box-shadow: none;
-}
-
-.button--disabled,
-.button:disabled {
-  opacity: var(--button-disabled-opacity, 0.5);
-  cursor: not-allowed;
-}
+/* NOTE: All button styles (.btn, .button, .btn-primary, .btn-secondary, etc.) are defined in base.css */
 
 /* ============================================
    FORM ELEMENTS
@@ -800,54 +552,28 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  inset-inline-start: 0;
-  inset-inline-end: auto;
+  inset-inline-end: -100%;
+  inset-inline-start: auto;
   z-index: 1000;
   width: 100%;
   max-width: 420px;
   background-color: var(--color-background);
-  transition: transform var(--transition-duration, 0.3s) var(--transition-timing, ease);
+  transition: inset-inline-end 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s;
   display: flex;
   flex-direction: column;
   visibility: hidden;
 }
 
 [dir="ltr"] .drawer {
-  transform: translateX(-100%);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
 }
 
 [dir="rtl"] .drawer {
-  transform: translateX(100%);
-}
-
-.drawer--right {
-  inset-inline-end: 0;
-  inset-inline-start: auto;
-}
-
-[dir="ltr"] .drawer--right {
-  transform: translateX(100%);
-}
-
-[dir="rtl"] .drawer--right {
-  transform: translateX(-100%);
-}
-
-.drawer--left {
-  inset-inline-start: 0;
-  inset-inline-end: auto;
-}
-
-[dir="ltr"] .drawer--left {
-  transform: translateX(-100%);
-}
-
-[dir="rtl"] .drawer--left {
-  transform: translateX(100%);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
 }
 
 .drawer.is-open {
-  transform: translateX(0);
+  inset-inline-end: 0;
   visibility: visible;
 }
 
@@ -1985,25 +1711,46 @@ input:checked+.facets__color-circle {
   gap: 8px;
   width: 100%;
   padding: 12px 16px;
-  border-radius: 10px;
+  /* General button settings */
+  border-radius: var(--button-border-radius, 8px);
+  font-size: var(--button-font-size, 16px);
+  font-weight: var(--button-font-weight, 500);
+  transition: all var(--button-transition-duration, 200ms) cubic-bezier(0.4, 0, 0.2, 1);
+  /* Color scheme colors */
+  background-color: var(--color-button);
+  color: var(--color-button-label);
   border: none;
   cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
   text-decoration: none;
   text-align: center;
-  background-color: var(--color-primary, #1a2744);
-  color: #fff;
-  transition: opacity 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shine sweep effect */
+.product-card__atc-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.product-card__atc-btn:hover::before {
+  left: 100%;
 }
 
 .product-card__atc-btn:hover {
-  opacity: 0.9;
-  box-shadow: 0 4px 16px rgba(26, 39, 68, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-button) 30%, transparent);
+  filter: brightness(1.05);
 }
 
 .product-card__atc-btn:active {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .product-card__atc-btn svg {
@@ -2027,25 +1774,23 @@ input:checked+.facets__color-circle {
   position: absolute;
   width: 20px;
   height: 20px;
-  border: 2.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border: 2.5px solid color-mix(in srgb, var(--color-button-label) 30%, transparent);
+  border-top-color: var(--color-button-label);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
+}
+
+/* Disabled / Sold Out state */
+.product-card__atc-btn--disabled {
+  background-color: var(--color-secondary-text, #9ca3af) !important;
+  color: #fff !important;
+  pointer-events: none;
 }
 
 /* Mobile: show only cart icon, hide text label */
 @media (max-width: 767px) {
   .product-card__atc-label {
     display: none;
-  }
-
-  .product-card__atc-btn {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: 50%;
-    margin-inline-start: auto;
-    margin-inline-end: auto;
   }
 
   .product-card__atc-btn svg {
@@ -3788,7 +3533,7 @@ input:checked+.facets__color-circle {
 }
 
 /* Large Desktop: 1200px+ */
-@media (min-width: 1200px) {
+@media (min-width: 1280px) {
   .product-gallery__thumb {
     width: 80px;
     height: 80px;
@@ -4898,7 +4643,7 @@ input:checked+.facets__color-circle {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .quick-view-modal {
     padding: 0;
   }

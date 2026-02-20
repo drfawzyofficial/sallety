@@ -219,13 +219,13 @@
     font-size: var(--content-heading-desktop);
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .content-page .content-heading {
       font-size: var(--content-heading-tablet);
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .content-page .content-heading {
       font-size: var(--content-heading-mobile);
     }
@@ -315,6 +315,12 @@
   "class": "section-content-page",
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.content_page.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
       "type": "header",
       "content": "t:sections.content_page.settings.header.content"
     },
@@ -339,12 +345,6 @@
     {
       "type": "header",
       "content": "t:sections.content_page.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.content_page.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

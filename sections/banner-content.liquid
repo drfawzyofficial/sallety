@@ -93,7 +93,7 @@
                 {{ image | image_url: width: 800 }} 800w,
                 {{ image | image_url: width: 1200 }} 1200w
               "
-              sizes="(max-width: 1024px) 100vw, 50vw"
+              sizes="(max-width: 1023px) 100vw, 50vw"
               alt="{{ image.alt | default: heading | default: 'Banner image' }}"
               class="content-image w-full h-auto object-cover"
               loading="lazy"
@@ -179,7 +179,7 @@
     margin-bottom: 0;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .content-heading {
       font-size: var(--content-heading-tablet);
     }
@@ -188,7 +188,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .content-heading {
       font-size: var(--content-heading-mobile);
     }
@@ -277,13 +277,13 @@
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .content-button {
       font-size: var(--button-font-size-tablet, 15px);
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .content-button {
       padding: calc(var(--button-padding-vertical, 14px) * 0.85) calc(var(--button-padding-horizontal, 32px) * 0.85);
       font-size: var(--button-font-size-mobile, 14px);
@@ -390,13 +390,13 @@
   }
 
   /* Responsive Shapes */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .content-shape-1 { width: 200px; height: 200px; }
     .content-shape-4 { display: none; }
     .content-shape-6 { display: none; }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .content-shape-1 { width: 150px; height: 150px; }
     .content-shape-2 { width: 100px; height: 100px; }
     .content-shape-3 { display: none; }
@@ -439,6 +439,12 @@
   "tag": "section",
   "class": "section-banner-content",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.banner_content.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.banner_content.settings.header.content"
@@ -553,12 +559,6 @@
     {
       "type": "header",
       "content": "t:sections.banner_content.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.banner_content.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

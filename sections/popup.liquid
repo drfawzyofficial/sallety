@@ -79,7 +79,7 @@
         <img
           src="{{ image | image_url: width: 800 }}"
           srcset="{{ image | image_url: width: 400 }} 400w, {{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 800 }} 800w"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width: 767px) 100vw, 50vw"
           alt="{{ image.alt | escape }}"
           loading="lazy"
           width="{{ image.width }}"

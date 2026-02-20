@@ -4,50 +4,23 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign bg_color = section.settings.background_color
-  assign text_color = section.settings.text_color
-  assign heading_color = section.settings.heading_color
-  assign accent_color = section.settings.accent_color
-  assign error_code_color = section.settings.error_code_color
-  assign card_bg_color = section.settings.card_background_color
-  assign card_border_color = section.settings.card_border_color
-  assign button_text_color = section.settings.button_text_color
-  assign secondary_button_text_color = section.settings.secondary_button_text_color
-
-  if accent_color == blank or accent_color == 'rgba(0,0,0,0)'
-    assign accent_color = '#6366f1'
-  endif
-
-  if error_code_color == blank or error_code_color == 'rgba(0,0,0,0)'
-    assign error_code_color = accent_color
-  endif
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
 -%}
 
 <style>
-  .error-404-section {
-    --error-bg: {% if bg_color != blank and bg_color != 'rgba(0,0,0,0)' %}{{ bg_color }}{% else %}#f8fafc{% endif %};
-    --error-text: {% if text_color != blank and text_color != 'rgba(0,0,0,0)' %}{{ text_color }}{% else %}#64748b{% endif %};
-    --error-heading: {% if heading_color != blank and heading_color != 'rgba(0,0,0,0)' %}{{ heading_color }}{% else %}#1e293b{% endif %};
-    --error-accent: {{ accent_color }};
-    --error-code-color: {{ error_code_color }};
-    --error-card-bg: {% if card_bg_color != blank and card_bg_color != 'rgba(0,0,0,0)' %}{{ card_bg_color }}{% else %}#ffffff{% endif %};
-    --error-card-border: {% if card_border_color != blank and card_border_color != 'rgba(0,0,0,0)' %}{{ card_border_color }}{% else %}#e2e8f0{% endif %};
-    --error-btn-text: {% if button_text_color != blank and button_text_color != 'rgba(0,0,0,0)' %}{{ button_text_color }}{% else %}#ffffff{% endif %};
-    --error-secondary-btn-text: {% if secondary_button_text_color != blank and secondary_button_text_color != 'rgba(0,0,0,0)' %}{{ secondary_button_text_color }}{% else %}var(--error-accent){% endif %};
-  }
-
   .error-404-section {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--error-bg);
+    background: var(--color-background);
+    color: var(--color-foreground);
     padding: {{ section.settings.padding_top_mobile }}px {{ section.settings.padding_horizontal_mobile }}px {{ section.settings.padding_bottom_mobile }}px;
     position: relative;
     overflow: hidden;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .error-404-section {
       padding: {{ section.settings.padding_top }}px {{ section.settings.padding_horizontal }}px {{ section.settings.padding_bottom }}px;
     }
@@ -86,7 +59,7 @@
   .error-404__shape--1 {
     width: clamp(150px, 30vw, 400px);
     height: clamp(150px, 30vw, 400px);
-    background: var(--error-accent);
+    background: var(--color-accent);
     opacity: {{ section.settings.shape_1_opacity | divided_by: 100.0 }};
     top: -10%;
     inset-inline-start: -5%;
@@ -96,7 +69,7 @@
   .error-404__shape--2 {
     width: clamp(100px, 20vw, 300px);
     height: clamp(100px, 20vw, 300px);
-    background: var(--error-code-color);
+    background: var(--color-primary);
     opacity: {{ section.settings.shape_2_opacity | divided_by: 100.0 }};
     bottom: -5%;
     inset-inline-end: -5%;
@@ -106,7 +79,7 @@
   .error-404__shape--3 {
     width: clamp(80px, 15vw, 200px);
     height: clamp(80px, 15vw, 200px);
-    background: var(--error-heading);
+    background: var(--color-foreground);
     opacity: {{ section.settings.shape_3_opacity | divided_by: 100.0 }};
     top: 50%;
     inset-inline-end: 10%;
@@ -131,17 +104,18 @@
 
   /* Card */
   .error-404__card {
-    background: var(--error-card-bg);
+    background: var(--color-card-background);
     border-radius: {{ section.settings.card_border_radius }}px;
-    border: {{ section.settings.card_border_width }}px solid var(--error-card-border);
+    border: {{ section.settings.card_border_width }}px solid var(--color-border);
     box-shadow: 0 {{ section.settings.card_shadow_y }}px {{ section.settings.card_shadow_blur }}px rgba(0, 0, 0, {{ section.settings.card_shadow_opacity | divided_by: 100.0 }});
     padding: {{ section.settings.card_padding_mobile }}px;
     text-align: center;
     position: relative;
     overflow: hidden;
+    color: var(--color-card-text);
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .error-404__card {
       padding: {{ section.settings.card_padding }}px;
     }
@@ -151,14 +125,14 @@
   .error-404__code {
     font-size: clamp({{ section.settings.error_code_size_mobile }}px, 15vw, {{ section.settings.error_code_size }}px);
     font-weight: {{ section.settings.error_code_weight }};
-    color: var(--error-code-color);
+    color: var(--color-accent);
     line-height: 1;
     margin: 0;
     opacity: {{ section.settings.error_code_opacity | divided_by: 100.0 }};
     font-family: var(--font-heading-family);
     letter-spacing: {{ section.settings.error_code_letter_spacing }}px;
     {% if section.settings.error_code_gradient %}
-    background: linear-gradient(135deg, var(--error-accent), var(--error-code-color));
+    background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -170,11 +144,11 @@
     width: {{ section.settings.icon_size_mobile }}px;
     height: {{ section.settings.icon_size_mobile }}px;
     margin: {{ section.settings.icon_margin_top }}px auto {{ section.settings.icon_margin_bottom }}px;
-    color: var(--error-accent);
+    color: var(--color-accent);
     opacity: {{ section.settings.icon_opacity | divided_by: 100.0 }};
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .error-404__icon {
       width: {{ section.settings.icon_size }}px;
       height: {{ section.settings.icon_size }}px;
@@ -190,7 +164,7 @@
   .error-404__heading {
     font-size: clamp({{ section.settings.heading_size_mobile }}px, 4vw, {{ section.settings.heading_size }}px);
     font-weight: {{ section.settings.heading_weight }};
-    color: var(--error-heading);
+    color: var(--color-foreground);
     margin: 0 0 {{ section.settings.heading_margin_bottom }}px;
     line-height: {{ section.settings.heading_line_height }};
     font-family: var(--font-heading-family);
@@ -199,10 +173,11 @@
   /* Description */
   .error-404__description {
     font-size: clamp({{ section.settings.description_size_mobile }}px, 2vw, {{ section.settings.description_size }}px);
-    color: var(--error-text);
+    color: var(--color-secondary-text, var(--color-foreground));
     margin: 0 auto {{ section.settings.description_margin_bottom }}px;
     max-width: {{ section.settings.description_max_width }}px;
     line-height: {{ section.settings.description_line_height }};
+    opacity: 0.8;
   }
 
   /* Search Form */
@@ -217,7 +192,7 @@
     flex-direction: column;
   }
 
-  @media screen and (min-width: 500px) {
+  @media screen and (min-width: 640px) {
     .error-404__search-form {
       flex-direction: row;
     }
@@ -227,30 +202,30 @@
     flex: 1;
     height: {{ section.settings.search_input_height }}px;
     padding: 0 {{ section.settings.search_input_padding }}px;
-    border: {{ section.settings.search_border_width }}px solid var(--error-card-border);
+    border: {{ section.settings.search_border_width }}px solid var(--color-border);
     border-radius: {{ section.settings.search_border_radius }}px;
-    background: var(--error-bg);
+    background: var(--color-background);
     font-size: {{ section.settings.search_font_size }}px;
-    color: var(--error-heading);
+    color: var(--color-foreground);
     transition: all 0.3s ease;
   }
 
   .error-404__search-input::placeholder {
-    color: var(--error-text);
+    color: var(--color-secondary-text, var(--color-foreground));
     opacity: 0.7;
   }
 
   .error-404__search-input:focus {
     outline: none;
-    border-color: var(--error-accent);
-    box-shadow: 0 0 0 {{ section.settings.search_focus_ring_width }}px rgba(99, 102, 241, 0.2);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 {{ section.settings.search_focus_ring_width }}px color-mix(in srgb, var(--color-accent) 20%, transparent);
   }
 
   .error-404__search-btn {
     height: {{ section.settings.search_input_height }}px;
     padding: 0 {{ section.settings.search_button_padding }}px;
-    background: var(--error-accent);
-    color: var(--error-btn-text);
+    background: var(--color-button);
+    color: var(--color-button-label);
     border: none;
     border-radius: {{ section.settings.search_border_radius }}px;
     font-size: {{ section.settings.search_font_size }}px;
@@ -298,7 +273,7 @@
     min-width: {{ section.settings.button_min_width }}px;
   }
 
-  @media screen and (max-width: 499px) {
+  @media screen and (max-width: 639px) {
     .error-404__btn {
       width: 100%;
       min-width: auto;
@@ -312,27 +287,27 @@
   }
 
   .error-404__btn--primary {
-    background: var(--error-accent);
-    color: var(--error-btn-text);
-    border: {{ section.settings.button_border_width }}px solid var(--error-accent);
+    background: var(--color-button);
+    color: var(--color-button-label);
+    border: {{ section.settings.button_border_width }}px solid var(--color-button);
   }
 
   .error-404__btn--primary:hover {
     background: transparent;
-    color: var(--error-accent);
+    color: var(--color-button);
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 10px 20px color-mix(in srgb, var(--color-button) 20%, transparent);
   }
 
   .error-404__btn--secondary {
     background: transparent;
-    color: var(--error-secondary-btn-text);
-    border: {{ section.settings.button_border_width }}px solid var(--error-card-border);
+    color: var(--color-foreground);
+    border: {{ section.settings.button_border_width }}px solid var(--color-border);
   }
 
   .error-404__btn--secondary:hover {
-    border-color: var(--error-accent);
-    background: rgba(99, 102, 241, 0.05);
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
     transform: translateY(-2px);
   }
 
@@ -340,13 +315,13 @@
   .error-404__suggestions {
     margin-top: {{ section.settings.suggestions_margin_top }}px;
     padding-top: {{ section.settings.suggestions_padding_top }}px;
-    border-top: 1px solid var(--error-card-border);
+    border-top: 1px solid var(--color-border);
   }
 
   .error-404__suggestions-title {
     font-size: {{ section.settings.suggestions_title_size }}px;
     font-weight: 600;
-    color: var(--error-heading);
+    color: var(--color-foreground);
     margin: 0 0 {{ section.settings.suggestions_title_margin }}px;
   }
 
@@ -361,18 +336,18 @@
   }
 
   .error-404__suggestions-link {
-    color: var(--error-accent);
+    color: var(--color-accent);
     text-decoration: none;
     font-size: {{ section.settings.suggestions_link_size }}px;
     padding: 8px 16px;
     border-radius: 20px;
-    background: rgba(99, 102, 241, 0.1);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
     transition: all 0.3s ease;
   }
 
   .error-404__suggestions-link:hover {
-    background: var(--error-accent);
-    color: var(--error-btn-text);
+    background: var(--color-button);
+    color: var(--color-button-label);
   }
 
   /* Animation Classes */
@@ -398,22 +373,9 @@
     }
   }
   {% endif %}
-
-  /* Dark Mode Support */
-  @media (prefers-color-scheme: dark) {
-    {% if section.settings.auto_dark_mode %}
-    .error-404-section {
-      --error-bg: #0f172a;
-      --error-text: #94a3b8;
-      --error-heading: #f1f5f9;
-      --error-card-bg: #1e293b;
-      --error-card-border: #334155;
-    }
-    {% endif %}
-  }
 </style>
 
-<section class="error-404-section color-scheme-1" aria-labelledby="error-heading">
+<section class="error-404-section color-scheme-{{ scheme_number }}" aria-labelledby="error-heading">
   {%- if section.settings.show_background_pattern -%}
     <div class="error-404__bg-pattern">
       <svg width="100%" height="100%">
@@ -696,6 +658,12 @@
   "tag": "section",
   "class": "section section-404",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.main_404.settings.header.content"
@@ -1391,56 +1359,6 @@
       "content": "t:sections.main_404.settings.header.content"
     },
     {
-      "type": "color",
-      "id": "background_color",
-      "label": "t:sections.main_404.settings.background_color.label"
-    },
-    {
-      "type": "color",
-      "id": "heading_color",
-      "label": "t:sections.main_404.settings.heading_color.label"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "t:sections.main_404.settings.text_color.label"
-    },
-    {
-      "type": "color",
-      "id": "accent_color",
-      "label": "t:sections.main_404.settings.accent_color.label",
-      "default": "#6366f1"
-    },
-    {
-      "type": "color",
-      "id": "error_code_color",
-      "label": "t:sections.main_404.settings.error_code_color.label"
-    },
-    {
-      "type": "color",
-      "id": "button_text_color",
-      "label": "t:sections.main_404.settings.button_text_color.label"
-    },
-    {
-      "type": "color",
-      "id": "secondary_button_text_color",
-      "label": "t:sections.main_404.settings.secondary_button_text_color.label"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_404.settings.header.content"
-    },
-    {
-      "type": "color",
-      "id": "card_background_color",
-      "label": "t:sections.main_404.settings.card_background_color.label"
-    },
-    {
-      "type": "color",
-      "id": "card_border_color",
-      "label": "t:sections.main_404.settings.card_border_color.label"
-    },
-    {
       "type": "range",
       "id": "card_border_radius",
       "min": 0,
@@ -1660,13 +1578,6 @@
       "label": "t:sections.main_404.settings.enable_animations.label",
       "default": true,
       "info": "t:sections.main_404.settings.enable_animations.info"
-    },
-    {
-      "type": "checkbox",
-      "id": "auto_dark_mode",
-      "label": "t:sections.main_404.settings.auto_dark_mode.label",
-      "default": false,
-      "info": "t:sections.main_404.settings.auto_dark_mode.info"
     }
   ]
 }

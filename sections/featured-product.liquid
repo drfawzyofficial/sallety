@@ -104,7 +104,7 @@
                             {{ media | image_url: width: 800 }} 800w,
                             {{ media | image_url: width: 1200 }} 1200w
                           "
-                          sizes="(max-width: 639px) 100vw, (max-width: 1024px) 50vw, 45vw"
+                          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 45vw"
                           alt="{{ media.alt | default: fp_product.title | escape }}"
                           width="{{ media.width }}"
                           height="{{ media.height }}"
@@ -530,7 +530,6 @@
   }
 
   .fp-section-heading {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--fp-heading-weight);
     color: var(--color-text);
     margin: 0;
@@ -574,7 +573,7 @@
     }
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     .fp-product {
       gap: 3.5rem;
     }
@@ -1165,7 +1164,7 @@
     }
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .fp-shape-1 {
       width: 200px;
       height: 200px;
@@ -1175,7 +1174,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .fp-shape-1 {
       width: 140px;
       height: 140px;
@@ -1189,7 +1188,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .fp-shape-1 {
       width: 100px;
       height: 100px;
@@ -1529,9 +1528,18 @@
           "id": "picker_type",
           "label": "نوع عرض الخيارات",
           "options": [
-            { "value": "buttons", "label": "أزرار" },
-            { "value": "swatches", "label": "ألوان + أزرار مقاسات" },
-            { "value": "dropdown", "label": "قائمة منسدلة" }
+            {
+              "value": "buttons",
+              "label": "أزرار"
+            },
+            {
+              "value": "swatches",
+              "label": "ألوان + أزرار مقاسات"
+            },
+            {
+              "value": "dropdown",
+              "label": "قائمة منسدلة"
+            }
           ],
           "default": "swatches"
         },
@@ -1605,6 +1613,12 @@
   ],
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "نظام الألوان",
+      "default": "scheme-1"
+    },
+    {
       "type": "product",
       "id": "product",
       "label": "المنتج"
@@ -1635,9 +1649,18 @@
       "id": "text_alignment",
       "label": "محاذاة العنوان",
       "options": [
-        { "value": "start", "label": "بداية" },
-        { "value": "center", "label": "وسط" },
-        { "value": "end", "label": "نهاية" }
+        {
+          "value": "start",
+          "label": "بداية"
+        },
+        {
+          "value": "center",
+          "label": "وسط"
+        },
+        {
+          "value": "end",
+          "label": "نهاية"
+        }
       ],
       "default": "center"
     },
@@ -1650,8 +1673,14 @@
       "id": "layout",
       "label": "موضع الصورة",
       "options": [
-        { "value": "image_left", "label": "صورة يسار - معلومات يمين" },
-        { "value": "image_right", "label": "صورة يمين - معلومات يسار" }
+        {
+          "value": "image_left",
+          "label": "صورة يسار - معلومات يمين"
+        },
+        {
+          "value": "image_right",
+          "label": "صورة يمين - معلومات يسار"
+        }
       ],
       "default": "image_left"
     },
@@ -1660,10 +1689,22 @@
       "id": "image_ratio",
       "label": "نسبة الصورة",
       "options": [
-        { "value": "square", "label": "مربع (1:1)" },
-        { "value": "portrait", "label": "عمودي (3:4)" },
-        { "value": "landscape", "label": "أفقي (4:3)" },
-        { "value": "auto", "label": "تلقائي" }
+        {
+          "value": "square",
+          "label": "مربع (1:1)"
+        },
+        {
+          "value": "portrait",
+          "label": "عمودي (3:4)"
+        },
+        {
+          "value": "landscape",
+          "label": "أفقي (4:3)"
+        },
+        {
+          "value": "auto",
+          "label": "تلقائي"
+        }
       ],
       "default": "square"
     },
@@ -1701,12 +1742,6 @@
       "content": "الألوان"
     },
     {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "نظام الألوان",
-      "default": "scheme-1"
-    },
-    {
       "type": "color",
       "id": "card_background",
       "label": "خلفية بطاقة الصورة"
@@ -1731,11 +1766,26 @@
       "label": "وزن العنوان",
       "default": "700",
       "options": [
-        { "value": "400", "label": "عادي" },
-        { "value": "500", "label": "متوسط" },
-        { "value": "600", "label": "شبه عريض" },
-        { "value": "700", "label": "عريض" },
-        { "value": "800", "label": "عريض جداً" }
+        {
+          "value": "400",
+          "label": "عادي"
+        },
+        {
+          "value": "500",
+          "label": "متوسط"
+        },
+        {
+          "value": "600",
+          "label": "شبه عريض"
+        },
+        {
+          "value": "700",
+          "label": "عريض"
+        },
+        {
+          "value": "800",
+          "label": "عريض جداً"
+        }
       ]
     },
     {
@@ -1767,12 +1817,24 @@
     {
       "name": "المنتج المميز",
       "blocks": [
-        { "type": "title" },
-        { "type": "vendor" },
-        { "type": "price" },
-        { "type": "description" },
-        { "type": "variant_picker" },
-        { "type": "buy_buttons" }
+        {
+          "type": "title"
+        },
+        {
+          "type": "vendor"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "buy_buttons"
+        }
       ]
     }
   ]

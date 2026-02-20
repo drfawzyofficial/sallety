@@ -32,7 +32,7 @@
         <img
           src="{{ collection.featured_image | image_url: width: 800 }}"
           srcset="{{ collection.featured_image | image_url: width: 400 }} 400w, {{ collection.featured_image | image_url: width: 600 }} 600w, {{ collection.featured_image | image_url: width: 800 }} 800w"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1023px) 33vw, 25vw"
           alt="{{ collection.title | escape }}"
           width="800"
           height="{{ 800 | divided_by: collection.featured_image.aspect_ratio | round }}"

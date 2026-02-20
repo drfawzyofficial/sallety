@@ -213,7 +213,7 @@
     line-height: 1.7;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .video-heading {
       font-size: var(--video-heading-tablet);
     }
@@ -222,7 +222,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .video-heading {
       font-size: var(--video-heading-mobile);
     }
@@ -305,7 +305,7 @@
     min-height: 400px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .video-play-btn {
       width: 64px;
       height: 64px;
@@ -469,6 +469,12 @@
   "class": "section-video",
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.video.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
       "type": "header",
       "content": "t:sections.video.settings.header.content"
     },
@@ -549,12 +555,6 @@
     {
       "type": "header",
       "content": "t:sections.video.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.video.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

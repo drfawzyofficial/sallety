@@ -112,7 +112,7 @@
     letter-spacing: var(--st-spacing);
     line-height: 1;
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .st-marquee {
       font-size: var(--st-font-m);
     }
@@ -192,6 +192,12 @@
   "tag": "section",
   "class": "section-scrolling-text",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.scrolling_text.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.scrolling_text.settings.header.content"
@@ -397,12 +403,6 @@
       "type": "color",
       "id": "background_color",
       "label": "t:sections.scrolling_text.settings.background_color.label"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.scrolling_text.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

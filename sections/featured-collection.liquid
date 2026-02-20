@@ -25,7 +25,7 @@
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top }}px;
       padding-bottom: {{ section.settings.padding_bottom }}px;
@@ -44,7 +44,7 @@
     --fc-progress-color: {{ section.settings.progress_color }};
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     #FeaturedCollection-{{ section.id }} {
       --fc-gap: 24px;
     }
@@ -63,7 +63,7 @@
     assign text_direction = 'ltr'
   endif
 -%}
-<div 
+<div
   id="FeaturedCollection-{{ section.id }}"
   class="color-{{ section.settings.color_scheme }} gradient"
   style="background: var(--color-background);"
@@ -71,7 +71,6 @@
 >
   <div class="section-{{ section.id }}-padding">
     <div class="{{ section.settings.page_width }} mx-auto px-4 md:px-6 lg:px-8">
-      
       {%- comment -%} Section Header {%- endcomment -%}
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 md:mb-12">
         <div class="max-w-2xl">
@@ -80,34 +79,34 @@
               {{ section.settings.subtitle }}
             </span>
           {%- endif -%}
-          
+
           {%- if section.settings.title != blank -%}
             <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold leading-tight text-[var(--color-text)] mb-3">
               {{ section.settings.title | escape }}
             </h2>
           {%- endif -%}
-          
+
           {%- if section.settings.description != blank -%}
             <div class="text-base md:text-lg text-[var(--color-secondary-text)] leading-relaxed rte">
               {{ section.settings.description }}
             </div>
           {%- endif -%}
         </div>
-        
+
         {%- if section.settings.show_view_all and collection != blank -%}
-          <a 
+          <a
             href="{{ collection.url }}"
             class="group hidden md:inline-flex items-center gap-2 text-[var(--color-accent)] font-semibold text-base transition-all duration-300 hover:gap-3 shrink-0"
           >
             <span>{{ 'sections.featured_collection.view_all' | t | default: 'عرض الكل' }}</span>
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              stroke-width="2" 
-              stroke-linecap="round" 
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
               stroke-linejoin="round"
               class="fc-view-all-arrow transition-transform group-hover:translate-x-1"
             >
@@ -132,7 +131,7 @@
       >
         {%- comment -%} Products Track {%- endcomment -%}
         <div class="fc-carousel__viewport overflow-hidden">
-          <div 
+          <div
             class="fc-carousel__track flex transition-transform duration-500 ease-out"
             style="gap: var(--fc-gap);"
           >
@@ -140,10 +139,7 @@
               {%- for i in (1..products_to_show) -%}
                 <div class="fc-carousel__slide shrink-0">
                   <div class="product-card-wrapper h-full">
-                    {% render 'product-card', 
-                      show_vendor: section.settings.show_vendor,
-                      image_ratio: image_ratio
-                    %}
+                    {% render 'product-card', show_vendor: section.settings.show_vendor, image_ratio: image_ratio %}
                   </div>
                 </div>
               {%- endfor -%}
@@ -171,19 +167,39 @@
             style="background: var(--fc-arrow-bg); color: var(--fc-arrow-color);"
             aria-label="{{ 'accessibility.previous_slide' | t }}"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="fc-carousel__arrow-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="fc-carousel__arrow-icon"
+            >
               <path d="M19 12H5"></path>
               <path d="m12 19-7-7 7-7"></path>
             </svg>
           </button>
-          
+
           <button
             type="button"
             class="fc-carousel__arrow fc-carousel__arrow--next"
             style="background: var(--fc-arrow-bg); color: var(--fc-arrow-color);"
             aria-label="{{ 'accessibility.next_slide' | t }}"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="fc-carousel__arrow-icon">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="fc-carousel__arrow-icon"
+            >
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
@@ -192,8 +208,11 @@
 
         {%- comment -%} Progress Bar {%- endcomment -%}
         {%- if show_progress and enable_carousel -%}
-          <div class="fc-carousel__progress mt-6 md:mt-8 h-1 rounded-full overflow-hidden" style="background: var(--fc-dot-inactive);">
-            <div 
+          <div
+            class="fc-carousel__progress mt-6 md:mt-8 h-1 rounded-full overflow-hidden"
+            style="background: var(--fc-dot-inactive);"
+          >
+            <div
               class="fc-carousel__progress-bar h-full rounded-full transition-all duration-300 ease-out"
               style="background: var(--fc-progress-color); width: 0%;"
             ></div>
@@ -209,20 +228,28 @@
       {%- comment -%} Mobile View All Button {%- endcomment -%}
       {%- if section.settings.show_view_all and collection != blank -%}
         <div class="mt-8 md:hidden">
-          <a 
+          <a
             href="{{ collection.url }}"
-            class="flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl font-semibold text-base transition-all duration-300 active:scale-[0.98]"
-            style="background: var(--color-button); color: var(--color-button-label);"
+            class="btn btn--primary flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl font-semibold text-base transition-all duration-300 active:scale-[0.98]"
           >
             <span>{{ 'sections.featured_collection.view_all' | t | default: 'عرض الكل' }}</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fc-view-all-arrow">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="fc-view-all-arrow"
+            >
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
           </a>
         </div>
       {%- endif -%}
-      
     </div>
   </div>
 </div>
@@ -323,40 +350,40 @@
   }
 
   /* RTL Arrow Positioning */
-  [dir="rtl"] .fc-carousel__arrow--prev {
+  [dir='rtl'] .fc-carousel__arrow--prev {
     left: auto;
     right: -22px;
   }
 
-  [dir="rtl"] .fc-carousel__arrow--next {
+  [dir='rtl'] .fc-carousel__arrow--next {
     right: auto;
     left: -22px;
   }
 
   @media screen and (max-width: 1279px) {
-    [dir="rtl"] .fc-carousel__arrow--prev {
+    [dir='rtl'] .fc-carousel__arrow--prev {
       left: auto;
       right: -8px;
     }
-    [dir="rtl"] .fc-carousel__arrow--next {
+    [dir='rtl'] .fc-carousel__arrow--next {
       right: auto;
       left: -8px;
     }
   }
 
   @media screen and (max-width: 767px) {
-    [dir="rtl"] .fc-carousel__arrow--prev {
+    [dir='rtl'] .fc-carousel__arrow--prev {
       left: auto;
       right: -4px;
     }
-    [dir="rtl"] .fc-carousel__arrow--next {
+    [dir='rtl'] .fc-carousel__arrow--next {
       right: auto;
       left: -4px;
     }
   }
 
   /* RTL Arrow Icons Flip */
-  [dir="rtl"] .fc-carousel__arrow-icon {
+  [dir='rtl'] .fc-carousel__arrow-icon {
     transform: scaleX(-1);
   }
 
@@ -385,17 +412,17 @@
   }
 
   /* ===== Progress Bar ===== */
-  [dir="rtl"] .fc-carousel__progress-bar {
+  [dir='rtl'] .fc-carousel__progress-bar {
     margin-inline-start: auto;
     margin-inline-end: 0;
   }
 
   /* ===== View All Arrow RTL ===== */
-  [dir="rtl"] .fc-view-all-arrow {
+  [dir='rtl'] .fc-view-all-arrow {
     transform: scaleX(-1);
   }
 
-  [dir="rtl"] a:hover .fc-view-all-arrow {
+  [dir='rtl'] a:hover .fc-view-all-arrow {
     transform: scaleX(-1) translateX(4px);
   }
 
@@ -438,16 +465,18 @@
           showPagination: this.dataset.showPagination === 'true',
           columnsMobile: parseInt(this.dataset.columnsMobile) || 1,
           columnsTablet: parseInt(this.dataset.columnsTablet) || 2,
-          columnsDesktop: parseInt(this.dataset.columnsDesktop) || 4
+          columnsDesktop: parseInt(this.dataset.columnsDesktop) || 4,
         };
       }
 
       get isRTL() {
         const sectionWrapper = this.closest('[dir]');
         if (sectionWrapper) return sectionWrapper.getAttribute('dir') === 'rtl';
-        return document.documentElement.dir === 'rtl' ||
-               document.documentElement.lang === 'ar' ||
-               getComputedStyle(this).direction === 'rtl';
+        return (
+          document.documentElement.dir === 'rtl' ||
+          document.documentElement.lang === 'ar' ||
+          getComputedStyle(this).direction === 'rtl'
+        );
       }
 
       connectedCallback() {
@@ -543,7 +572,10 @@
         if (!this.slides.length) return;
 
         const slideEl = this.slides[0];
-        const gap = parseFloat(getComputedStyle(this.track).gap) || parseFloat(getComputedStyle(this).getPropertyValue('--fc-gap')) || 16;
+        const gap =
+          parseFloat(getComputedStyle(this.track).gap) ||
+          parseFloat(getComputedStyle(this).getPropertyValue('--fc-gap')) ||
+          16;
         const slideWidth = slideEl.offsetWidth;
         const offset = this.currentIndex * (slideWidth + gap);
         const direction = this.isRTL ? 1 : -1;
@@ -567,9 +599,7 @@
 
       updateProgress() {
         if (!this.progressBar) return;
-        const progress = this.maxIndex > 0
-          ? ((this.currentIndex + 1) / (this.maxIndex + 1)) * 100
-          : 100;
+        const progress = this.maxIndex > 0 ? ((this.currentIndex + 1) / (this.maxIndex + 1)) * 100 : 100;
         this.progressBar.style.width = `${progress}%`;
       }
 
@@ -682,12 +712,15 @@
   "tag": "section",
   "class": "section section-featured-collection",
   "disabled_on": {
-    "groups": [
-      "header",
-      "footer"
-    ]
+    "groups": ["header", "footer"]
   },
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.featured_collection.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.featured_collection.settings.header.content"
@@ -866,12 +899,6 @@
     {
       "type": "header",
       "content": "t:sections.featured_collection.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.featured_collection.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "color",

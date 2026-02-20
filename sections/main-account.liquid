@@ -186,10 +186,6 @@
                     <a
                       href="{{ order.customer_url }}"
                       class="btn btn--primary inline-flex items-center gap-2 px-4 py-2 text-sm"
-                      style="
-                        color: var(--color-button-label);
-                        background: var(--color-button);
-                      "
                     >
                       عرض التفاصيل
                       <svg
@@ -234,10 +230,6 @@
               <a
                 href="{{ routes.all_products_collection_url }}"
                 class="btn btn--primary inline-flex items-center gap-2 px-6 py-3"
-                style="
-                  color: var(--color-button-label);
-                  background: var(--color-button);
-                "
               >
                 {{ section.settings.shop_btn_text | default: 'تسوق الآن' }}
                 <svg class="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -267,7 +259,7 @@
     border-color: var(--color-accent);
   }
 
-  .main-account a[style*='background: var(--color-button)']:hover {
+  .main-account .btn--primary:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
   }

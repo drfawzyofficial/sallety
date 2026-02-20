@@ -8,6 +8,7 @@
 {%- assign section_dir = section_dir | strip -%}
 
 {%- liquid
+  assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
   assign lb_heading = section.settings.heading
   assign lb_subheading = section.settings.subheading
   assign lb_image = section.settings.image
@@ -53,7 +54,7 @@
 
 <section
   id="lookbook-{{ section.id }}"
-  class="lb-section lb-section--{{ lb_layout }}{% if lb_full_width %} lb-section--full{% endif %}"
+  class="lb-section lb-section--{{ lb_layout }}{% if lb_full_width %} lb-section--full{% endif %} color-scheme-{{ scheme_number }}"
   dir="{{ section_dir }}"
   data-section-id="{{ section.id }}"
   data-section-type="lookbook"
@@ -614,7 +615,7 @@
   }
 
   /* ===== Tablet ===== */
-  @media (max-width: 991px) {
+  @media (max-width: 1023px) {
     .lb-container {
       padding-inline: 1.25rem;
     }
@@ -660,7 +661,7 @@
   }
 
   /* ===== Large ===== */
-  @media (min-width: 1200px) {
+  @media (min-width: 1280px) {
     .lb-container {
       padding-inline: 2rem;
     }
@@ -725,6 +726,12 @@
   "class": "section-lookbook",
   "max_blocks": 15,
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "المحتوى"

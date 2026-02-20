@@ -76,7 +76,7 @@
               class="ms-item__image"
               src="{{ block.settings.image | image_url: width: 800 }}"
               srcset="{{ block.settings.image | image_url: width: 400 }} 400w, {{ block.settings.image | image_url: width: 600 }} 600w, {{ block.settings.image | image_url: width: 800 }} 800w, {{ block.settings.image | image_url: width: 1200 }} 1200w"
-              sizes="(max-width: 639px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
               alt="{{ block.settings.image.alt | default: block.settings.title | escape }}"
               loading="lazy"
               width="{{ block.settings.image.width }}"
@@ -164,7 +164,6 @@
     align-items: flex-end;
   }
   .ms-section-heading {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--ms-heading-weight);
     color: var(--color-text);
     margin: 0;
@@ -185,7 +184,7 @@
     grid-auto-rows: 220px;
     gap: var(--ms-gap);
   }
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .ms-grid {
       grid-template-columns: repeat(2, 1fr);
       grid-auto-rows: 200px;
@@ -330,7 +329,7 @@
       transform: translate(12px, -18px);
     }
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ms-shape-1 {
       width: 120px;
       height: 120px;
@@ -360,6 +359,12 @@
   "tag": "section",
   "class": "section-masonry-grid",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.masonry_grid.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.masonry_grid.settings.header.content"
@@ -456,12 +461,6 @@
     {
       "type": "header",
       "content": "t:sections.masonry_grid.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.masonry_grid.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

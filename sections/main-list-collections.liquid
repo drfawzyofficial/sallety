@@ -1,11 +1,12 @@
 {%- comment -%}
   Sallety Theme - Main List Collections Section
   Premium collections listing page with hero banner, responsive grid,
-  animated collection cards, RTL/LTR support, and comprehensive Shopify settings.
-  Built with TailwindCSS V4 for maximum quality.
+  animated collection cards, RTL/LTR support, shape patterns, and blocks-based architecture.
 {%- endcomment -%}
 
 {%- liquid
+  assign scheme_number = section.settings.color_scheme | default: 'scheme-1' | remove: 'scheme-'
+
   comment
     ====== Banner Settings ======
   endcomment
@@ -36,32 +37,24 @@
   assign card_border_radius = section.settings.card_border_radius
   assign card_shadow = section.settings.card_shadow
   assign hover_effect = section.settings.hover_effect
+  assign shape_pattern = section.settings.shape_pattern | default: 'none'
 
   comment
     ====== Section Settings ======
   endcomment
   assign padding_top = section.settings.padding_top
   assign padding_bottom = section.settings.padding_bottom
-  assign sort_collections = section.settings.sort_collections
-  assign hide_empty = section.settings.hide_empty
-  assign max_collections = section.settings.max_collections
 
   comment
     ====== Dynamic counts ======
   endcomment
-  assign collection_count = 0
-  for collection in collections
-    if hide_empty and collection.products_count == 0
-      continue
-    endif
-    assign collection_count = collection_count | plus: 1
-  endfor
+  assign collection_count = section.blocks.size
 -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
 
 <section
-  class="lc-section"
+  class="lc-section color-scheme-{{ scheme_number }}{% if shape_pattern != 'none' %} lc-pattern--{{ shape_pattern }}{% endif %}"
   data-section-id="{{ section.id }}"
   data-section-type="list-collections"
   dir="{{ section_dir }}"
@@ -144,8 +137,7 @@
               {%- assign collections_label = 'مجموعة' -%}
             {%- endif -%}
             <span
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
-              style="background: var(--color-primary); color: var(--color-button-label);"
+              class="btn btn--primary inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium"
             >
               {{ collection_count }}
               {{ collections_label }}
@@ -155,38 +147,64 @@
       </div>
     {%- endunless -%}
 
-    {%- if collection_count > 0 -%}
+    {%- if section.blocks.size > 0 -%}
       <div
         class="lc-grid"
         data-card-style="{{ card_style }}"
         data-hover="{{ hover_effect }}"
         style="display: grid; grid-template-columns: repeat(var(--lc-cols-mobile), 1fr); gap: var(--lc-grid-gap);"
       >
-        {%- assign displayed = 0 -%}
-        {%- for collection in collections -%}
-          {%- if hide_empty and collection.products_count == 0 -%}
-            {%- continue -%}
-          {%- endif -%}
-          {%- if max_collections > 0 and displayed >= max_collections -%}
-            {%- break -%}
-          {%- endif -%}
-          {%- assign displayed = displayed | plus: 1 -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign collection = block.settings.collection
+            assign custom_image = block.settings.custom_image
+            assign custom_title = block.settings.custom_title
+
+            assign display_title = custom_title
+            if display_title == blank and collection != blank
+              assign display_title = collection.title
+            endif
+            if display_title == blank
+              assign display_title = 'مجموعة ' | append: forloop.index
+            endif
+
+            assign col_url = '#'
+            if collection != blank
+              assign col_url = collection.url
+            endif
+
+            assign products_count = 0
+            if collection != blank
+              assign products_count = collection.products_count
+            endif
+          -%}
 
           {%- comment -%} ===== COLLECTION CARD ===== {%- endcomment -%}
-          <div class="lc-card group" data-card-index="{{ forloop.index }}">
+          <div class="lc-card group" data-card-index="{{ forloop.index }}" {{ block.shopify_attributes }}>
             <a
-              href="{{ collection.url }}"
-              class="lc-card__link block relative overflow-hidden rounded-[var(--lc-card-radius)]{% if card_shadow == 'small' %} lc-card--shadow-sm{% elsif card_shadow == 'medium' %} lc-card--shadow-md{% elsif card_shadow == 'large' %} lc-card--shadow-lg{% endif %}"
-              aria-label="{{ collection.title | escape }}"
+              href="{{ col_url }}"
+              class="lc-card__link block relative overflow-hidden{% if shape_pattern == 'none' %} rounded-[var(--lc-card-radius)]{% endif %}{% if card_shadow == 'small' %} lc-card--shadow-sm{% elsif card_shadow == 'medium' %} lc-card--shadow-md{% elsif card_shadow == 'large' %} lc-card--shadow-lg{% endif %}"
+              aria-label="{{ display_title | escape }}"
               style="text-decoration: none;"
             >
               {%- comment -%} Image Container {%- endcomment -%}
               <div class="lc-card__image-wrap relative overflow-hidden{% if image_ratio == 'portrait' %} lc-ratio--portrait{% elsif image_ratio == 'square' %} lc-ratio--square{% elsif image_ratio == 'landscape' %} lc-ratio--landscape{% elsif image_ratio == 'wide' %} lc-ratio--wide{% else %} lc-ratio--portrait{% endif %}">
-                {%- if collection.featured_image -%}
+                {%- if custom_image != blank -%}
+                  <img
+                    src="{{ custom_image | image_url: width: 800 }}"
+                    srcset="{{ custom_image | image_url: width: 400 }} 400w, {{ custom_image | image_url: width: 600 }} 600w, {{ custom_image | image_url: width: 800 }} 800w"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1023px) 33vw, 25vw"
+                    alt="{{ display_title | escape }}"
+                    width="800"
+                    height="{{ 800 | divided_by: custom_image.aspect_ratio | round }}"
+                    loading="lazy"
+                    class="lc-card__image w-full h-full object-cover transition-transform duration-500 ease-out{% if hover_effect == 'zoom' %} group-hover:scale-110{% elsif hover_effect == 'zoom-rotate' %} group-hover:scale-110 group-hover:rotate-2{% endif %}"
+                  >
+                {%- elsif collection != blank and collection.featured_image -%}
                   <img
                     src="{{ collection.featured_image | image_url: width: 800 }}"
                     srcset="{{ collection.featured_image | image_url: width: 400 }} 400w, {{ collection.featured_image | image_url: width: 600 }} 600w, {{ collection.featured_image | image_url: width: 800 }} 800w"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1023px) 33vw, 25vw"
                     alt="{{ collection.title | escape }}"
                     width="800"
                     height="{{ 800 | divided_by: collection.featured_image.aspect_ratio | round }}"
@@ -230,11 +248,11 @@
                 {%- if card_style == 'overlay' -%}
                   <div class="lc-card__content absolute inset-x-0 bottom-0 p-4 md:p-5 flex flex-col justify-end z-10">
                     <h3 class="lc-card__title text-white font-heading font-semibold text-base md:text-lg lg:text-xl leading-tight mb-1 line-clamp-2">
-                      {{ collection.title }}
+                      {{ display_title }}
                     </h3>
-                    {%- if show_card_count -%}
+                    {%- if show_card_count and collection != blank -%}
                       <p class="lc-card__count text-white/75 text-xs md:text-sm font-medium">
-                        {{ collection.products_count }}
+                        {{ products_count }}
                         {{ 'collections.general.products' | t | default: 'منتج' }}
                       </p>
                     {%- endif -%}
@@ -267,12 +285,12 @@
                     class="lc-card__title font-heading font-semibold text-sm md:text-base lg:text-lg leading-tight mb-1 line-clamp-2 transition-colors duration-200"
                     style="color: var(--color-foreground);"
                   >
-                    {{ collection.title }}
+                    {{ display_title }}
                   </h3>
-                  {%- if show_card_count -%}
+                  {%- if show_card_count and collection != blank -%}
                     <div class="flex items-center justify-between">
                       <p class="lc-card__count text-xs md:text-sm" style="color: var(--color-secondary-text);">
-                        {{ collection.products_count }}
+                        {{ products_count }}
                         {{ 'collections.general.products' | t | default: 'منتج' }}
                       </p>
                       <svg
@@ -328,13 +346,12 @@
           {{
             'collections.general.no_collections_description'
             | t
-            | default: 'تابعنا لمعرفة آخر المجموعات والمنتجات الجديدة'
+            | default: 'أضف مجموعات باستخدام زر إضافة بلوك في إعدادات القسم'
           }}
         </p>
         <a
           href="{{ routes.root_url }}"
-          class="inline-flex items-center gap-2 px-6 py-3 rounded-btn font-semibold text-sm transition-all duration-300 hover:shadow-lg"
-          style="background: var(--color-primary); color: var(--color-button-label);"
+          class="btn btn--primary inline-flex items-center gap-2 px-6 py-3 rounded-btn font-semibold text-sm transition-all duration-300 hover:shadow-lg"
         >
           <svg
             width="18"
@@ -513,6 +530,11 @@
     transform: scaleX(-1);
   }
 
+  /* ====== RTL Breadcrumb Chevron Flip ====== */
+  [dir='rtl'] .lc-breadcrumb--inline li[aria-hidden='true'] svg {
+    transform: scaleX(-1);
+  }
+
   /* ====== Focus States ====== */
   .lc-card__link:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -522,6 +544,62 @@
     outline: 2px solid rgba(255, 255, 255, 0.6);
     outline-offset: 2px;
     border-radius: 3px;
+  }
+
+  /* ====================================================================
+     SHAPE PATTERNS
+     Each pattern applies a unique clip-path / border-radius to cards
+     ================================================================== */
+
+  /* -- Pattern 1: Soft Rounded (large rounded corners) -- */
+  .lc-pattern--pattern-1 .lc-card__link {
+    border-radius: 24px;
+    overflow: hidden;
+  }
+
+  /* -- Pattern 2: Hexagon / Octagon shape -- */
+  .lc-pattern--pattern-2 .lc-card__link {
+    clip-path: polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%);
+    border-radius: 0;
+  }
+  .lc-pattern--pattern-2 .lc-card__content {
+    padding-bottom: 24px;
+  }
+
+  /* -- Pattern 3: Arch / Rounded top -- */
+  .lc-pattern--pattern-3 .lc-card__link {
+    border-radius: 999px 999px 16px 16px;
+    overflow: hidden;
+  }
+
+  /* -- Pattern 4: Blob / Organic shape -- */
+  .lc-pattern--pattern-4 .lc-card__link {
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    overflow: hidden;
+    transition: border-radius 0.6s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .lc-pattern--pattern-4 .lc-card__link:hover {
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  }
+
+  /* -- Pattern 5: Diamond / Rotated -- */
+  .lc-pattern--pattern-5 .lc-card {
+    padding: 10%;
+  }
+  .lc-pattern--pattern-5 .lc-card__link {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    border-radius: 0;
+  }
+  .lc-pattern--pattern-5 .lc-card__content,
+  .lc-pattern--pattern-5 .lc-card__content-below {
+    text-align: center;
+    padding: 8px;
+  }
+  .lc-pattern--pattern-5 .lc-card__link:hover {
+    transform: scale(1.05);
+  }
+  .lc-pattern--pattern-5 .lc-card__overlay {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 40%, transparent 65%);
   }
 
   /* ====== Print Styles ====== */
@@ -556,6 +634,11 @@
     .lc-card__title {
       font-size: 0.875rem;
     }
+
+    /* Scale down patterns on mobile */
+    .lc-pattern--pattern-5 .lc-card {
+      padding: 6%;
+    }
   }
 </style>
 
@@ -563,27 +646,34 @@
 {
   "name": "t:sections.main_list_collections.name",
   "class": "section-main-list-collections",
+  "max_blocks": 50,
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.main_list_collections.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
       "type": "header",
-      "content": "بانر الصفحة"
+      "content": "t:sections.main_list_collections.settings.header_banner.content"
     },
     {
       "type": "checkbox",
       "id": "show_banner",
-      "label": "إظهار البانر",
+      "label": "t:sections.main_list_collections.settings.show_banner.label",
       "default": true
     },
     {
       "type": "image_picker",
       "id": "banner_image",
-      "label": "صورة البانر",
-      "info": "يُنصح بصورة بعرض 1920 بكسل. إذا لم تُحدد صورة ستظهر خلفية متدرجة"
+      "label": "t:sections.main_list_collections.settings.banner_image.label",
+      "info": "t:sections.main_list_collections.settings.banner_image.info"
     },
     {
       "type": "range",
       "id": "banner_height",
-      "label": "ارتفاع البانر (بكسل)",
+      "label": "t:sections.main_list_collections.settings.banner_height.label",
       "default": 320,
       "min": 150,
       "max": 600,
@@ -593,7 +683,7 @@
     {
       "type": "range",
       "id": "overlay_opacity",
-      "label": "شفافية التعتيم",
+      "label": "t:sections.main_list_collections.settings.overlay_opacity.label",
       "default": 40,
       "min": 0,
       "max": 100,
@@ -603,80 +693,119 @@
     {
       "type": "text",
       "id": "banner_title",
-      "label": "عنوان البانر",
+      "label": "t:sections.main_list_collections.settings.banner_title.label",
       "default": "المجموعات"
     },
     {
       "type": "textarea",
       "id": "banner_subtitle",
-      "label": "وصف البانر",
+      "label": "t:sections.main_list_collections.settings.banner_subtitle.label",
       "default": "تصفح مجموعاتنا المميزة واكتشف أحدث المنتجات"
     },
     {
       "type": "checkbox",
       "id": "show_breadcrumbs",
-      "label": "إظهار مسار التنقل",
+      "label": "t:sections.main_list_collections.settings.show_breadcrumbs.label",
       "default": true
     },
     {
       "type": "checkbox",
       "id": "show_collection_count",
-      "label": "إظهار عدد المجموعات",
+      "label": "t:sections.main_list_collections.settings.show_collection_count.label",
       "default": true
     },
     {
       "type": "select",
       "id": "text_alignment",
-      "label": "محاذاة النص في البانر",
+      "label": "t:sections.main_list_collections.settings.text_alignment.label",
       "default": "center",
       "options": [
-        { "value": "start", "label": "بداية" },
-        { "value": "center", "label": "وسط" },
-        { "value": "end", "label": "نهاية" }
+        {
+          "value": "start",
+          "label": "t:sections.main_list_collections.settings.text_alignment.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.main_list_collections.settings.text_alignment.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.main_list_collections.settings.text_alignment.options.end"
+        }
       ]
     },
     {
       "type": "header",
-      "content": "شبكة المجموعات"
+      "content": "t:sections.main_list_collections.settings.header_grid.content"
     },
     {
       "type": "select",
       "id": "columns_desktop",
-      "label": "أعمدة سطح المكتب",
+      "label": "t:sections.main_list_collections.settings.columns_desktop.label",
       "default": "4",
       "options": [
-        { "value": "2", "label": "2" },
-        { "value": "3", "label": "3" },
-        { "value": "4", "label": "4" },
-        { "value": "5", "label": "5" },
-        { "value": "6", "label": "6" }
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        },
+        {
+          "value": "6",
+          "label": "6"
+        }
       ]
     },
     {
       "type": "select",
       "id": "columns_tablet",
-      "label": "أعمدة الجهاز اللوحي",
+      "label": "t:sections.main_list_collections.settings.columns_tablet.label",
       "default": "3",
       "options": [
-        { "value": "2", "label": "2" },
-        { "value": "3", "label": "3" },
-        { "value": "4", "label": "4" }
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        }
       ]
     },
     {
       "type": "select",
       "id": "columns_mobile",
-      "label": "أعمدة الجوال",
+      "label": "t:sections.main_list_collections.settings.columns_mobile.label",
       "default": "2",
       "options": [
-        { "value": "1", "label": "1" },
-        { "value": "2", "label": "2" }
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
       ]
     },
     {
       "type": "range",
       "id": "grid_gap",
-      "label": "المسافة بين العناصر",
+      "label": "t:sections.main_list_collections.settings.grid_gap.label",
       "default": 20,
       "min": 8,
       "max": 48,
@@ -685,41 +814,95 @@
     },
     {
       "type": "header",
-      "content": "بطاقة المجموعة"
+      "content": "t:sections.main_list_collections.settings.header_card.content"
     },
     {
       "type": "select",
       "id": "card_style",
-      "label": "نمط البطاقة",
+      "label": "t:sections.main_list_collections.settings.card_style.label",
       "default": "overlay",
       "options": [
-        { "value": "overlay", "label": "عنوان فوق الصورة" },
-        { "value": "below", "label": "عنوان أسفل الصورة" },
-        { "value": "minimal", "label": "مبسط" }
+        {
+          "value": "overlay",
+          "label": "t:sections.main_list_collections.settings.card_style.options.overlay"
+        },
+        {
+          "value": "below",
+          "label": "t:sections.main_list_collections.settings.card_style.options.below"
+        },
+        {
+          "value": "minimal",
+          "label": "t:sections.main_list_collections.settings.card_style.options.minimal"
+        }
       ]
     },
     {
       "type": "select",
       "id": "image_ratio",
-      "label": "نسبة أبعاد الصورة",
+      "label": "t:sections.main_list_collections.settings.image_ratio.label",
       "default": "portrait",
       "options": [
-        { "value": "portrait", "label": "طولي (3:4)" },
-        { "value": "square", "label": "مربع (1:1)" },
-        { "value": "landscape", "label": "عرضي (4:3)" },
-        { "value": "wide", "label": "عريض (16:9)" }
+        {
+          "value": "portrait",
+          "label": "t:sections.main_list_collections.settings.image_ratio.options.portrait"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.main_list_collections.settings.image_ratio.options.square"
+        },
+        {
+          "value": "landscape",
+          "label": "t:sections.main_list_collections.settings.image_ratio.options.landscape"
+        },
+        {
+          "value": "wide",
+          "label": "t:sections.main_list_collections.settings.image_ratio.options.wide"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "shape_pattern",
+      "label": "t:sections.main_list_collections.settings.shape_pattern.label",
+      "info": "t:sections.main_list_collections.settings.shape_pattern.info",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.none"
+        },
+        {
+          "value": "pattern-1",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.pattern_1"
+        },
+        {
+          "value": "pattern-2",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.pattern_2"
+        },
+        {
+          "value": "pattern-3",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.pattern_3"
+        },
+        {
+          "value": "pattern-4",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.pattern_4"
+        },
+        {
+          "value": "pattern-5",
+          "label": "t:sections.main_list_collections.settings.shape_pattern.options.pattern_5"
+        }
       ]
     },
     {
       "type": "checkbox",
       "id": "show_card_count",
-      "label": "إظهار عدد المنتجات في البطاقة",
+      "label": "t:sections.main_list_collections.settings.show_card_count.label",
       "default": true
     },
     {
       "type": "range",
       "id": "card_border_radius",
-      "label": "انحناء زوايا البطاقة",
+      "label": "t:sections.main_list_collections.settings.card_border_radius.label",
       "default": 12,
       "min": 0,
       "max": 24,
@@ -729,57 +912,46 @@
     {
       "type": "select",
       "id": "card_shadow",
-      "label": "ظل البطاقة",
+      "label": "t:sections.main_list_collections.settings.card_shadow.label",
       "default": "medium",
       "options": [
-        { "value": "none", "label": "بدون ظل" },
-        { "value": "small", "label": "خفيف" },
-        { "value": "medium", "label": "متوسط" },
-        { "value": "large", "label": "قوي" }
+        {
+          "value": "none",
+          "label": "t:sections.main_list_collections.settings.card_shadow.options.none"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.main_list_collections.settings.card_shadow.options.small"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.main_list_collections.settings.card_shadow.options.medium"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main_list_collections.settings.card_shadow.options.large"
+        }
       ]
     },
     {
       "type": "select",
       "id": "hover_effect",
-      "label": "تأثير عند التمرير",
+      "label": "t:sections.main_list_collections.settings.hover_effect.label",
       "default": "zoom",
       "options": [
-        { "value": "none", "label": "بدون تأثير" },
-        { "value": "zoom", "label": "تكبير" },
-        { "value": "zoom-rotate", "label": "تكبير مع دوران" }
+        {
+          "value": "none",
+          "label": "t:sections.main_list_collections.settings.hover_effect.options.none"
+        },
+        {
+          "value": "zoom",
+          "label": "t:sections.main_list_collections.settings.hover_effect.options.zoom"
+        },
+        {
+          "value": "zoom-rotate",
+          "label": "t:sections.main_list_collections.settings.hover_effect.options.zoom_rotate"
+        }
       ]
-    },
-    {
-      "type": "header",
-      "content": "خيارات متقدمة"
-    },
-    {
-      "type": "select",
-      "id": "sort_collections",
-      "label": "ترتيب المجموعات",
-      "default": "alphabetical",
-      "options": [
-        { "value": "alphabetical", "label": "أبجدي" },
-        { "value": "products_count", "label": "عدد المنتجات (الأكثر أولاً)" },
-        { "value": "date", "label": "تاريخ الإنشاء" }
-      ]
-    },
-    {
-      "type": "checkbox",
-      "id": "hide_empty",
-      "label": "إخفاء المجموعات الفارغة",
-      "default": true,
-      "info": "إخفاء المجموعات التي لا تحتوي على منتجات"
-    },
-    {
-      "type": "range",
-      "id": "max_collections",
-      "label": "الحد الأقصى للمجموعات المعروضة",
-      "default": 0,
-      "min": 0,
-      "max": 50,
-      "step": 1,
-      "info": "0 يعني عرض الكل"
     },
     {
       "type": "header",
@@ -804,6 +976,47 @@
       "max": 100,
       "step": 4,
       "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.main_list_collections.blocks.collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.main_list_collections.blocks.collection.settings.collection.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "t:sections.main_list_collections.blocks.collection.settings.custom_image.label",
+          "info": "t:sections.main_list_collections.blocks.collection.settings.custom_image.info"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "t:sections.main_list_collections.blocks.collection.settings.custom_title.label",
+          "info": "t:sections.main_list_collections.blocks.collection.settings.custom_title.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.main_list_collections.name",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
     }
   ]
 }

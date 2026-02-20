@@ -440,7 +440,7 @@
   }
   
   /* Responsive */
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .card-article__title {
       font-size: var(--card-title-size-mobile);
     }
@@ -479,7 +479,7 @@
               {{ article.image | image_url: width: 600, height: image_height, crop: 'center' }} 600w,
               {{ article.image | image_url: width: 800, height: image_height_800, crop: 'center' }} 800w
             "
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1023px) 50vw, 33vw"
           >
         {%- else -%}
           <div class="card-article__placeholder">

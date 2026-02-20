@@ -300,7 +300,7 @@
             <input type="hidden" name="id" value="{{ first_available_variant.id }}">
             <button
               type="submit"
-              class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-primary,#1a2744)] text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
+              class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4"
             >
               <svg
                 width="18"
@@ -325,7 +325,7 @@
         {%- else -%}
           <button
             type="button"
-            class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-primary,#1a2744)] text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
+            class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4"
             data-quick-add="{{ product.handle }}"
           >
             <svg
@@ -351,7 +351,7 @@
       {%- else -%}
         <button
           type="button"
-          class="product-card__atc-btn flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-[var(--color-secondary-text,#9ca3af)] text-white font-semibold text-sm cursor-not-allowed opacity-70"
+          class="product-card__atc-btn product-card__atc-btn--disabled flex items-center justify-center gap-2 w-full py-3 px-4 cursor-not-allowed opacity-70"
           disabled
         >
           <span class="product-card__atc-label">{{ 'products.product.sold_out' | t | default: 'نفذت الكمية' }}</span>

@@ -322,7 +322,6 @@
   }
 
   .ig-heading {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--ig-heading-weight);
     color: var(--color-text);
     margin: 0;
@@ -368,7 +367,7 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ig-header {
       margin-block-end: 2rem;
     }
@@ -393,7 +392,7 @@
     gap: var(--ig-gap);
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .ig-grid {
       grid-template-columns: repeat(var(--ig-cols-tablet), 1fr);
     }
@@ -698,7 +697,7 @@
     box-sizing: border-box;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .ig-carousel__slide {
       flex: 0 0 calc(100% / var(--ig-cols-tablet));
       max-width: calc(100% / var(--ig-cols-tablet));
@@ -794,7 +793,7 @@
     box-shadow: 0 2px 8px rgba(225, 48, 108, 0.4);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ig-carousel {
       padding-inline: 36px;
     }
@@ -810,7 +809,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .ig-carousel {
       padding-inline: 28px;
     }
@@ -1060,7 +1059,7 @@
   }
 
   /* Responsive Shapes */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .ig-shape-1 {
       width: 200px;
       height: 200px;
@@ -1074,7 +1073,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ig-shape-1 {
       width: 140px;
       height: 140px;
@@ -1092,7 +1091,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .ig-shape-1 {
       width: 100px;
       height: 100px;
@@ -1319,6 +1318,12 @@
   "max_blocks": 16,
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "نظام الألوان",
+      "default": "scheme-1"
+    },
+    {
       "type": "header",
       "content": "المحتوى"
     },
@@ -1388,8 +1393,14 @@
       "id": "layout_style",
       "label": "نمط العرض",
       "options": [
-        { "value": "grid", "label": "شبكة" },
-        { "value": "carousel", "label": "سلايدر" }
+        {
+          "value": "grid",
+          "label": "شبكة"
+        },
+        {
+          "value": "carousel",
+          "label": "سلايدر"
+        }
       ],
       "default": "grid"
     },
@@ -1425,10 +1436,22 @@
       "id": "image_ratio",
       "label": "نسبة الصورة",
       "options": [
-        { "value": "square", "label": "مربع (1:1)" },
-        { "value": "portrait", "label": "عمودي (4:5)" },
-        { "value": "landscape", "label": "أفقي (16:9)" },
-        { "value": "auto", "label": "تلقائي" }
+        {
+          "value": "square",
+          "label": "مربع (1:1)"
+        },
+        {
+          "value": "portrait",
+          "label": "عمودي (4:5)"
+        },
+        {
+          "value": "landscape",
+          "label": "أفقي (16:9)"
+        },
+        {
+          "value": "auto",
+          "label": "تلقائي"
+        }
       ],
       "default": "square"
     },
@@ -1457,9 +1480,18 @@
       "id": "text_alignment",
       "label": "محاذاة النص",
       "options": [
-        { "value": "start", "label": "بداية" },
-        { "value": "center", "label": "وسط" },
-        { "value": "end", "label": "نهاية" }
+        {
+          "value": "start",
+          "label": "بداية"
+        },
+        {
+          "value": "center",
+          "label": "وسط"
+        },
+        {
+          "value": "end",
+          "label": "نهاية"
+        }
       ],
       "default": "center"
     },
@@ -1472,11 +1504,26 @@
       "id": "hover_effect",
       "label": "تأثير التمرير",
       "options": [
-        { "value": "zoom_overlay", "label": "تكبير مع طبقة" },
-        { "value": "zoom_only", "label": "تكبير فقط" },
-        { "value": "blur", "label": "ضبابي" },
-        { "value": "grayscale", "label": "أبيض وأسود" },
-        { "value": "shine", "label": "بريق" }
+        {
+          "value": "zoom_overlay",
+          "label": "تكبير مع طبقة"
+        },
+        {
+          "value": "zoom_only",
+          "label": "تكبير فقط"
+        },
+        {
+          "value": "blur",
+          "label": "ضبابي"
+        },
+        {
+          "value": "grayscale",
+          "label": "أبيض وأسود"
+        },
+        {
+          "value": "shine",
+          "label": "بريق"
+        }
       ],
       "default": "zoom_overlay"
     },
@@ -1503,12 +1550,6 @@
     {
       "type": "header",
       "content": "الألوان"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "نظام الألوان",
-      "default": "scheme-1"
     },
     {
       "type": "header",
@@ -1562,11 +1603,26 @@
       "label": "وزن العنوان",
       "default": "700",
       "options": [
-        { "value": "400", "label": "عادي" },
-        { "value": "500", "label": "متوسط" },
-        { "value": "600", "label": "شبه عريض" },
-        { "value": "700", "label": "عريض" },
-        { "value": "800", "label": "عريض جداً" }
+        {
+          "value": "400",
+          "label": "عادي"
+        },
+        {
+          "value": "500",
+          "label": "متوسط"
+        },
+        {
+          "value": "600",
+          "label": "شبه عريض"
+        },
+        {
+          "value": "700",
+          "label": "عريض"
+        },
+        {
+          "value": "800",
+          "label": "عريض جداً"
+        }
       ]
     },
     {

@@ -405,32 +405,7 @@
         "corner_radius": 16,
         "padding_top": 60,
         "padding_bottom": 60
-      },
-      "blocks": {
-        "feature_1": {
-          "type": "feature",
-          "settings": {
-            "text": "بدون رسائل مزعجة"
-          }
-        },
-        "feature_2": {
-          "type": "feature",
-          "settings": {
-            "text": "إلغاء الاشتراك في أي وقت"
-          }
-        },
-        "feature_3": {
-          "type": "feature",
-          "settings": {
-            "text": "عروض حصرية للمشتركين"
-          }
-        }
-      },
-      "block_order": [
-        "feature_1",
-        "feature_2",
-        "feature_3"
-      ]
+      }
     },
     "faq_section": {
       "type": "faq",

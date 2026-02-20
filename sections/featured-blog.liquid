@@ -89,7 +89,6 @@
   }
 
   .featured-blog__title {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--font-heading-weight, 700);
     color: var(--fb-heading-color);
     margin: 0;
@@ -165,13 +164,13 @@
   }
 
   /* Responsive */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .featured-blog__grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .featured-blog-section--{{ section.id }} {
       padding-top: {{ padding_top | divided_by: 1.5 | round }}px;
       padding-bottom: {{ padding_bottom | divided_by: 1.5 | round }}px;
@@ -184,9 +183,7 @@
       margin-bottom: 24px;
     }
 
-    .featured-blog__title {
-      font-size: calc(var(--font-heading-size, 32px) * 0.75);
-    }
+
 
     .featured-blog__grid {
       grid-template-columns: var(--fb-grid-mobile);

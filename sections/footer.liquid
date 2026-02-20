@@ -1475,7 +1475,7 @@
     align-items: center;
     gap: 12px;
     flex: 1;
-    max-width: 480px;
+    max-width: 639px;
   }
 
   .footer-newsletter-input {
@@ -1539,13 +1539,13 @@
   }
 
   /* Responsive font size for newsletter button */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .footer-newsletter-btn {
       font-size: var(--button-font-size-tablet, 15px);
     }
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 639px) {
     .footer-newsletter-btn {
       font-size: var(--button-font-size-mobile, 14px);
     }
@@ -1612,7 +1612,7 @@
     }
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .footer-section {
       --footer-heading-current: var(--footer-heading-tablet);
       --footer-body-current: var(--footer-body-tablet);
@@ -1674,7 +1674,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .footer-section {
       --footer-heading-current: var(--footer-heading-mobile);
       --footer-body-current: var(--footer-body-mobile);
@@ -1894,7 +1894,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .footer-container {
       padding: 28px 16px 16px;
     }
@@ -2045,7 +2045,7 @@
     outline-offset: 2px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .back-to-top {
       bottom: 100px;
       width: 52px;
@@ -2324,7 +2324,7 @@
     line-height: 1;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .fab-desktop {
       display: none !important;
     }
@@ -2338,7 +2338,7 @@
     }
   }
 
-  @media (min-width: 769px) {
+  @media (min-width: 768px) {
     .mobile-bottom-nav {
       display: none !important;
     }
@@ -2467,7 +2467,7 @@
   }
 
   /* Mobile adjustments */
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .whatsapp-float {
       bottom: 100px;
       width: 56px;
@@ -2673,6 +2673,12 @@
   "class": "section-footer",
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.footer.settings.color_scheme.label",
+      "default": "scheme-3"
+    },
+    {
       "type": "header",
       "content": "t:sections.footer.settings.header.content"
     },
@@ -2875,12 +2881,6 @@
       "id": "show_parallax_shapes",
       "label": "t:sections.footer.settings.show_parallax_shapes.label",
       "default": true
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.footer.settings.color_scheme.label",
-      "default": "scheme-3"
     },
     {
       "type": "color",

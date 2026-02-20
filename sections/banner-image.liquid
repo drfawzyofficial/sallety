@@ -170,7 +170,7 @@
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .banner-heading {
       font-size: var(--banner-heading-tablet);
     }
@@ -182,7 +182,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .banner-heading {
       font-size: var(--banner-heading-mobile);
     }
@@ -227,6 +227,12 @@
   "tag": "section",
   "class": "section-banner-image",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.banner_image.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.banner_image.settings.header.content"
@@ -343,12 +349,6 @@
     {
       "type": "header",
       "content": "t:sections.banner_image.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.banner_image.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

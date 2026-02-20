@@ -687,20 +687,6 @@
       "minutes": "دقائق",
       "seconds": "ثواني"
     },
-    "product_reviews": {
-      "based_on": "بناءً على",
-      "reviews": "تقييم",
-      "sort_by": "ترتيب حسب",
-      "newest": "الأحدث",
-      "oldest": "الأقدم",
-      "highest": "الأعلى تقييماً",
-      "lowest": "الأقل تقييماً",
-      "all": "الكل",
-      "load_more": "تحميل المزيد",
-      "no_reviews": "لا توجد تقييمات بعد",
-      "no_reviews_desc": "كن أول من يقيّم هذا المنتج",
-      "verified": "مشتري موثق"
-    },
     "collection_template": {
       "title": "المجموعة",
       "empty": "لا توجد منتجات في هذه المجموعة"

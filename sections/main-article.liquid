@@ -6,6 +6,22 @@
 {%- endcomment -%}
 
 {%- liquid
+  # RTL detection
+  assign is_rtl = false
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
+      break
+    endif
+  endfor
+  if settings.enable_rtl and is_rtl_lang
+    assign is_rtl = true
+  endif
+
   # Layout settings from global blog settings
   assign article_layout = settings.article_layout | default: 'wide'
   assign show_featured_image = settings.article_show_featured_image | default: true
@@ -210,7 +226,6 @@
   }
   .sa-article__title {
     font-family: var(--font-heading-family);
-    font-size: clamp(28px, 5vw, 44px);
     font-weight: 700;
     line-height: 1.2;
     color: var(--sa-title-color);
@@ -262,10 +277,8 @@
   }
 
   /* ---- Article Content (RTE) ---- */
-  /* The content wrapper uses dir="auto" so the browser auto-detects
-     text direction based on the first strong directional character.
-     This means an English article on an Arabic site will render LTR,
-     and an Arabic article on an English site will render RTL. */
+  /* The content wrapper inherits direction from <html dir>,
+     so it follows the store's RTL/LTR setting. */
   .sa-article__content {
     font-size: 18px;
     line-height: 1.8;
@@ -273,30 +286,14 @@
     padding-block: 40px;
     text-align: start;
     word-break: break-word;
-    unicode-bidi: plaintext;
-  }
-  /* Paragraphs inside auto-dir content should also auto-detect */
-  .sa-article__content p,
-  .sa-article__content li,
-  .sa-article__content h2,
-  .sa-article__content h3,
-  .sa-article__content h4,
-  .sa-article__content h5,
-  .sa-article__content h6,
-  .sa-article__content blockquote,
-  .sa-article__content td,
-  .sa-article__content th {
-    unicode-bidi: plaintext;
   }
   .sa-article__content h2 {
-    font-size: clamp(22px, 3vw, 30px);
     font-weight: 700;
     color: var(--sa-title-color);
     margin: 48px 0 16px;
     line-height: 1.3;
   }
   .sa-article__content h3 {
-    font-size: clamp(18px, 2.5vw, 24px);
     font-weight: 600;
     color: var(--sa-title-color);
     margin: 36px 0 12px;
@@ -531,7 +528,6 @@
     border-block-start: 1px solid #e5e7eb;
   }
   .sa-article__comments-title {
-    font-size: 22px;
     font-weight: 700;
     color: var(--sa-title-color);
     margin: 0 0 24px;
@@ -579,7 +575,6 @@
   /* Comment form */
   .sa-article__comment-form { margin-block-start: 32px; }
   .sa-article__comment-form h3 {
-    font-size: 18px;
     font-weight: 600;
     color: var(--sa-title-color);
     margin: 0 0 20px;
@@ -688,14 +683,14 @@
   [dir="rtl"] .sa-article__back-link svg { transform: scaleX(-1); }
 
   /* ---- Responsive ---- */
-  @media (max-width: 768px) {
-    .sa-article__title { font-size: clamp(24px, 6vw, 32px); }
+  @media (max-width: 767px) {
+    .sa-article__title { }
     .sa-article__hero { max-height: 300px; margin-block-end: 24px; }
     .sa-article__header { margin-block-end: 24px; }
     .sa-article__meta { gap: 12px; font-size: 13px; }
     .sa-article__content { font-size: 16px; padding-block: 24px; }
-    .sa-article__content h2 { font-size: 22px; margin-block-start: 32px; }
-    .sa-article__content h3 { font-size: 18px; margin-block-start: 24px; }
+    .sa-article__content h2 { margin-block-start: 32px; }
+    .sa-article__content h3 { margin-block-start: 24px; }
     .sa-article__content blockquote { padding: 16px 20px; }
     .sa-article__navigation { grid-template-columns: 1fr; }
     .sa-article__nav-link--next { text-align: start; }
@@ -705,9 +700,9 @@
     .sa-article__share-btn svg { width: 18px; height: 18px; }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .sa-article__content { font-size: 15px; line-height: 1.75; }
-    .sa-article__comments-title { font-size: 20px; }
+    .sa-article__comments-title { }
     .sa-article__share-icons { gap: 8px; }
     .sa-article__share-btn { width: 38px; height: 38px; border-radius: 10px; }
   }
@@ -718,6 +713,11 @@
   data-section-id="{{ section.id }}"
   itemscope
   itemtype="http://schema.org/BlogPosting"
+  {% if is_rtl %}
+    dir="rtl"
+  {% else %}
+    dir="ltr"
+  {% endif %}
 >
   {%- comment -%} Breadcrumb {%- endcomment -%}
   {%- if show_breadcrumb -%}
@@ -843,11 +843,10 @@
     </header>
 
     {%- comment -%}
-      Article Content — dir="auto" enables automatic direction detection
-      so content written in Arabic will render RTL, and English content will render LTR,
-      regardless of the store's primary language.
+      Article Content — inherits direction from <html dir> so it follows
+      the store's RTL/LTR setting automatically.
     {%- endcomment -%}
-    <div class="sa-article__content rte" itemprop="articleBody" dir="auto">
+    <div class="sa-article__content rte" itemprop="articleBody">
       {{ article.content }}
     </div>
 

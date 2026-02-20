@@ -37,7 +37,7 @@
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .section-{{ section.id }}-padding {
       padding-top: {{ section.settings.padding_top }}px;
       padding-bottom: {{ section.settings.padding_bottom }}px;
@@ -110,7 +110,7 @@
                   {%- if block.settings.mobile_image != blank -%}
                     <picture>
                       <source
-                        media="(min-width: 750px)"
+                        media="(min-width: 768px)"
                         srcset="{{ block.settings.image | image_url: width: 600 }} 600w,
                                {{ block.settings.image | image_url: width: 1000 }} 1000w,
                                {{ block.settings.image | image_url: width: 1500 }} 1500w,
@@ -292,7 +292,7 @@
     overflow: hidden;
     height: var(--ss-height-mobile);
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__track {
       height: var(--ss-height-desktop);
     }
@@ -417,7 +417,7 @@
   @media screen and (min-width: 640px) {
     .ss-slider__content-wrap { padding: 28px 32px; }
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__content-wrap { padding: 40px 48px; }
   }
   @media screen and (min-width: 1024px) {
@@ -453,7 +453,7 @@
   @media screen and (min-width: 640px) {
     .ss-slider__subheading { font-size: 0.8rem; margin-bottom: 12px; }
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__subheading { font-size: 0.875rem; margin-bottom: 14px; }
   }
 
@@ -463,7 +463,7 @@
     line-height: 1.15;
     margin: 0 0 10px;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__heading { margin-bottom: 16px; }
   }
   .ss-slider__heading--small  { font-size: clamp(1.25rem, 4vw, 2rem); }
@@ -482,7 +482,7 @@
   @media screen and (min-width: 640px) {
     .ss-slider__text { font-size: 0.9rem; margin-bottom: 20px; }
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__text { font-size: 1rem; margin-bottom: 28px; }
   }
   @media screen and (min-width: 1024px) {
@@ -515,7 +515,7 @@
     flex-wrap: wrap;
     gap: 10px;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__buttons { gap: 14px; }
   }
   .ss-slider__buttons--start  { justify-content: flex-start; }
@@ -539,7 +539,7 @@
   @media screen and (min-width: 640px) {
     .ss-slider__btn { font-size: 0.875rem; padding: 11px 24px; }
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__btn { font-size: 0.95rem; padding: 12px 28px; }
   }
   @media screen and (min-width: 1024px) {
@@ -616,7 +616,7 @@
   /* LTR positioning */
   .ss-slider__arrow--prev { left: 12px; }
   .ss-slider__arrow--next { right: 12px; }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__arrow--prev { left: 20px; }
     .ss-slider__arrow--next { right: 20px; }
   }
@@ -634,7 +634,7 @@
     right: auto;
     left: 12px;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     [dir="rtl"] .ss-slider__arrow--prev { left: auto; right: 20px; }
     [dir="rtl"] .ss-slider__arrow--next { right: auto; left: 20px; }
   }
@@ -660,13 +660,13 @@
     justify-content: center;
     gap: 10px;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__pagination { bottom: 24px; gap: 12px; }
   }
   .ss-slider__pagination--above-progress {
     bottom: 28px;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__pagination--above-progress { bottom: 36px; }
   }
 
@@ -680,7 +680,7 @@
     background: rgba(255, 255, 255, 0.4);
     transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__dot { width: 12px; height: 12px; }
   }
   .ss-slider__dot:hover {
@@ -703,7 +703,7 @@
     height: 3px;
     background: rgba(255, 255, 255, 0.25);
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__progress { height: 4px; }
   }
   .ss-slider__progress-bar {
@@ -729,15 +729,15 @@
     letter-spacing: 0.1em;
     opacity: 0.8;
   }
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 768px) {
     .ss-slider__counter { bottom: 24px; font-size: 0.9rem; }
   }
   /* LTR: counter on right */
   .ss-slider__counter { right: 16px; }
-  @media screen and (min-width: 750px) { .ss-slider__counter { right: 24px; } }
+  @media screen and (min-width: 768px) { .ss-slider__counter { right: 24px; } }
   /* RTL: counter on left */
   [dir="rtl"] .ss-slider__counter { right: auto; left: 16px; }
-  @media screen and (min-width: 750px) { [dir="rtl"] .ss-slider__counter { right: auto; left: 24px; } }
+  @media screen and (min-width: 768px) { [dir="rtl"] .ss-slider__counter { right: auto; left: 24px; } }
 
   .ss-slider__counter-sep { opacity: 0.5; margin: 0 3px; }
 
@@ -982,10 +982,19 @@
   "tag": "section",
   "class": "section section-slideshow",
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "max_blocks": 8,
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.slideshow.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.slideshow.settings.headers.layout"
@@ -1021,9 +1030,18 @@
       "id": "content_position_vertical",
       "label": "t:sections.slideshow.settings.content_position_vertical.label",
       "options": [
-        { "value": "top", "label": "t:sections.slideshow.settings.content_position_vertical.options.top" },
-        { "value": "middle", "label": "t:sections.slideshow.settings.content_position_vertical.options.middle" },
-        { "value": "bottom", "label": "t:sections.slideshow.settings.content_position_vertical.options.bottom" }
+        {
+          "value": "top",
+          "label": "t:sections.slideshow.settings.content_position_vertical.options.top"
+        },
+        {
+          "value": "middle",
+          "label": "t:sections.slideshow.settings.content_position_vertical.options.middle"
+        },
+        {
+          "value": "bottom",
+          "label": "t:sections.slideshow.settings.content_position_vertical.options.bottom"
+        }
       ],
       "default": "middle"
     },
@@ -1032,9 +1050,18 @@
       "id": "content_position_horizontal",
       "label": "t:sections.slideshow.settings.content_position_horizontal.label",
       "options": [
-        { "value": "start", "label": "t:sections.slideshow.settings.content_position_horizontal.options.start" },
-        { "value": "center", "label": "t:sections.slideshow.settings.content_position_horizontal.options.center" },
-        { "value": "end", "label": "t:sections.slideshow.settings.content_position_horizontal.options.end" }
+        {
+          "value": "start",
+          "label": "t:sections.slideshow.settings.content_position_horizontal.options.start"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.slideshow.settings.content_position_horizontal.options.center"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.slideshow.settings.content_position_horizontal.options.end"
+        }
       ],
       "default": "start"
     },
@@ -1057,8 +1084,14 @@
       "id": "transition_type",
       "label": "t:sections.slideshow.settings.transition_type.label",
       "options": [
-        { "value": "fade", "label": "t:sections.slideshow.settings.transition_type.options.fade" },
-        { "value": "slide", "label": "t:sections.slideshow.settings.transition_type.options.slide" }
+        {
+          "value": "fade",
+          "label": "t:sections.slideshow.settings.transition_type.options.fade"
+        },
+        {
+          "value": "slide",
+          "label": "t:sections.slideshow.settings.transition_type.options.slide"
+        }
       ],
       "default": "fade"
     },
@@ -1125,12 +1158,6 @@
     {
       "type": "header",
       "content": "t:sections.slideshow.settings.headers.colors"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.slideshow.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "color",
@@ -1228,10 +1255,22 @@
           "id": "heading_size",
           "label": "t:sections.slideshow.blocks.slide.settings.heading_size.label",
           "options": [
-            { "value": "small", "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.small" },
-            { "value": "medium", "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.medium" },
-            { "value": "large", "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.large" },
-            { "value": "xlarge", "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.xlarge" }
+            {
+              "value": "small",
+              "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.small"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.medium"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.large"
+            },
+            {
+              "value": "xlarge",
+              "label": "t:sections.slideshow.blocks.slide.settings.heading_size.options.xlarge"
+            }
           ],
           "default": "large"
         },
@@ -1266,9 +1305,18 @@
           "id": "button_style_1",
           "label": "t:sections.slideshow.blocks.slide.settings.button_style.label",
           "options": [
-            { "value": "primary", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.primary" },
-            { "value": "secondary", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.secondary" },
-            { "value": "outline", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.outline" }
+            {
+              "value": "primary",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.secondary"
+            },
+            {
+              "value": "outline",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.outline"
+            }
           ],
           "default": "primary"
         },
@@ -1291,9 +1339,18 @@
           "id": "button_style_2",
           "label": "t:sections.slideshow.blocks.slide.settings.button_style.label",
           "options": [
-            { "value": "primary", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.primary" },
-            { "value": "secondary", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.secondary" },
-            { "value": "outline", "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.outline" }
+            {
+              "value": "primary",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.primary"
+            },
+            {
+              "value": "secondary",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.secondary"
+            },
+            {
+              "value": "outline",
+              "label": "t:sections.slideshow.blocks.slide.settings.button_style.options.outline"
+            }
           ],
           "default": "outline"
         },
@@ -1323,10 +1380,22 @@
           "id": "content_alignment_horizontal",
           "label": "t:sections.slideshow.blocks.slide.settings.content_alignment_horizontal.label",
           "options": [
-            { "value": "inherit", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.inherit" },
-            { "value": "start", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.start" },
-            { "value": "center", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.center" },
-            { "value": "end", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.end" }
+            {
+              "value": "inherit",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.inherit"
+            },
+            {
+              "value": "start",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.start"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.center"
+            },
+            {
+              "value": "end",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.end"
+            }
           ],
           "default": "inherit"
         },
@@ -1335,10 +1404,22 @@
           "id": "content_alignment_vertical",
           "label": "t:sections.slideshow.blocks.slide.settings.content_alignment_vertical.label",
           "options": [
-            { "value": "inherit", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.inherit" },
-            { "value": "top", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.top" },
-            { "value": "middle", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.middle" },
-            { "value": "bottom", "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.bottom" }
+            {
+              "value": "inherit",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.inherit"
+            },
+            {
+              "value": "top",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.top"
+            },
+            {
+              "value": "middle",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.middle"
+            },
+            {
+              "value": "bottom",
+              "label": "t:sections.slideshow.blocks.slide.settings.content_alignment.options.bottom"
+            }
           ],
           "default": "inherit"
         }

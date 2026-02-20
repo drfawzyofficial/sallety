@@ -324,6 +324,11 @@
       display: flex;
     }
 
+    /* RTL: flip nav arrow icons so prev/next point correct direction */
+    [dir="rtl"] .announcement-bar__nav svg {
+      transform: scaleX(-1);
+    }
+
     /* RTL Support */
     [dir="rtl"] .announcement-bar__marquee--rtl .announcement-bar__marquee-track {
       animation-name: marquee-ltr;

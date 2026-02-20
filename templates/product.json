@@ -114,25 +114,10 @@
         "heading": "شاهدته مؤخراً",
         "products_to_show": 4
       }
-    },
-    "product-reviews": {
-      "type": "product-reviews",
-      "settings": {
-        "heading": "آراء العملاء",
-        "show_summary": true,
-        "show_verified_badge": true,
-        "show_date": true,
-        "show_avatar": true,
-        "reviews_per_page": 5,
-        "sort_by": "newest",
-        "layout": "list",
-        "card_style": "bordered"
-      }
     }
   },
   "order": [
     "main-product",
-    "product-reviews",
     "product-recommendations",
     "recently-viewed"
   ]

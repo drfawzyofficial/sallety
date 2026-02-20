@@ -323,7 +323,6 @@
   }
 
   .ib-section-heading {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--ib-heading-weight);
     color: var(--color-text);
     margin: 0;
@@ -343,7 +342,7 @@
     grid-template-columns: repeat(var(--ib-cols-d), 1fr);
     gap: var(--ib-gap);
   }
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .ib-grid {
       grid-template-columns: repeat(var(--ib-cols-t), 1fr);
     }
@@ -479,7 +478,7 @@
       transform: translate(-15px, 20px);
     }
   }
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ib-shape-1 {
       width: 140px;
       height: 140px;
@@ -505,6 +504,12 @@
   "tag": "section",
   "class": "section-icon-boxes",
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.icon_boxes.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.icon_boxes.settings.header.content"
@@ -639,12 +644,6 @@
     {
       "type": "header",
       "content": "t:sections.icon_boxes.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.icon_boxes.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

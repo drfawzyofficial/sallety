@@ -437,22 +437,6 @@
         items: `{{ 'cart.general.item_count.other' | t: count: '[count]' }}`,
       };
 
-      window.discountStrings = {
-        empty_code: `{{ 'cart.general.discount_empty' | t | default: 'يرجى إدخال كود الخصم' }}`,
-        invalid_code: `{{ 'cart.general.discount_invalid' | t | default: 'كود الخصم غير صالح أو منتهي الصلاحية' }}`,
-        expired_code: `{{ 'cart.general.discount_expired' | t | default: 'كود الخصم منتهي الصلاحية' }}`,
-        minimum_not_met: `{{ 'cart.general.discount_min_purchase' | t | default: 'لم يتم الوصول للحد الأدنى للطلب لاستخدام هذا الكود' }}`,
-        usage_limit_reached: `{{ 'cart.general.discount_usage_limit' | t | default: 'تم استنفاد الحد الأقصى لاستخدام هذا الكود' }}`,
-        customer_not_eligible: `{{ 'cart.general.discount_not_eligible' | t | default: 'هذا الكود غير متاح لحسابك' }}`,
-        product_not_eligible: `{{ 'cart.general.discount_product_not_eligible' | t | default: 'هذا الكود لا ينطبق على المنتجات في سلتك' }}`,
-        already_applied: `{{ 'cart.general.discount_already_applied' | t | default: 'هذا الكود مطبق بالفعل' }}`,
-        network_error: `{{ 'cart.general.discount_network_error' | t | default: 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' }}`,
-        generic_error: `{{ 'cart.general.discount_generic_error' | t | default: 'حدث خطأ. يرجى المحاولة مرة أخرى' }}`,
-        applied: `{{ 'cart.general.discount_applied' | t | default: 'تم تطبيق كود الخصم بنجاح! سيظهر الخصم عند إتمام الشراء' }}`,
-        removed: `{{ 'cart.general.discount_removed' | t | default: 'تم إزالة كود الخصم' }}`,
-        saved: `{{ 'cart.general.discount_saved' | t | default: 'تم حفظ كود الخصم. سيتم تطبيقه عند إتمام الشراء' }}`,
-      };
-
       window.variantStrings = {
         addToCart: `{{ 'products.product.add_to_cart' | t }}`,
         soldOut: `{{ 'products.product.sold_out' | t }}`,

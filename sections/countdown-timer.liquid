@@ -229,7 +229,7 @@
             loading: 'lazy',
             class: 'ct-image',
             widths: '400,600,800',
-            sizes: '(max-width: 768px) 100vw, 50vw'
+            sizes: '(max-width: 767px) 100vw, 50vw'
         }}
       </div>
       </div>
@@ -297,7 +297,7 @@
     border-radius: var(--ct-corner-radius);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ct-split {
       grid-template-columns: 1fr;
       gap: 32px;
@@ -565,7 +565,7 @@
   }
 
   /* ===== Responsive ===== */
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .ct-units {
       gap: 8px;
     }
@@ -596,7 +596,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .ct-digit-wrap {
       min-width: 50px;
       padding: 10px 8px;
@@ -705,9 +705,18 @@
   "tag": "section",
   "class": "section section-countdown-timer",
   "disabled_on": {
-    "groups": ["header", "footer"]
+    "groups": [
+      "header",
+      "footer"
+    ]
   },
   "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.countdown_timer.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
     {
       "type": "header",
       "content": "t:sections.countdown_timer.settings.header_content.content"
@@ -753,9 +762,18 @@
       "id": "button_style",
       "label": "t:sections.countdown_timer.settings.button_style.label",
       "options": [
-        { "value": "primary", "label": "t:sections.countdown_timer.settings.button_style.options.primary" },
-        { "value": "secondary", "label": "t:sections.countdown_timer.settings.button_style.options.secondary" },
-        { "value": "outline", "label": "t:sections.countdown_timer.settings.button_style.options.outline" }
+        {
+          "value": "primary",
+          "label": "t:sections.countdown_timer.settings.button_style.options.primary"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.countdown_timer.settings.button_style.options.secondary"
+        },
+        {
+          "value": "outline",
+          "label": "t:sections.countdown_timer.settings.button_style.options.outline"
+        }
       ],
       "default": "primary"
     },
@@ -768,8 +786,14 @@
       "id": "layout",
       "label": "t:sections.countdown_timer.settings.layout.label",
       "options": [
-        { "value": "centered", "label": "t:sections.countdown_timer.settings.layout.options.centered" },
-        { "value": "split", "label": "t:sections.countdown_timer.settings.layout.options.split" }
+        {
+          "value": "centered",
+          "label": "t:sections.countdown_timer.settings.layout.options.centered"
+        },
+        {
+          "value": "split",
+          "label": "t:sections.countdown_timer.settings.layout.options.split"
+        }
       ],
       "default": "centered"
     },
@@ -784,9 +808,18 @@
       "id": "text_alignment",
       "label": "t:sections.countdown_timer.settings.text_alignment.label",
       "options": [
-        { "value": "right", "label": "t:sections.countdown_timer.settings.text_alignment.options.right" },
-        { "value": "center", "label": "t:sections.countdown_timer.settings.text_alignment.options.center" },
-        { "value": "left", "label": "t:sections.countdown_timer.settings.text_alignment.options.left" }
+        {
+          "value": "right",
+          "label": "t:sections.countdown_timer.settings.text_alignment.options.right"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.countdown_timer.settings.text_alignment.options.center"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.countdown_timer.settings.text_alignment.options.left"
+        }
       ],
       "default": "center"
     },
@@ -795,10 +828,22 @@
       "id": "card_style",
       "label": "t:sections.countdown_timer.settings.card_style.label",
       "options": [
-        { "value": "glass", "label": "t:sections.countdown_timer.settings.card_style.options.glass" },
-        { "value": "solid", "label": "t:sections.countdown_timer.settings.card_style.options.solid" },
-        { "value": "bordered", "label": "t:sections.countdown_timer.settings.card_style.options.bordered" },
-        { "value": "minimal", "label": "t:sections.countdown_timer.settings.card_style.options.minimal" }
+        {
+          "value": "glass",
+          "label": "t:sections.countdown_timer.settings.card_style.options.glass"
+        },
+        {
+          "value": "solid",
+          "label": "t:sections.countdown_timer.settings.card_style.options.solid"
+        },
+        {
+          "value": "bordered",
+          "label": "t:sections.countdown_timer.settings.card_style.options.bordered"
+        },
+        {
+          "value": "minimal",
+          "label": "t:sections.countdown_timer.settings.card_style.options.minimal"
+        }
       ],
       "default": "glass"
     },
@@ -807,10 +852,22 @@
       "id": "separator_style",
       "label": "t:sections.countdown_timer.settings.separator_style.label",
       "options": [
-        { "value": "colon", "label": "t:sections.countdown_timer.settings.separator_style.options.colon" },
-        { "value": "dot", "label": "t:sections.countdown_timer.settings.separator_style.options.dot" },
-        { "value": "dash", "label": "t:sections.countdown_timer.settings.separator_style.options.dash" },
-        { "value": "slash", "label": "t:sections.countdown_timer.settings.separator_style.options.slash" }
+        {
+          "value": "colon",
+          "label": "t:sections.countdown_timer.settings.separator_style.options.colon"
+        },
+        {
+          "value": "dot",
+          "label": "t:sections.countdown_timer.settings.separator_style.options.dot"
+        },
+        {
+          "value": "dash",
+          "label": "t:sections.countdown_timer.settings.separator_style.options.dash"
+        },
+        {
+          "value": "slash",
+          "label": "t:sections.countdown_timer.settings.separator_style.options.slash"
+        }
       ],
       "default": "colon"
     },
@@ -845,11 +902,26 @@
       "id": "heading_weight",
       "label": "t:sections.countdown_timer.settings.heading_weight.label",
       "options": [
-        { "value": "400", "label": "t:sections.countdown_timer.settings.heading_weight.options.400" },
-        { "value": "500", "label": "t:sections.countdown_timer.settings.heading_weight.options.500" },
-        { "value": "600", "label": "t:sections.countdown_timer.settings.heading_weight.options.600" },
-        { "value": "700", "label": "t:sections.countdown_timer.settings.heading_weight.options.700" },
-        { "value": "800", "label": "t:sections.countdown_timer.settings.heading_weight.options.800" }
+        {
+          "value": "400",
+          "label": "t:sections.countdown_timer.settings.heading_weight.options.400"
+        },
+        {
+          "value": "500",
+          "label": "t:sections.countdown_timer.settings.heading_weight.options.500"
+        },
+        {
+          "value": "600",
+          "label": "t:sections.countdown_timer.settings.heading_weight.options.600"
+        },
+        {
+          "value": "700",
+          "label": "t:sections.countdown_timer.settings.heading_weight.options.700"
+        },
+        {
+          "value": "800",
+          "label": "t:sections.countdown_timer.settings.heading_weight.options.800"
+        }
       ],
       "default": "700"
     },
@@ -886,12 +958,6 @@
     {
       "type": "header",
       "content": "t:sections.countdown_timer.settings.header_colors.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.countdown_timer.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "color",

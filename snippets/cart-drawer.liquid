@@ -15,7 +15,7 @@
 <!-- Cart Drawer -->
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
 <div
-  class="cart-drawer drawer fixed top-0 bottom-0 z-[1000] w-full max-w-[420px] bg-background shadow-2xl opacity-0 invisible transition-all duration-300 ease-out flex flex-col"
+  class="cart-drawer drawer fixed top-0 bottom-0 z-[1000] w-full max-w-[420px] bg-background shadow-2xl flex flex-col"
   id="cart-drawer"
   dir="{{ section_dir }}"
   role="dialog"
@@ -214,25 +214,6 @@
 
       <!-- Subtotal & Actions -->
       <div class="px-5 py-4 space-y-4">
-        <!-- Discount Code (Optional) -->
-        {%- if settings.show_cart_discount -%}
-          <div class="flex gap-2">
-            <input
-              type="text"
-              class="flex-1 px-4 py-2.5 text-sm border border-border rounded-lg bg-background text-foreground placeholder:text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-              placeholder="{{ 'cart.general.discount_code' | t | default: 'كود الخصم' }}"
-              data-discount-input
-            >
-            <button
-              type="button"
-              class="px-4 py-2.5 text-sm font-medium border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200"
-              data-apply-discount
-            >
-              {{ 'cart.general.apply' | t | default: 'تطبيق' }}
-            </button>
-          </div>
-        {%- endif -%}
-
         <!-- Subtotal -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
@@ -339,25 +320,19 @@
 </div>
 
 <style>
-  /* Cart Drawer - Direction-aware positioning (slides from end side) */
+  /* Cart Drawer - Always slides from physical right side */
   .cart-drawer {
-    inset-inline-end: 0;
+    right: -100%;
+    left: auto;
+    inset-inline-end: auto;
     inset-inline-start: auto;
-  }
-
-  [dir='ltr'] .cart-drawer {
-    transform: translateX(100%);
+    transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s;
     box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
   }
 
-  [dir='rtl'] .cart-drawer {
-    transform: translateX(-100%);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-  }
-
   .cart-drawer.is-open {
-    transform: translateX(0) !important;
-    opacity: 1;
+    right: 0;
+    inset-inline-end: auto;
     visibility: visible;
   }
 

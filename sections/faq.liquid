@@ -109,7 +109,7 @@
                   {{ image | image_url: width: 600 }} 600w,
                   {{ image | image_url: width: 800 }} 800w
                 "
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 1023px) 100vw, 50vw"
                 alt="{{ image.alt | default: section_heading | default: 'FAQ illustration' }}"
                 class="faq-image w-full h-auto object-cover"
                 loading="lazy"
@@ -205,7 +205,7 @@
     line-height: 1.8;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .faq-main-heading {
       font-size: var(--faq-heading-tablet);
     }
@@ -220,7 +220,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .faq-main-heading {
       font-size: var(--faq-heading-mobile);
     }
@@ -334,7 +334,7 @@
   }
 
   /* Mobile Card Adjustments */
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .faq-item--card .faq-question {
       padding: 16px 18px;
     }
@@ -558,6 +558,12 @@
   "class": "section-faq",
   "settings": [
     {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.faq.settings.color_scheme.label",
+      "default": "scheme-1"
+    },
+    {
       "type": "header",
       "content": "t:sections.faq.settings.header.content"
     },
@@ -645,12 +651,6 @@
     {
       "type": "header",
       "content": "t:sections.faq.settings.header.content"
-    },
-    {
-      "type": "color_scheme",
-      "id": "color_scheme",
-      "label": "t:sections.faq.settings.color_scheme.label",
-      "default": "scheme-1"
     },
     {
       "type": "header",

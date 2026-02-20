@@ -12,7 +12,7 @@
     srcset="{{ section.settings.image | image_url: width: 600 }} 600w,
             {{ section.settings.image | image_url: width: 900 }} 900w,
             {{ section.settings.image | image_url: width: 1200 }} 1200w"
-    sizes="(max-width: 1024px) 100vw, 50vw"
+    sizes="(max-width: 1023px) 100vw, 50vw"
     alt="{{ section.settings.image_alt | default: section.settings.heading | escape }}"
     loading="lazy"
     class="w-full h-full object-cover object-center"

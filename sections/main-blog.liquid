@@ -7,15 +7,17 @@
 {%- liquid
   # RTL detection
   assign is_rtl = false
-  assign rtl_languages = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
-  for rtl_lang in rtl_languages
-    assign rtl_lang_trimmed = rtl_lang | strip
-    if request.locale.iso_code == rtl_lang_trimmed or localization.language.iso_code == rtl_lang_trimmed
-      assign is_rtl = true
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
       break
     endif
   endfor
-  if settings.enable_rtl
+  if settings.enable_rtl and is_rtl_lang
     assign is_rtl = true
   endif
 
@@ -86,7 +88,6 @@
   }
 
   .main-blog__title {
-    font-size: var(--font-heading-size, 32px);
     font-weight: var(--font-heading-weight, 700);
     color: var(--main-blog-heading-color);
     margin: 0 0 16px 0;
@@ -174,13 +175,13 @@
   }
 
   /* Responsive */
-  @media (max-width: 1024px) {
+  @media (max-width: 1023px) {
     .main-blog__grid {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .main-blog-section {
       padding-top: {{ padding_top | divided_by: 1.5 | round }}px;
       padding-bottom: {{ padding_bottom | divided_by: 1.5 | round }}px;
@@ -190,9 +191,7 @@
       margin-bottom: 24px;
     }
 
-    .main-blog__title {
-      font-size: calc(var(--font-heading-size, 32px) * 0.75);
-    }
+
 
     .main-blog__tags {
       gap: 8px;
@@ -213,7 +212,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 639px) {
     .main-blog__description {
       font-size: 14px;
     }

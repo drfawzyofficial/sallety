@@ -2984,103 +2984,6 @@
         }
       }
     },
-    "product_reviews": {
-      "name": "تقييمات المنتج",
-      "settings": {
-        "header_content": {
-          "content": "المحتوى"
-        },
-        "subheading": {
-          "label": "العنوان الفرعي"
-        },
-        "heading": {
-          "label": "العنوان"
-        },
-        "header_display": {
-          "content": "العرض"
-        },
-        "show_summary": {
-          "label": "إظهار ملخص التقييمات"
-        },
-        "show_verified_badge": {
-          "label": "إظهار شارة المشتري الموثق"
-        },
-        "show_date": {
-          "label": "إظهار التاريخ"
-        },
-        "show_avatar": {
-          "label": "إظهار الصورة الرمزية"
-        },
-        "reviews_per_page": {
-          "label": "تقييمات في الصفحة"
-        },
-        "sort_by": {
-          "label": "ترتيب حسب",
-          "options": {
-            "newest": "الأحدث",
-            "oldest": "الأقدم",
-            "highest": "الأعلى تقييماً",
-            "lowest": "الأقل تقييماً"
-          }
-        },
-        "header_layout": {
-          "content": "التخطيط"
-        },
-        "layout": {
-          "label": "نمط العرض",
-          "options": {
-            "list": "قائمة",
-            "grid": "شبكة"
-          }
-        },
-        "card_style": {
-          "label": "نمط البطاقة",
-          "options": {
-            "bordered": "بحدود",
-            "filled": "معبأة",
-            "minimal": "بسيط",
-            "glass": "زجاجي"
-          }
-        },
-        "header_typography": {
-          "content": "الخطوط"
-        },
-        "heading_weight": {
-          "label": "وزن العنوان",
-          "options": {
-            "400": "عادي (400)",
-            "500": "متوسط (500)",
-            "600": "شبه عريض (600)",
-            "700": "عريض (700)",
-            "800": "عريض جداً (800)"
-          }
-        },
-        "corner_radius": {
-          "label": "انحناء الزوايا"
-        },
-        "header_colors": {
-          "content": "الألوان"
-        },
-        "color_scheme": {
-          "label": "نظام الألوان"
-        },
-        "star_color": {
-          "label": "لون النجوم"
-        },
-        "verified_color": {
-          "label": "لون شارة الموثق"
-        },
-        "header_spacing": {
-          "content": "المسافات"
-        },
-        "padding_top": {
-          "label": "الهامش العلوي"
-        },
-        "padding_bottom": {
-          "label": "الهامش السفلي"
-        }
-      }
-    },
     "product_recommendations": {
       "name": "منتجات موصى بها",
       "settings": {
@@ -3395,7 +3298,127 @@
       }
     },
     "main_search": {
-      "name": "صفحة البحث الرئيسية"
+      "name": "صفحة البحث الرئيسية",
+      "settings": {
+        "color_scheme": {
+          "label": "نظام الألوان"
+        },
+        "header": {
+          "content": "الإعدادات"
+        },
+        "hero_style": {
+          "label": "نمط البطل",
+          "options": {
+            "gradient": "تدرج",
+            "solid": "لون موحد",
+            "minimal": "بسيط"
+          }
+        },
+        "show_popular_searches": {
+          "label": "إظهار عمليات البحث الشائعة"
+        },
+        "popular_search_terms": {
+          "label": "كلمات البحث الشائعة",
+          "info": "افصل بين الكلمات باستخدام فاصلة"
+        },
+        "products_per_page": {
+          "label": "عدد المنتجات في الصفحة"
+        },
+        "show_vendor": {
+          "label": "إظهار البائع"
+        },
+        "show_rating": {
+          "label": "إظهار التقييم"
+        },
+        "columns_desktop": {
+          "label": "الأعمدة (الكمبيوتر)"
+        },
+        "columns_tablet": {
+          "label": "الأعمدة (التابلت)"
+        },
+        "columns_mobile": {
+          "label": "الأعمدة (الجوال)",
+          "options": {
+            "1": "عمود واحد",
+            "2": "عمودان"
+          }
+        },
+        "space_horizontal": {
+          "label": "المسافة الأفقية"
+        },
+        "space_vertical": {
+          "label": "المسافة الرأسية"
+        },
+        "image_ratio": {
+          "label": "نسبة الصورة",
+          "options": {
+            "adapt": "تكيف مع الصورة",
+            "1-1": "1:1 (مربع)",
+            "2-3": "2:3 (عمودي)",
+            "3-2": "3:2 (أفقي)",
+            "4-3": "4:3",
+            "16-9": "16:9 (عريض)"
+          }
+        },
+        "content_align": {
+          "label": "محاذاة المحتوى",
+          "options": {
+            "start": "بداية",
+            "center": "وسط"
+          }
+        },
+        "enable_list_view": {
+          "label": "تفعيل عرض القائمة"
+        },
+        "default_view": {
+          "label": "العرض الافتراضي",
+          "options": {
+            "grid": "شبكة",
+            "list": "قائمة"
+          }
+        },
+        "pagination_type": {
+          "label": "نوع التصفح",
+          "options": {
+            "default": "افتراضي",
+            "load_more": "تحميل المزيد",
+            "infinite": "تمرير لا نهائي"
+          }
+        },
+        "show_progress_bar": {
+          "label": "إظهار شريط التقدم",
+          "info": "يظهر مع خيار تحميل المزيد"
+        },
+        "button_style": {
+          "label": "نمط الزر",
+          "options": {
+            "primary": "أساسي",
+            "secondary": "ثانوي",
+            "outline": "محدد"
+          }
+        },
+        "suggest_collection": {
+          "label": "مجموعة مقترحة",
+          "info": "تظهر عند عدم وجود نتائج بحث"
+        },
+        "padding_top": {
+          "label": "الهامش العلوي"
+        },
+        "padding_bottom": {
+          "label": "الهامش السفلي"
+        }
+      },
+      "blocks": {
+        "sortby": {
+          "name": "الترتيب"
+        },
+        "filter": {
+          "name": "التصفية"
+        },
+        "layout_switch": {
+          "name": "تبديل العرض"
+        }
+      }
     },
     "main_page": {
       "name": "صفحة المحتوى الرئيسية"
@@ -3761,6 +3784,12 @@
     "main_password": {
       "name": "صفحة كلمة المرور",
       "settings": {
+        "header": {
+          "content": "الإعدادات"
+        },
+        "paragraph": {
+          "content": "يتم استخدام الشعار من الإعدادات العامة للقالب (إعدادات القالب > عام > شعار المتجر)"
+        },
         "content": {
           "header": "المحتوى"
         },
@@ -3876,19 +3905,19 @@
         "heading_weight": {
           "label": "وزن العنوان",
           "options": {
-            "regular": "عادي",
-            "medium": "متوسط",
-            "semibold": "شبه عريض",
-            "bold": "عريض",
-            "extra_bold": "عريض جداً"
+            "400": "عادي",
+            "500": "متوسط",
+            "600": "شبه عريض",
+            "700": "عريض",
+            "800": "عريض جداً"
           }
         },
         "body_weight": {
           "label": "وزن الوصف",
           "options": {
-            "regular": "عادي",
-            "medium": "متوسط",
-            "semibold": "شبه عريض"
+            "400": "عادي",
+            "500": "متوسط",
+            "600": "شبه عريض"
           }
         },
         "padding": {
@@ -3903,7 +3932,136 @@
       }
     },
     "main_list_collections": {
-      "name": "صفحة قائمة المجموعات"
+      "name": "صفحة قائمة المجموعات",
+      "blocks": {
+        "collection": {
+          "name": "مجموعة",
+          "settings": {
+            "collection": {
+              "label": "المجموعة"
+            },
+            "custom_image": {
+              "label": "صورة مخصصة",
+              "info": "تظهر بدلاً من صورة المجموعة الأصلية"
+            },
+            "custom_title": {
+              "label": "عنوان مخصص",
+              "info": "يظهر بدلاً من اسم المجموعة الأصلي"
+            }
+          }
+        }
+      },
+      "settings": {
+        "header_banner": {
+          "content": "بانر الصفحة"
+        },
+        "show_banner": {
+          "label": "إظهار البانر"
+        },
+        "banner_image": {
+          "label": "صورة البانر",
+          "info": "يُنصح بصورة بعرض 1920 بكسل. إذا لم تُحدد صورة ستظهر خلفية متدرجة"
+        },
+        "banner_height": {
+          "label": "ارتفاع البانر (بكسل)"
+        },
+        "overlay_opacity": {
+          "label": "شفافية التعتيم"
+        },
+        "banner_title": {
+          "label": "عنوان البانر"
+        },
+        "banner_subtitle": {
+          "label": "وصف البانر"
+        },
+        "show_breadcrumbs": {
+          "label": "إظهار مسار التنقل"
+        },
+        "show_collection_count": {
+          "label": "إظهار عدد المجموعات"
+        },
+        "text_alignment": {
+          "label": "محاذاة النص في البانر",
+          "options": {
+            "start": "بداية",
+            "center": "وسط",
+            "end": "نهاية"
+          }
+        },
+        "header_grid": {
+          "content": "شبكة المجموعات"
+        },
+        "columns_desktop": {
+          "label": "أعمدة سطح المكتب"
+        },
+        "columns_tablet": {
+          "label": "أعمدة الجهاز اللوحي"
+        },
+        "columns_mobile": {
+          "label": "أعمدة الجوال"
+        },
+        "grid_gap": {
+          "label": "المسافة بين العناصر"
+        },
+        "header_card": {
+          "content": "بطاقة المجموعة"
+        },
+        "card_style": {
+          "label": "نمط البطاقة",
+          "options": {
+            "overlay": "عنوان فوق الصورة",
+            "below": "عنوان أسفل الصورة",
+            "minimal": "مبسط"
+          }
+        },
+        "image_ratio": {
+          "label": "نسبة أبعاد الصورة",
+          "options": {
+            "portrait": "طولي (3:4)",
+            "square": "مربع (1:1)",
+            "landscape": "عرضي (4:3)",
+            "wide": "عريض (16:9)"
+          }
+        },
+        "shape_pattern": {
+          "label": "شكل البطاقة",
+          "info": "اختر نمط شكل يُطبّق على جميع بطاقات المجموعات",
+          "options": {
+            "none": "بدون (افتراضي)",
+            "pattern_1": "نمط 1 - زوايا مستديرة كبيرة",
+            "pattern_2": "نمط 2 - شكل ثماني",
+            "pattern_3": "نمط 3 - قوس علوي",
+            "pattern_4": "نمط 4 - شكل عضوي",
+            "pattern_5": "نمط 5 - شكل ماسي"
+          }
+        },
+        "show_card_count": {
+          "label": "إظهار عدد المنتجات في البطاقة"
+        },
+        "card_border_radius": {
+          "label": "انحناء زوايا البطاقة"
+        },
+        "card_shadow": {
+          "label": "ظل البطاقة",
+          "options": {
+            "none": "بدون ظل",
+            "small": "خفيف",
+            "medium": "متوسط",
+            "large": "قوي"
+          }
+        },
+        "hover_effect": {
+          "label": "تأثير عند التمرير",
+          "options": {
+            "none": "بدون تأثير",
+            "zoom": "تكبير",
+            "zoom_rotate": "تكبير مع دوران"
+          }
+        },
+        "color_scheme": {
+          "label": "نظام الألوان"
+        }
+      }
     },
     "main_collection_banner": {
       "name": "بانر المجموعة"

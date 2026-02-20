@@ -1369,9 +1369,14 @@
       // Update URL
       Sallety.utils.updateUrlParam('variant', variant.id);
 
-      // Update price display
+      // Update price display (only target price display spans, not wishlist buttons that use data-product-price as a data attribute)
       document.querySelectorAll(SELECTORS.PRODUCT_PRICE).forEach(el => {
-        el.innerHTML = Sallety.utils.formatMoney(variant.price);
+        if (el.tagName === 'BUTTON' || el.closest('[data-wishlist-add]')) {
+          // For wishlist buttons, update the data attribute value, not innerHTML
+          el.setAttribute('data-product-price', variant.price);
+        } else {
+          el.innerHTML = Sallety.utils.formatMoney(variant.price);
+        }
       });
 
       // Update compare price display
@@ -2024,6 +2029,7 @@
       this._initInfiniteScroll();
       this._initFacets();
       this._initActiveFilters();
+      this._initPagination();
       this._initPopState();
     },
 
@@ -2093,6 +2099,7 @@
         Sallety.collection._initLoadMore();
         Sallety.collection._initInfiniteScroll();
         Sallety.collection._initLayoutSwitch();
+        Sallety.collection._initPagination();
 
         // Re-init product forms inside the new grid
         Sallety.productForm.init();
@@ -2166,29 +2173,35 @@
     // FILTER DRAWER
     // ========================================================================
 
-    /** Filter drawer open/close */
+    /** Filter drawer open/close — uses event delegation so it survives AJAX content swaps */
     _initFilter: function () {
-      var filterToggle = this.section.querySelector('[data-filter-toggle]');
-      var filterDrawer = document.getElementById('filter-drawer');
-      var filterOverlay = document.querySelector('[data-filter-overlay]');
+      // Only bind once using event delegation on document
+      if (Sallety.collection._filterDelegated) return;
+      Sallety.collection._filterDelegated = true;
 
-      if (!filterToggle || !filterDrawer) return;
+      document.addEventListener('click', function (e) {
+        // Open filter drawer
+        var toggleBtn = e.target.closest('[data-filter-toggle]');
+        if (toggleBtn) {
+          e.preventDefault();
+          Sallety.drawer.open('filter-drawer');
+          return;
+        }
 
-      filterToggle.addEventListener('click', function () {
-        Sallety.drawer.open('filter-drawer');
-      });
-
-      filterDrawer.querySelectorAll('[data-filter-close]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        // Close filter drawer
+        var closeBtn = e.target.closest('[data-filter-close]');
+        if (closeBtn) {
           Sallety.drawer.close('filter-drawer');
-        });
-      });
+          return;
+        }
 
-      if (filterOverlay) {
-        filterOverlay.addEventListener('click', function () {
+        // Click on overlay to close
+        var overlay = e.target.closest('[data-filter-overlay]');
+        if (overlay) {
           Sallety.drawer.close('filter-drawer');
-        });
-      }
+          return;
+        }
+      });
     },
 
     // ========================================================================
@@ -2469,6 +2482,27 @@
       }
 
       this._fetchAndRender(url.toString());
+    },
+
+    // ========================================================================
+    // NUMBERED PAGINATION (AJAX)
+    // ========================================================================
+
+    /** Intercept default numbered pagination links and use AJAX */
+    _initPagination: function () {
+      var self = this;
+      var paginationWrapper = this.section.querySelector('[data-pagination-wrapper]');
+      if (!paginationWrapper) return;
+
+      paginationWrapper.querySelectorAll('[data-pagination-link]').forEach(function (link) {
+        if (link.dataset.paginationInit) return;
+        link.dataset.paginationInit = 'true';
+
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          self._fetchAndRender(link.href);
+        });
+      });
     },
 
     // ========================================================================
@@ -3500,6 +3534,12 @@
       this.currentVariant = null;
       this._clearTriggerLoading();
 
+      // Remove keyboard handler for carousel
+      if (this._qvKeyboardHandler) {
+        document.removeEventListener('keydown', this._qvKeyboardHandler);
+        this._qvKeyboardHandler = null;
+      }
+
       // Reset content
       if (this.content) {
         this.content.innerHTML = '';
@@ -3726,6 +3766,23 @@
           // Setup touch swipe on carousel
           var carouselEl = container.querySelector('[data-qv-carousel]');
           this._setupQvSwipe(carouselEl, container, product.images.length);
+
+          // Keyboard navigation for carousel (matching product gallery)
+          var totalImgs = product.images.length;
+          this._qvKeyboardHandler = function (e) {
+            if (!self.modal || !self.modal.classList.contains('is-open')) return;
+            var isRTL = document.documentElement.dir === 'rtl';
+            if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              var dir = isRTL ? 1 : -1;
+              self._qvGoToSlide(container, self._qvCurrentIndex + dir, totalImgs);
+            } else if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              var dir = isRTL ? -1 : 1;
+              self._qvGoToSlide(container, self._qvCurrentIndex + dir, totalImgs);
+            }
+          };
+          document.addEventListener('keydown', this._qvKeyboardHandler);
         }
       }
 
@@ -4801,10 +4858,7 @@
           });
         }
 
-        // Re-initialize discount code module after content refresh
-        if (Sallety.discountCode) {
-          Sallety.discountCode.init();
-        }
+
       }
     },
 
@@ -4852,682 +4906,6 @@
           setTimeout(function () { error.remove(); }, 300);
         }
       }, 5000);
-    }
-  };
-
-  // ============================================================================
-  // DISCOUNT CODE MODULE
-  // ============================================================================
-
-  /**
-   * Discount Code Module
-   * Handles discount code application on the cart page
-   * Validates discount codes via Shopify's discount endpoint and handles all error cases.
-   * The discount code is applied at checkout via URL parameter.
-   */
-  Sallety.discountCode = {
-    STORAGE_KEY: 'sallety_discount_code',
-    STORAGE_KEY_VALIDATED: 'sallety_discount_validated',
-    wrapper: null,
-    form: null,
-    input: null,
-    applyBtn: null,
-    appliedDisplay: null,
-    errorEl: null,
-    successEl: null,
-    spinner: null,
-    btnText: null,
-    currentCode: null,
-    isValidated: false,
-    infoEl: null,
-
-    /**
-     * Error messages for different discount validation failures
-     */
-    errorMessages: {
-      empty_code: window.discountStrings?.empty_code || 'يرجى إدخال كود الخصم',
-      invalid_code: window.discountStrings?.invalid_code || 'كود الخصم غير صالح أو منتهي الصلاحية',
-      expired_code: window.discountStrings?.expired_code || 'كود الخصم منتهي الصلاحية',
-      minimum_not_met: window.discountStrings?.minimum_not_met || 'لم يتم الوصول للحد الأدنى للطلب لاستخدام هذا الكود',
-      usage_limit_reached: window.discountStrings?.usage_limit_reached || 'تم استنفاد الحد الأقصى لاستخدام هذا الكود',
-      customer_not_eligible: window.discountStrings?.customer_not_eligible || 'هذا الكود غير متاح لحسابك',
-      product_not_eligible: window.discountStrings?.product_not_eligible || 'هذا الكود لا ينطبق على المنتجات في سلتك',
-      already_applied: window.discountStrings?.already_applied || 'هذا الكود مطبق بالفعل',
-      network_error: window.discountStrings?.network_error || 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى',
-      generic_error: window.discountStrings?.generic_error || 'حدث خطأ. يرجى المحاولة مرة أخرى'
-    },
-
-    /**
-     * Success messages
-     */
-    successMessages: {
-      applied: window.discountStrings?.applied || 'تم تطبيق كود الخصم بنجاح! سيظهر الخصم عند إتمام الشراء',
-      removed: window.discountStrings?.removed || 'تم إزالة كود الخصم',
-      saved: window.discountStrings?.saved || 'تم حفظ كود الخصم. سيتم تطبيقه عند إتمام الشراء'
-    },
-
-    /**
-     * Initialize the discount code module
-     */
-    init: function () {
-      this.wrapper = document.querySelector('[data-discount-wrapper]');
-      if (!this.wrapper) return;
-
-      this.form = this.wrapper.querySelector('[data-discount-form]');
-      this.input = this.wrapper.querySelector('[data-discount-input]');
-      this.applyBtn = this.wrapper.querySelector('[data-apply-discount]');
-      this.appliedDisplay = this.wrapper.querySelector('[data-applied-discount]');
-      this.errorEl = this.wrapper.querySelector('[data-discount-error]');
-      this.successEl = this.wrapper.querySelector('[data-discount-success]');
-      this.spinner = this.wrapper.querySelector('[data-discount-spinner]');
-      this.btnText = this.wrapper.querySelector('[data-discount-btn-text]');
-      this.infoEl = this.wrapper.querySelector('[data-discount-info]');
-
-      this._loadFromStorage();
-      this._bindEvents();
-      this._updateCheckoutLinks();
-    },
-
-    /**
-     * Bind event listeners
-     */
-    _bindEvents: function () {
-      var self = this;
-
-      // Apply discount button click
-      if (this.applyBtn) {
-        this.applyBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          self.applyDiscount();
-        });
-      }
-
-      // Enter key on input
-      if (this.input) {
-        this.input.addEventListener('keypress', function (e) {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            self.applyDiscount();
-          }
-        });
-
-        // Clear error on input change
-        this.input.addEventListener('input', function () {
-          self._hideError();
-          self._hideSuccess();
-          self.input.classList.remove('error');
-        });
-      }
-
-      // Remove discount button
-      var removeBtn = this.wrapper.querySelector('[data-remove-discount]');
-      if (removeBtn) {
-        removeBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          self.removeDiscount();
-        });
-      }
-    },
-
-    /**
-     * Apply discount code with validation
-     */
-    applyDiscount: function () {
-      var self = this;
-      var code = this.input ? this.input.value.trim() : '';
-
-      // Validate input
-      if (!code) {
-        this._showError(this.errorMessages.empty_code);
-        this._shakeInput();
-        return;
-      }
-
-      // Check if same code is already applied
-      if (this.currentCode && this.currentCode.toUpperCase() === code.toUpperCase()) {
-        this._showError(this.errorMessages.already_applied);
-        return;
-      }
-
-      // Show loading state
-      this._setLoading(true);
-      this._hideError();
-      this._hideSuccess();
-
-      // Validate the discount code by making a request to Shopify
-      this._validateDiscountCode(code)
-        .then(function (result) {
-          self._setLoading(false);
-
-          if (result.valid) {
-            // Store the discount code
-            self.currentCode = code.toUpperCase();
-            self.isValidated = true;
-            self._saveToStorage();
-
-            // Update UI
-            self._showAppliedDiscount();
-            self._showSuccess(self.successMessages.applied);
-            self._updateCheckoutLinks();
-
-            // Clear input
-            if (self.input) {
-              self.input.value = '';
-              self.input.classList.remove('error');
-            }
-
-            // Hide success message after delay
-            setTimeout(function () {
-              self._hideSuccess();
-            }, 5000);
-          } else {
-            // Show appropriate error message
-            self._showError(result.message || self.errorMessages.invalid_code);
-            self._shakeInput();
-            self.input.classList.add('error');
-          }
-        })
-        .catch(function (error) {
-          self._setLoading(false);
-          console.error('[Sallety] Discount validation error:', error);
-
-          // On network error, save the code anyway (will be validated at checkout)
-          self.currentCode = code.toUpperCase();
-          self.isValidated = false;
-          self._saveToStorage();
-
-          // Update UI
-          self._showAppliedDiscount();
-          self._showSuccess(self.successMessages.saved);
-          self._updateCheckoutLinks();
-
-          // Clear input
-          if (self.input) {
-            self.input.value = '';
-          }
-
-          setTimeout(function () {
-            self._hideSuccess();
-          }, 5000);
-        });
-    },
-
-    /**
-     * Validate discount code via Shopify
-     * @param {string} code - Discount code to validate
-     * @returns {Promise<{valid: boolean, message?: string}>}
-     */
-    _validateDiscountCode: function (code) {
-      var self = this;
-
-      return new Promise(function (resolve, reject) {
-        // Method 1: Try to apply discount via the discount URL
-        // This creates a temporary checkout session to validate the code
-        var validateUrl = '/discount/' + encodeURIComponent(code);
-
-        fetch(validateUrl, {
-          method: 'GET',
-          credentials: 'same-origin',
-          redirect: 'manual'
-        })
-          .then(function (response) {
-            // If we get a redirect (302), the discount code is likely valid
-            // Shopify redirects to the homepage or cart after applying discount
-            if (response.type === 'opaqueredirect' || response.redirected || response.status === 302 || response.status === 200) {
-              // The discount was applied to the session
-              // Now verify by checking the cart
-              return self._verifyDiscountApplied(code);
-            } else if (response.status === 404) {
-              resolve({ valid: false, message: self.errorMessages.invalid_code });
-            } else {
-              // Try alternative validation method
-              return self._validateViaCheckout(code);
-            }
-          })
-          .then(function (result) {
-            if (result) {
-              resolve(result);
-            }
-          })
-          .catch(function (error) {
-            // Network error - try alternative method or accept the code
-            console.warn('[Sallety] Primary discount validation failed:', error);
-            self._validateViaCheckout(code)
-              .then(resolve)
-              .catch(function () {
-                // If all validation fails, accept the code (will be validated at checkout)
-                resolve({ valid: true, message: self.successMessages.saved });
-              });
-          });
-      });
-    },
-
-    /**
-     * Verify if discount was applied by checking cart
-     * @param {string} code - Discount code
-     * @returns {Promise<{valid: boolean, message?: string}>}
-     */
-    _verifyDiscountApplied: function (code) {
-      var self = this;
-
-      return fetch('/cart.js', {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (cart) {
-          // Check if there are any discount applications
-          if (cart.cart_level_discount_applications && cart.cart_level_discount_applications.length > 0) {
-            // Check if our code is in the applied discounts
-            var codeApplied = cart.cart_level_discount_applications.some(function (discount) {
-              return discount.title && discount.title.toUpperCase() === code.toUpperCase();
-            });
-
-            if (codeApplied) {
-              return { valid: true };
-            }
-          }
-
-          // Check line item discounts
-          if (cart.items && cart.items.length > 0) {
-            var hasLineDiscount = cart.items.some(function (item) {
-              return item.line_level_discount_allocations && item.line_level_discount_allocations.some(function (discount) {
-                return discount.discount_application &&
-                  discount.discount_application.title &&
-                  discount.discount_application.title.toUpperCase() === code.toUpperCase();
-              });
-            });
-
-            if (hasLineDiscount) {
-              return { valid: true };
-            }
-          }
-
-          // If no discount found but we got here, the code might still be valid
-          // (some discounts only apply at checkout)
-          return { valid: true, message: self.successMessages.saved };
-        })
-        .catch(function (error) {
-          console.warn('[Sallety] Cart verification failed:', error);
-          // Accept the code if verification fails
-          return { valid: true, message: self.successMessages.saved };
-        });
-    },
-
-    /**
-     * Alternative validation via checkout API
-     * @param {string} code - Discount code
-     * @returns {Promise<{valid: boolean, message?: string}>}
-     */
-    _validateViaCheckout: function (code) {
-      var self = this;
-
-      return new Promise(function (resolve) {
-        // Create a form to submit to checkout with the discount
-        // and check the response
-        var formData = new FormData();
-        formData.append('discount', code);
-
-        fetch('/checkout', {
-          method: 'POST',
-          body: formData,
-          credentials: 'same-origin',
-          redirect: 'manual'
-        })
-          .then(function (response) {
-            // Parse the response to check for errors
-            if (response.status === 302 || response.status === 303 || response.type === 'opaqueredirect') {
-              // Redirect means the discount might be valid
-              resolve({ valid: true, message: self.successMessages.saved });
-            } else {
-              return response.text();
-            }
-          })
-          .then(function (html) {
-            if (!html) return;
-
-            // Check for common error patterns in the response
-            var lowerHtml = html.toLowerCase();
-
-            if (lowerHtml.includes('enter a valid discount code') ||
-              lowerHtml.includes('invalid discount') ||
-              lowerHtml.includes('code is invalid') ||
-              lowerHtml.includes('كود غير صالح') ||
-              lowerHtml.includes('كود الخصم غير صالح')) {
-              resolve({ valid: false, message: self.errorMessages.invalid_code });
-            } else if (lowerHtml.includes('expired') || lowerHtml.includes('منتهي')) {
-              resolve({ valid: false, message: self.errorMessages.expired_code });
-            } else if (lowerHtml.includes('minimum') || lowerHtml.includes('الحد الأدنى')) {
-              resolve({ valid: false, message: self.errorMessages.minimum_not_met });
-            } else if (lowerHtml.includes('usage limit') || lowerHtml.includes('limit reached') || lowerHtml.includes('الحد الأقصى')) {
-              resolve({ valid: false, message: self.errorMessages.usage_limit_reached });
-            } else if (lowerHtml.includes('not eligible') || lowerHtml.includes('غير مؤهل')) {
-              resolve({ valid: false, message: self.errorMessages.customer_not_eligible });
-            } else if (lowerHtml.includes('does not apply') || lowerHtml.includes('لا ينطبق')) {
-              resolve({ valid: false, message: self.errorMessages.product_not_eligible });
-            } else {
-              // If no specific error found, assume valid
-              resolve({ valid: true, message: self.successMessages.saved });
-            }
-          })
-          .catch(function (error) {
-            console.warn('[Sallety] Checkout validation failed:', error);
-            // Accept the code if validation fails
-            resolve({ valid: true, message: self.successMessages.saved });
-          });
-      });
-    },
-
-    /**
-     * Remove discount code
-     */
-    removeDiscount: function () {
-      var self = this;
-
-      // Clear the discount from Shopify session
-      this._clearDiscountFromSession()
-        .finally(function () {
-          self.currentCode = null;
-          self.isValidated = false;
-          self._removeFromStorage();
-          self._hideAppliedDiscount();
-          self._hideSuccess();
-          self._hideError();
-          self._updateCheckoutLinks();
-
-          // Show removal message
-          self._showSuccess(self.successMessages.removed);
-
-          // Hide success after delay
-          setTimeout(function () {
-            self._hideSuccess();
-          }, 3000);
-        });
-    },
-
-    /**
-     * Clear discount from Shopify session
-     * @returns {Promise}
-     */
-    _clearDiscountFromSession: function () {
-      // Make a request to clear the discount
-      return fetch('/discount/', {
-        method: 'GET',
-        credentials: 'same-origin'
-      }).catch(function (error) {
-        console.warn('[Sallety] Failed to clear discount session:', error);
-      });
-    },
-
-    /**
-     * Load discount code from storage
-     */
-    _loadFromStorage: function () {
-      try {
-        var stored = localStorage.getItem(this.STORAGE_KEY);
-        var validated = localStorage.getItem(this.STORAGE_KEY_VALIDATED);
-
-        if (stored) {
-          this.currentCode = stored;
-          this.isValidated = validated === 'true';
-          this._showAppliedDiscount();
-
-          // Re-apply the discount to the session
-          this._reapplyDiscount();
-        }
-      } catch (e) {
-        console.error('[Sallety] Error loading discount code:', e);
-      }
-    },
-
-    /**
-     * Re-apply stored discount to session
-     */
-    _reapplyDiscount: function () {
-      if (!this.currentCode) return;
-
-      // Silently re-apply the discount
-      fetch('/discount/' + encodeURIComponent(this.currentCode), {
-        method: 'GET',
-        credentials: 'same-origin',
-        redirect: 'manual'
-      }).catch(function (error) {
-        console.warn('[Sallety] Failed to re-apply discount:', error);
-      });
-    },
-
-    /**
-     * Save discount code to storage
-     */
-    _saveToStorage: function () {
-      try {
-        if (this.currentCode) {
-          localStorage.setItem(this.STORAGE_KEY, this.currentCode);
-          localStorage.setItem(this.STORAGE_KEY_VALIDATED, this.isValidated ? 'true' : 'false');
-        }
-      } catch (e) {
-        console.error('[Sallety] Error saving discount code:', e);
-      }
-    },
-
-    /**
-     * Remove discount code from storage
-     */
-    _removeFromStorage: function () {
-      try {
-        localStorage.removeItem(this.STORAGE_KEY);
-        localStorage.removeItem(this.STORAGE_KEY_VALIDATED);
-      } catch (e) {
-        console.error('[Sallety] Error removing discount code:', e);
-      }
-    },
-
-    /**
-     * Show applied discount display
-     */
-    _showAppliedDiscount: function () {
-      if (!this.appliedDisplay || !this.currentCode) return;
-
-      var codeText = this.appliedDisplay.querySelector('[data-discount-code-text]');
-      if (codeText) {
-        codeText.textContent = this.currentCode;
-      }
-
-      this.appliedDisplay.classList.remove('hidden');
-
-      // Hide the form
-      if (this.form) {
-        this.form.classList.add('hidden');
-      }
-
-      // Hide the info text
-      if (this.infoEl) {
-        this.infoEl.classList.add('hidden');
-      }
-    },
-
-    /**
-     * Hide applied discount display
-     */
-    _hideAppliedDiscount: function () {
-      if (this.appliedDisplay) {
-        this.appliedDisplay.classList.add('hidden');
-      }
-
-      // Show the form
-      if (this.form) {
-        this.form.classList.remove('hidden');
-      }
-
-      // Show the info text
-      if (this.infoEl) {
-        this.infoEl.classList.remove('hidden');
-      }
-    },
-
-    /**
-     * Update checkout links with discount code
-     */
-    _updateCheckoutLinks: function () {
-      var checkoutButtons = document.querySelectorAll('[name="checkout"], a[href*="/checkout"]');
-      var self = this;
-
-      checkoutButtons.forEach(function (btn) {
-        if (btn.tagName === 'A') {
-          var href = btn.getAttribute('href');
-          // Remove existing discount parameter
-          href = href.replace(/[?&]discount=[^&]*/g, '');
-
-          if (self.currentCode) {
-            var separator = href.includes('?') ? '&' : '?';
-            btn.setAttribute('href', href + separator + 'discount=' + encodeURIComponent(self.currentCode));
-          } else {
-            btn.setAttribute('href', href);
-          }
-        }
-      });
-
-      // Also update the cart form action if it exists
-      var cartForm = document.querySelector('#cart-form, form[action*="/cart"]');
-      if (cartForm && this.currentCode) {
-        // Update form action to include discount
-        var action = cartForm.getAttribute('action') || '/cart';
-        action = action.replace(/[?&]discount=[^&]*/g, '');
-        var separator = action.includes('?') ? '&' : '?';
-        cartForm.setAttribute('action', action + separator + 'discount=' + encodeURIComponent(this.currentCode));
-
-        // Add a hidden input for the discount code
-        var existingInput = cartForm.querySelector('input[name="discount"]');
-        if (!existingInput) {
-          var hiddenInput = document.createElement('input');
-          hiddenInput.type = 'hidden';
-          hiddenInput.name = 'discount';
-          hiddenInput.value = this.currentCode;
-          cartForm.appendChild(hiddenInput);
-        } else {
-          existingInput.value = this.currentCode;
-        }
-      } else if (cartForm) {
-        // Remove discount from form
-        var action = cartForm.getAttribute('action') || '/cart';
-        action = action.replace(/[?&]discount=[^&]*/g, '');
-        cartForm.setAttribute('action', action);
-
-        var existingInput = cartForm.querySelector('input[name="discount"]');
-        if (existingInput) {
-          existingInput.remove();
-        }
-      }
-    },
-
-    /**
-     * Shake input animation for errors
-     */
-    _shakeInput: function () {
-      if (this.input) {
-        this.input.classList.add('animate-shake');
-        var self = this;
-        setTimeout(function () {
-          self.input.classList.remove('animate-shake');
-        }, 500);
-      }
-    },
-
-    /**
-     * Set loading state
-     * @param {boolean} loading - Loading state
-     */
-    _setLoading: function (loading) {
-      if (this.applyBtn) {
-        this.applyBtn.disabled = loading;
-      }
-
-      if (this.spinner) {
-        this.spinner.classList.toggle('hidden', !loading);
-      }
-
-      if (this.btnText) {
-        this.btnText.classList.toggle('hidden', loading);
-      }
-
-      if (this.input) {
-        this.input.disabled = loading;
-      }
-    },
-
-    /**
-     * Show error message
-     * @param {string} message - Error message
-     */
-    _showError: function (message) {
-      if (!this.errorEl) return;
-
-      var textEl = this.errorEl.querySelector('[data-discount-error-text]');
-      if (textEl) {
-        textEl.textContent = message;
-      }
-
-      this.errorEl.classList.remove('hidden');
-
-      // Hide success if showing
-      this._hideSuccess();
-    },
-
-    /**
-     * Hide error message
-     */
-    _hideError: function () {
-      if (this.errorEl) {
-        this.errorEl.classList.add('hidden');
-      }
-    },
-
-    /**
-     * Show success message
-     * @param {string} message - Success message
-     */
-    _showSuccess: function (message) {
-      if (!this.successEl) return;
-
-      var textEl = this.successEl.querySelector('[data-discount-success-text]');
-      if (textEl) {
-        textEl.textContent = message;
-      }
-
-      this.successEl.classList.remove('hidden');
-
-      // Hide error if showing
-      this._hideError();
-    },
-
-    /**
-     * Hide success message
-     */
-    _hideSuccess: function () {
-      if (this.successEl) {
-        this.successEl.classList.add('hidden');
-      }
-    },
-
-    /**
-     * Get current discount code
-     * @returns {string|null} Current discount code
-     */
-    getCode: function () {
-      return this.currentCode;
-    },
-
-    /**
-     * Check if current code is validated
-     * @returns {boolean}
-     */
-    isCodeValidated: function () {
-      return this.isValidated;
     }
   };
 
@@ -6448,7 +5826,6 @@
       Sallety.quickAdd.init();
       Sallety.cartDrawer.init();
       Sallety.cartPage.init();
-      Sallety.discountCode.init();
       Sallety.wishlist.init();
     });
   } else {
@@ -6459,7 +5836,6 @@
     Sallety.quickAdd.init();
     Sallety.cartDrawer.init();
     Sallety.cartPage.init();
-    Sallety.discountCode.init();
     Sallety.wishlist.init();
   }
 
