@@ -28,7 +28,6 @@
   assign layout_style = section.settings.layout_style | default: 'grid'
   assign card_style = section.settings.card_style | default: 'default'
   assign show_vendor = section.settings.show_vendor
-  assign show_rating = section.settings.show_rating
   assign image_ratio = section.settings.image_ratio | default: 'portrait'
 
   # Color scheme
@@ -90,7 +89,7 @@
     padding-bottom: {{ section.settings.padding_bottom }}px;
   "
 >
-  <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+  <div class="mx-auto px-4 md:px-6 lg:px-8 max-w-page">
     {%- if recommendations.performed and recommendations.products_count > 0 -%}
       {%- comment -%} Section Header {%- endcomment -%}
       <header class="product-recommendations__header mb-8 md:mb-10 lg:mb-12">
@@ -625,12 +624,6 @@
       "id": "show_vendor",
       "label": "t:sections.product_recommendations.settings.show_vendor.label",
       "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_rating",
-      "label": "t:sections.product_recommendations.settings.show_rating.label",
-      "default": true
     },
     {
       "type": "header",

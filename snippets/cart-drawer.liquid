@@ -233,26 +233,29 @@
 
         <!-- Action Buttons -->
         <div class="space-y-2">
-          <a
-            href="/checkout"
-            class="flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/25"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <form action="{{ routes.cart_url }}" method="post">
+            <button
+              type="submit"
+              name="checkout"
+              class="flex items-center justify-center gap-2 w-full py-3.5 px-6 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition-all duration-200 shadow-lg shadow-primary/25"
             >
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-              <line x1="1" y1="10" x2="23" y2="10"></line>
-            </svg>
-            {{ 'cart.general.checkout' | t }}
-          </a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+              {{ 'cart.general.checkout' | t }}
+            </button>
+          </form>
           <a
             href="{{ routes.cart_url }}"
             class="flex items-center justify-center gap-2 w-full py-3 px-6 rounded-xl border-2 border-border text-foreground font-medium hover:bg-border/30 transition-all duration-200"

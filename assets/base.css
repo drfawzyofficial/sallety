@@ -855,7 +855,7 @@ input[type="submit"] {
   position: relative;
   overflow: hidden;
   white-space: nowrap;
-  line-height: 1.5;
+  line-height: 1;
 }
 
 /* Primary button */
@@ -1103,10 +1103,13 @@ input[type="submit"]:focus-visible {
 
 /* Button with icon */
 .btn svg,
-.button svg {
+.button svg,
+button[type="submit"] svg,
+input[type="submit"] svg {
   width: 1.25em;
   height: 1.25em;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 /* Responsive button font sizes */

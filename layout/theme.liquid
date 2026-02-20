@@ -15,7 +15,7 @@
   endif
 -%}
 <!doctype html>
-<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ use_rtl | ternary: 'rtl', 'ltr' }}">
+<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{% if use_rtl %}rtl{% else %}ltr{% endif %}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

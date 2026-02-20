@@ -27,10 +27,10 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 class="account-title mb-2" style="color: var(--color-accent);">
-            {{ section.settings.page_title | default: 'حسابي' }}
+            {{ 'customer.account.title' | t }}
           </h1>
           <p class="account-welcome" style="color: var(--color-secondary-text);">
-            {{ section.settings.welcome_text | default: 'مرحباً' }}
+            {{ 'customer.account.welcome' | t }}
             {{ customer.first_name | default: customer.email }}!
           </p>
         </div>
@@ -47,7 +47,7 @@
             <polyline points="16 17 21 12 16 7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
-          {{ section.settings.logout_text | default: 'تسجيل الخروج' }}
+          {{ 'customer.account.logout' | t }}
         </a>
       </div>
     </div>
@@ -80,11 +80,15 @@
           <div class="account-stats grid grid-cols-2 gap-4 pt-6" style="border-top: 1px solid var(--color-border);">
             <div class="text-center">
               <p class="text-2xl font-bold" style="color: var(--color-accent);">{{ customer.orders_count }}</p>
-              <p class="text-sm" style="color: var(--color-secondary-text);">طلب</p>
+              <p class="text-sm" style="color: var(--color-secondary-text);">
+                {{ 'customer.account.orders_count' | t }}
+              </p>
             </div>
             <div class="text-center">
               <p class="text-2xl font-bold" style="color: var(--color-accent);">{{ customer.addresses.size }}</p>
-              <p class="text-sm" style="color: var(--color-secondary-text);">عنوان</p>
+              <p class="text-sm" style="color: var(--color-secondary-text);">
+                {{ 'customer.account.addresses_count' | t }}
+              </p>
             </div>
           </div>
         </div>
@@ -94,7 +98,9 @@
           class="account-card p-6"
           style="background: var(--color-card-background); border-radius: var(--account-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
         >
-          <h3 class="font-semibold mb-4" style="color: var(--color-accent);">روابط سريعة</h3>
+          <h3 class="font-semibold mb-4" style="color: var(--color-accent);">
+            {{ 'customer.account.quick_links' | t }}
+          </h3>
           <nav class="account-nav flex flex-col gap-2">
             <a
               href="{{ routes.account_addresses_url }}"
@@ -131,7 +137,7 @@
         >
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-semibold" style="color: var(--color-accent);">
-              {{ section.settings.orders_title | default: 'سجل الطلبات' }}
+              {{ 'customer.account.orders_title' | t }}
             </h2>
           </div>
 
@@ -176,7 +182,10 @@
                       >
                         <span>{{ order.created_at | date: '%d/%m/%Y' }}</span>
                         <span>•</span>
-                        <span>{{ order.line_items.size }} منتج</span>
+                        <span>
+                          {{- order.line_items.size }}
+                          {{ 'customer.account.product_count' | t -}}
+                        </span>
                         <span>•</span>
                         <span class="font-medium" style="color: var(--color-accent);">
                           {{- order.total_price | money -}}
@@ -187,7 +196,7 @@
                       href="{{ order.customer_url }}"
                       class="btn btn--primary inline-flex items-center gap-2 px-4 py-2 text-sm"
                     >
-                      عرض التفاصيل
+                      {{ 'customer.account.view_details' | t }}
                       <svg
                         class="w-4 h-4 rotate-180"
                         viewBox="0 0 24 24"
@@ -222,16 +231,16 @@
                 </svg>
               </div>
               <h3 class="text-lg font-semibold mb-2" style="color: var(--color-accent);">
-                {{ section.settings.empty_title | default: 'لا توجد طلبات بعد' }}
+                {{ 'customer.account.empty_orders_title' | t }}
               </h3>
               <p class="mb-6" style="color: var(--color-secondary-text);">
-                {{ section.settings.empty_text | default: 'ابدأ التسوق واستمتع بتجربة تسوق مميزة' }}
+                {{ 'customer.account.empty_orders_text' | t }}
               </p>
               <a
                 href="{{ routes.all_products_collection_url }}"
                 class="btn btn--primary inline-flex items-center gap-2 px-6 py-3"
               >
-                {{ section.settings.shop_btn_text | default: 'تسوق الآن' }}
+                {{ 'customer.account.shop_now' | t }}
                 <svg class="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="m15 18-6-6 6-6"/>
                 </svg>
@@ -283,60 +292,6 @@
       "id": "color_scheme",
       "label": "t:sections.main_account.settings.color_scheme.label",
       "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_account.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "page_title",
-      "label": "t:sections.main_account.settings.page_title.label",
-      "default": "حسابي"
-    },
-    {
-      "type": "text",
-      "id": "welcome_text",
-      "label": "t:sections.main_account.settings.welcome_text.label",
-      "default": "مرحباً"
-    },
-    {
-      "type": "text",
-      "id": "logout_text",
-      "label": "t:sections.main_account.settings.logout_text.label",
-      "default": "تسجيل الخروج"
-    },
-    {
-      "type": "text",
-      "id": "orders_title",
-      "label": "t:sections.main_account.settings.orders_title.label",
-      "default": "سجل الطلبات"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_account.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "empty_title",
-      "label": "t:sections.main_account.settings.empty_title.label",
-      "default": "لا توجد طلبات بعد"
-    },
-    {
-      "type": "text",
-      "id": "empty_text",
-      "label": "t:sections.main_account.settings.empty_text.label",
-      "default": "ابدأ التسوق واستمتع بتجربة تسوق مميزة"
-    },
-    {
-      "type": "text",
-      "id": "shop_btn_text",
-      "label": "t:sections.main_account.settings.shop_btn_text.label",
-      "default": "تسوق الآن"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_account.settings.header.content"
     },
     {
       "type": "range",

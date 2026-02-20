@@ -140,7 +140,6 @@
     "product_card_image_ratio": "portrait",
     "show_secondary_image": true,
     "show_vendor": false,
-    "show_rating": true,
     "show_sale_badge": true,
     "show_sold_out_badge": true,
     "show_new_badge": true,

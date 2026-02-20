@@ -402,31 +402,6 @@
                     {%- endform -%}
                   </div>
 
-                {%- when 'reviews' -%}
-                  {%- assign fp_pr_raw = fp_product.metafields.custom.product_reviews -%}
-                  <div
-                    class="fp-product__block fp-product__reviews-rating"
-                    {{ block.shopify_attributes }}
-                    data-fp-reviews-rating-block
-                    data-star-color="{{ block.settings.star_color | default: '#fbbf24' }}"
-                    data-text-color="{{ block.settings.text_color | default: '' }}"
-                  >
-                    {%- if fp_pr_raw != blank -%}
-                      <script type="text/plain" data-fp-product-reviews-raw>
-                        {
-                          {
-                            fp_pr_raw;
-                          }
-                        }
-                      </script>
-                    {%- endif -%}
-                    <div class="fp-reviews-inline" data-fp-reviews-inline style="display: none;">
-                      <div class="fp-reviews-inline__stars" data-fp-inline-stars></div>
-                      <span class="fp-reviews-inline__avg" data-fp-inline-avg></span>
-                      <span class="fp-reviews-inline__count" data-fp-inline-count></span>
-                    </div>
-                  </div>
-
                 {%- when 'share' -%}
                   <div class="fp-product__block fp-product__share" {{ block.shopify_attributes }}>
                     {% render 'social-share',
@@ -1369,113 +1344,6 @@
   window.variantStrings.unavailable = {{ 'products.product.unavailable' | t | default: 'غير متوفر' | json }};
 </script>
 
-<style>
-  /* ===== Featured Product Inline Rating ===== */
-  .fp-reviews-inline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .fp-reviews-inline__stars {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-  }
-
-  .fp-reviews-inline__avg {
-    font-weight: 700;
-    font-size: 0.95rem;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .fp-reviews-inline__count {
-    font-size: 0.85rem;
-    opacity: 0.7;
-  }
-</style>
-
-<script>
-  (function () {
-    document.querySelectorAll('[data-fp-reviews-rating-block]').forEach(function (block) {
-      var rawEl = block.querySelector('[data-fp-product-reviews-raw]');
-      if (!rawEl) return;
-
-      var text = rawEl.textContent;
-      if (!text || !text.trim()) return;
-
-      var starColor = block.dataset.starColor || '#fbbf24';
-      var textColor = block.dataset.textColor || '';
-
-      /* Parse reviews from multi-line text */
-      var entries = text.split(/(?=\d+\s*[-\u2013]\s*Name\s*:)/i).filter(function (s) {
-        return s.trim();
-      });
-      var ratings = [];
-
-      entries.forEach(function (entry) {
-        var starsMatch = entry.match(/(?:stars?|starts?)\s*:\s*(\d+)/i);
-        if (starsMatch) {
-          var r = Math.min(5, Math.max(1, parseInt(starsMatch[1])));
-          ratings.push(r);
-        }
-      });
-
-      if (ratings.length === 0) return;
-
-      var total = ratings.reduce(function (a, b) {
-        return a + b;
-      }, 0);
-      var avg = (total / ratings.length).toFixed(1);
-      var avgNum = parseFloat(avg);
-
-      /* Generate star SVGs */
-      var starsHtml = '';
-      for (var i = 1; i <= 5; i++) {
-        if (i <= Math.floor(avgNum)) {
-          starsHtml +=
-            '<svg width="16" height="16" viewBox="0 0 20 20" fill="' +
-            starColor +
-            '"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
-        } else if (i - 0.5 <= avgNum) {
-          starsHtml +=
-            '<svg width="16" height="16" viewBox="0 0 20 20"><defs><linearGradient id="fphalf' +
-            i +
-            '"><stop offset="50%" stop-color="' +
-            starColor +
-            '"/><stop offset="50%" stop-color="transparent"/></linearGradient></defs><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z" fill="url(#fphalf' +
-            i +
-            ')" stroke="' +
-            starColor +
-            '" stroke-width="1"/></svg>';
-        } else {
-          starsHtml +=
-            '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="' +
-            starColor +
-            '" stroke-width="1"><path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.33L10 13.18l-4.77 2.54.91-5.33-3.87-3.77 5.34-.78z"/></svg>';
-        }
-      }
-
-      var inlineEl = block.querySelector('[data-fp-reviews-inline]');
-      var starsEl = block.querySelector('[data-fp-inline-stars]');
-      var avgEl = block.querySelector('[data-fp-inline-avg]');
-      var countEl = block.querySelector('[data-fp-inline-count]');
-
-      if (starsEl) starsEl.innerHTML = starsHtml;
-      if (avgEl) {
-        avgEl.textContent = avg;
-        if (textColor) avgEl.style.color = textColor;
-      }
-      if (countEl) {
-        countEl.textContent = '(' + ratings.length + ' {{ "products.product.reviews_count" | t | default: "تقييم" }})';
-        if (textColor) countEl.style.color = textColor;
-      }
-      if (inlineEl) inlineEl.style.display = '';
-    });
-  })();
-</script>
-
 {% schema %}
 {
   "name": "t:sections.featured_product.name",
@@ -1582,29 +1450,7 @@
         }
       ]
     },
-    {
-      "type": "reviews",
-      "name": "التقييم",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "paragraph",
-          "content": "لتفعيل التقييمات، أضف حقل ميتا (Metafield) للمنتج باسم custom.product_reviews من نوع نص متعدد الأسطر (Multi-line text). أدخل البيانات بالتنسيق التالي: 1- Name: أحمد, comment: منتج رائع, stars: 5 — سطر لكل تقييم."
-        },
-        {
-          "type": "color",
-          "id": "star_color",
-          "label": "لون النجوم",
-          "default": "#fbbf24"
-        },
-        {
-          "type": "color",
-          "id": "text_color",
-          "label": "لون النص",
-          "default": "#6b7280"
-        }
-      ]
-    },
+
     {
       "type": "share",
       "name": "مشاركة",

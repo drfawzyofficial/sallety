@@ -35,9 +35,9 @@
           </svg>
         </a>
         <div>
-          <h1 class="order-title" style="color: var(--color-accent);">
-            {{ section.settings.page_title | default: 'تفاصيل الطلب' }}
-          </h1>
+          <h2 class="order-title" style="color: var(--color-accent);">
+            {{ 'customer.order.order_details' | t }}
+          </h2>
           <p class="order-number mt-1" style="color: var(--color-secondary-text);">
             {{ order.name }}
           </p>
@@ -108,7 +108,11 @@
                   class="font-medium text-sm"
                   style="color: {% if order.fulfillment_status == 'fulfilled' %}var(--color-success){% elsif order.fulfillment_status == 'partial' %}var(--color-warning){% else %}var(--color-secondary-text){% endif %};"
                 >
-                  {{ order.fulfillment_status_label | default: 'قيد المعالجة' }}
+                  {%- if order.fulfillment_status_label != blank -%}
+                    {{ order.fulfillment_status_label }}
+                  {%- else -%}
+                    {{ 'customer.order.processing' | t }}
+                  {%- endif -%}
                 </p>
               </div>
             </div>
@@ -146,9 +150,9 @@
           class="order-items-card p-6"
           style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
         >
-          <h2 class="text-lg font-semibold mb-6" style="color: var(--color-accent);">
-            {{ section.settings.items_title | default: 'المنتجات' }} ({{ order.line_items.size }})
-          </h2>
+          <h3 class="font-semibold mb-6" style="color: var(--color-accent);">
+            {{ 'customer.order.items' | t }} ({{ order.line_items.size }})
+          </h3>
 
           <div class="order-items-list">
             {%- for line_item in order.line_items -%}
@@ -221,7 +225,7 @@
                           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                           <polyline points="22 4 12 14.01 9 11.01"/>
                         </svg>
-                        تم الشحن
+                        {{ 'customer.order.shipped' | t }}
                         {%- if line_item.fulfillment.tracking_url -%}
                           -
                           <a href="{{ line_item.fulfillment.tracking_url }}" target="_blank" class="underline">
@@ -245,9 +249,9 @@
           class="order-summary-card p-6"
           style="background: var(--color-card-background); border-radius: var(--order-card-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.04);"
         >
-          <h2 class="text-lg font-semibold mb-4" style="color: var(--color-accent);">
-            {{ section.settings.summary_title | default: 'ملخص الطلب' }}
-          </h2>
+          <h3 class="font-semibold mb-4" style="color: var(--color-accent);">
+            {{ 'customer.order.summary' | t }}
+          </h3>
 
           <div class="space-y-3">
             <div class="flex justify-between">
@@ -310,9 +314,9 @@
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                 <circle cx="12" cy="10" r="3"/>
               </svg>
-              <h2 class="font-semibold" style="color: var(--color-accent);">
-                {{ section.settings.shipping_title | default: 'عنوان الشحن' }}
-              </h2>
+              <h3 class="font-semibold" style="color: var(--color-accent);">
+                {{ 'customer.order.shipping_address' | t }}
+              </h3>
             </div>
 
             <div style="color: var(--color-text); line-height: 1.7;">
@@ -357,9 +361,9 @@
                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
                 <line x1="1" y1="10" x2="23" y2="10"/>
               </svg>
-              <h2 class="font-semibold" style="color: var(--color-accent);">
-                {{ section.settings.billing_title | default: 'عنوان الفاتورة' }}
-              </h2>
+              <h3 class="font-semibold" style="color: var(--color-accent);">
+                {{ 'customer.order.billing_address' | t }}
+              </h3>
             </div>
 
             <div style="color: var(--color-text); line-height: 1.7;">
@@ -411,44 +415,6 @@
       "id": "color_scheme",
       "label": "t:sections.main_order.settings.color_scheme.label",
       "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_order.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "page_title",
-      "label": "t:sections.main_order.settings.page_title.label",
-      "default": "تفاصيل الطلب"
-    },
-    {
-      "type": "text",
-      "id": "items_title",
-      "label": "t:sections.main_order.settings.items_title.label",
-      "default": "المنتجات"
-    },
-    {
-      "type": "text",
-      "id": "summary_title",
-      "label": "t:sections.main_order.settings.summary_title.label",
-      "default": "ملخص الطلب"
-    },
-    {
-      "type": "text",
-      "id": "shipping_title",
-      "label": "t:sections.main_order.settings.shipping_title.label",
-      "default": "عنوان الشحن"
-    },
-    {
-      "type": "text",
-      "id": "billing_title",
-      "label": "t:sections.main_order.settings.billing_title.label",
-      "default": "عنوان الفاتورة"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_order.settings.header.content"
     },
     {
       "type": "range",

@@ -236,7 +236,8 @@
     }
 
     /* Flip arrow icon in RTL so it points left */
-    [dir="rtl"] .announcement-bar__arrow-icon {
+    [dir="rtl"] .announcement-bar__arrow-icon,
+    .announcement-bar__text:dir(rtl) .announcement-bar__arrow-icon {
       transform: scaleX(-1);
       margin-inline-start: 0;
       margin-inline-end: 4px;
@@ -246,7 +247,8 @@
       transform: translateX(4px);
     }
 
-    [dir="rtl"] .announcement-bar__item:hover .announcement-bar__arrow-icon {
+    [dir="rtl"] .announcement-bar__item:hover .announcement-bar__arrow-icon,
+    .announcement-bar__item:hover .announcement-bar__text:dir(rtl) .announcement-bar__arrow-icon {
       transform: scaleX(-1) translateX(4px);
     }
 
@@ -437,7 +439,7 @@
                   {%- if block.settings.link != blank -%}
                     <a href="{{ block.settings.link }}" class="announcement-bar__link" aria-label="{{ label }}"></a>
                   {%- endif -%}
-                  <div class="announcement-bar__text rte">
+                  <div class="announcement-bar__text rte" dir="auto">
                     {{ processed_content }}
                   </div>
                 </div>
@@ -476,7 +478,7 @@
 
                       <div class="announcement-bar__marquee-item{% if block.settings.show_link_underline %} announcement-bar__item--underline{% endif %}">
                         <span class="announcement-bar__marquee-dot"></span>
-                        <div class="announcement-bar__text rte">
+                        <div class="announcement-bar__text rte" dir="auto">
                           {%- if block.settings.link != blank -%}
                             <a href="{{ block.settings.link }}">{{ processed_content }}</a>
                           {%- else -%}

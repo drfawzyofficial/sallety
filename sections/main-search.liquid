@@ -7,7 +7,6 @@
   assign scheme_number = section.settings.color_scheme.id | remove: 'scheme-'
   assign products_per_page = section.settings.products_per_page | default: 16
   assign show_vendor = section.settings.show_vendor
-  assign show_rating = section.settings.show_rating
   assign col_desktop = section.settings.columns_desktop | default: 4
   assign col_tablet = section.settings.columns_tablet | default: 3
   assign col_mobile = section.settings.columns_mobile | default: '2'
@@ -592,12 +591,7 @@
                 <div class="sr-grid" data-products-grid>
                   {%- for product in search_products -%}
                     <div class="sr-grid__item" data-product-item>
-                      {% render 'product-card',
-                        product: product,
-                        show_vendor: show_vendor,
-                        show_rating: show_rating,
-                        image_ratio: image_ratio
-                      %}
+                      {% render 'product-card', product: product, show_vendor: show_vendor, image_ratio: image_ratio %}
                     </div>
                   {%- endfor -%}
                 </div>
@@ -849,7 +843,7 @@
                 <div class="sr-grid" style="--sr-col-mob:2;--sr-col-tab:3;--sr-col-desk:4;">
                   {%- for product in suggest_collection.products limit: 4 -%}
                     <div class="sr-grid__item">
-                      {% render 'product-card', product: product, show_vendor: show_vendor, show_rating: show_rating %}
+                      {% render 'product-card', product: product, show_vendor: show_vendor %}
                     </div>
                   {%- endfor -%}
                 </div>
@@ -1233,12 +1227,6 @@
       "id": "show_vendor",
       "label": "t:sections.main_search.settings.show_vendor.label",
       "default": false
-    },
-    {
-      "type": "checkbox",
-      "id": "show_rating",
-      "label": "t:sections.main_search.settings.show_rating.label",
-      "default": true
     },
     {
       "type": "header",

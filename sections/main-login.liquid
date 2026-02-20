@@ -54,10 +54,10 @@
         <div id="loginFormContainer">
           <div class="login-header text-center mb-8">
             <h1 class="login-title mb-2" style="color: var(--color-accent);">
-              {{ section.settings.login_title | default: 'تسجيل الدخول' }}
+              {{ 'customer.login_page.title' | t }}
             </h1>
             <p class="login-subtitle" style="color: var(--color-secondary-text);">
-              {{ section.settings.login_subtitle | default: 'أهلاً بعودتك! سجل دخولك للمتابعة' }}
+              {{ 'customer.login_page.subtitle' | t }}
             </p>
           </div>
 
@@ -178,7 +178,7 @@
                 border: none;
               "
             >
-              {{ section.settings.btn_text | default: 'تسجيل الدخول' }}
+              {{ 'customer.login_page.submit' | t }}
             </button>
           {%- endform -%}
 
@@ -199,13 +199,10 @@
         <div id="recoverFormContainer" style="display: none;">
           <div class="login-header text-center mb-8">
             <h2 class="login-title mb-2" style="color: var(--color-accent);">
-              {{ section.settings.recover_title | default: 'استعادة كلمة المرور' }}
+              {{ 'customer.recover_password.title' | t }}
             </h2>
             <p class="login-subtitle" style="color: var(--color-secondary-text);">
-              {{
-                section.settings.recover_subtitle
-                | default: 'أدخل بريدك الإلكتروني وسنرسل لك رابط استعادة كلمة المرور'
-              }}
+              {{ 'customer.recover_password.subtext' | t }}
             </p>
           </div>
 
@@ -260,7 +257,7 @@
                 border: none;
               "
             >
-              {{ section.settings.recover_btn_text | default: 'إرسال رابط الاستعادة' }}
+              {{ 'customer.recover_password.submit' | t }}
             </button>
 
             <!-- Back to Login -->
@@ -359,54 +356,6 @@
       "id": "color_scheme",
       "label": "t:sections.main_login.settings.color_scheme.label",
       "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_login.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "login_title",
-      "label": "t:sections.main_login.settings.login_title.label",
-      "default": "تسجيل الدخول"
-    },
-    {
-      "type": "text",
-      "id": "login_subtitle",
-      "label": "t:sections.main_login.settings.login_subtitle.label",
-      "default": "أهلاً بعودتك! سجل دخولك للمتابعة"
-    },
-    {
-      "type": "text",
-      "id": "btn_text",
-      "label": "t:sections.main_login.settings.btn_text.label",
-      "default": "تسجيل الدخول"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_login.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "recover_title",
-      "label": "t:sections.main_login.settings.recover_title.label",
-      "default": "استعادة كلمة المرور"
-    },
-    {
-      "type": "text",
-      "id": "recover_subtitle",
-      "label": "t:sections.main_login.settings.recover_subtitle.label",
-      "default": "أدخل بريدك الإلكتروني وسنرسل لك رابط استعادة كلمة المرور"
-    },
-    {
-      "type": "text",
-      "id": "recover_btn_text",
-      "label": "t:sections.main_login.settings.recover_btn_text.label",
-      "default": "إرسال رابط الاستعادة"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_login.settings.header.content"
     },
     {
       "type": "range",

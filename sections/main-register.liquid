@@ -53,10 +53,10 @@
         <!-- Header -->
         <div class="register-header text-center mb-8">
           <h1 class="register-title mb-2" style="color: var(--color-accent);">
-            {{ section.settings.page_title | default: 'إنشاء حساب جديد' }}
+            {{ 'customer.register.title' | t }}
           </h1>
           <p class="register-subtitle" style="color: var(--color-secondary-text);">
-            {{ section.settings.page_subtitle | default: 'انضم إلينا واستمتع بتجربة تسوق مميزة' }}
+            {{ 'customer.register.subtitle' | t }}
           </p>
         </div>
 
@@ -89,7 +89,7 @@
               id="registerFirstName"
               name="customer[first_name]"
               class="register-input w-full"
-              placeholder="أدخل اسمك الأول"
+              placeholder="{{ 'customer.register.first_name_placeholder' | t }}"
               autocomplete="given-name"
               required
               style="height: 52px;"
@@ -110,7 +110,7 @@
               id="registerLastName"
               name="customer[last_name]"
               class="register-input w-full"
-              placeholder="أدخل اسمك الأخير"
+              placeholder="{{ 'customer.register.last_name_placeholder' | t }}"
               autocomplete="family-name"
               required
               style="height: 52px;"
@@ -204,7 +204,7 @@
               border: none;
             "
           >
-            {{ section.settings.btn_text | default: 'إنشاء حساب' }}
+            {{ 'customer.register.submit' | t }}
           </button>
         {%- endform -%}
 
@@ -286,32 +286,6 @@
       "id": "color_scheme",
       "label": "t:sections.main_register.settings.color_scheme.label",
       "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_register.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "page_title",
-      "label": "t:sections.main_register.settings.page_title.label",
-      "default": "إنشاء حساب جديد"
-    },
-    {
-      "type": "text",
-      "id": "page_subtitle",
-      "label": "t:sections.main_register.settings.page_subtitle.label",
-      "default": "انضم إلينا واستمتع بتجربة تسوق مميزة"
-    },
-    {
-      "type": "text",
-      "id": "btn_text",
-      "label": "t:sections.main_register.settings.btn_text.label",
-      "default": "إنشاء حساب"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_register.settings.header.content"
     },
     {
       "type": "range",

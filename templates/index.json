@@ -372,7 +372,6 @@
         "image_ratio": "portrait",
         "card_style": "default",
         "show_vendor": false,
-        "show_rating": true,
         "padding_top": 60,
         "padding_bottom": 60
       }

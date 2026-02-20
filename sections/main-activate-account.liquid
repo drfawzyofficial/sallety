@@ -53,10 +53,10 @@
       <!-- Header -->
       <div class="activate-header text-center mb-8">
         <h1 class="activate-title mb-2" style="color: var(--color-accent);">
-          {{ section.settings.page_title | default: 'تفعيل حسابك' }}
+          {{ 'customer.activate_account.title' | t }}
         </h1>
         <p class="activate-subtitle" style="color: var(--color-secondary-text);">
-          {{ section.settings.page_subtitle | default: 'قم بإنشاء كلمة مرور لتفعيل حسابك' }}
+          {{ 'customer.activate_account.subtext' | t }}
         </p>
       </div>
 
@@ -185,7 +185,7 @@
             border: none;
           "
         >
-          {{ section.settings.btn_text | default: 'تفعيل الحساب' }}
+          {{ 'customer.activate_account.submit' | t }}
         </button>
 
         <!-- Decline Button -->
@@ -200,7 +200,7 @@
             border: 2px solid var(--color-border);
           "
         >
-          {{ section.settings.decline_text | default: 'رفض الدعوة' }}
+          {{ 'customer.activate_account.cancel' | t }}
         </button>
       {%- endform -%}
     </div>
@@ -275,38 +275,6 @@
       "id": "color_scheme",
       "label": "t:sections.main_activate_account.settings.color_scheme.label",
       "default": "scheme-1"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_activate_account.settings.header.content"
-    },
-    {
-      "type": "text",
-      "id": "page_title",
-      "label": "t:sections.main_activate_account.settings.page_title.label",
-      "default": "تفعيل حسابك"
-    },
-    {
-      "type": "text",
-      "id": "page_subtitle",
-      "label": "t:sections.main_activate_account.settings.page_subtitle.label",
-      "default": "قم بإنشاء كلمة مرور لتفعيل حسابك"
-    },
-    {
-      "type": "text",
-      "id": "btn_text",
-      "label": "t:sections.main_activate_account.settings.btn_text.label",
-      "default": "تفعيل الحساب"
-    },
-    {
-      "type": "text",
-      "id": "decline_text",
-      "label": "t:sections.main_activate_account.settings.decline_text.label",
-      "default": "رفض الدعوة"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.main_activate_account.settings.header.content"
     },
     {
       "type": "range",

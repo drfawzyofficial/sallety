@@ -36,6 +36,7 @@
   # Section settings
   assign store_name = section.settings.store_name | default: shop.name
   assign store_description = section.settings.store_description | default: 'متجرك الإلكتروني المميز لتجربة تسوق فريدة'
+  assign logo_width = section.settings.logo_width | default: 70
 
   # Contact info
   assign contact_title = section.settings.contact_title | default: 'تواصل معنا'
@@ -43,6 +44,9 @@
   assign mobile = section.settings.mobile
   assign email = section.settings.email
   assign telegram = section.settings.telegram
+  assign whatsapp_contact = section.settings.whatsapp_contact
+  assign address = section.settings.address
+  assign working_hours = section.settings.working_hours
 
   # Newsletter
   assign newsletter_title = section.settings.newsletter_title | default: 'اشترك في النشرة البريدية ليصلك كل جديد!'
@@ -55,9 +59,18 @@
   assign app_store_link = section.settings.app_store_link
   assign show_app_badge = section.settings.show_app_badge
 
-  # Links menu
+  # Links menus
   assign links_title = section.settings.links_title | default: 'روابط مهمة'
   assign footer_menu = section.settings.footer_menu
+  assign second_links_title = section.settings.second_links_title | default: 'سياسات المتجر'
+  assign second_menu = section.settings.second_menu
+
+  # Padding
+  assign padding_top = section.settings.padding_top | default: 48
+  assign padding_bottom = section.settings.padding_bottom | default: 32
+
+  # Saudi auth
+  assign saudi_auth_text = section.settings.saudi_auth_text | default: 'موثّق في منصة الأعمال'
 -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
@@ -80,6 +93,9 @@
     --footer-body-mobile: {{ body_size_mobile }}px;
     --footer-heading-weight: {{ heading_weight }};
     --footer-body-weight: {{ body_weight }};
+    --footer-logo-width: {{ logo_width }}px;
+    --footer-padding-top: {{ padding_top }}px;
+    --footer-padding-bottom: {{ padding_bottom }}px;
     font-family: var(--font-body-family);
   "
 >
@@ -107,22 +123,24 @@
             {%- if section.settings.logo != blank -%}
               <div class="footer-logo-box">
                 <img
-                  src="{{ section.settings.logo | image_url: width: 120 }}"
+                  src="{{ section.settings.logo | image_url: width: 300 }}"
+                  alt="{{ store_name }}"
+                  width="{{ logo_width }}"
+                  height="{{ logo_width }}"
+                  loading="lazy"
+                  class="footer-logo-img"
+                >
+              </div>
+            {%- else -%}
+              <div class="footer-logo-box">
+                <img
+                  src="{{ 'sallety-footer.png' | asset_url }}"
                   alt="{{ store_name }}"
                   width="60"
                   height="60"
                   loading="lazy"
                   class="footer-logo-img"
                 >
-              </div>
-            {%- else -%}
-              <div class="footer-logo-box footer-logo-box--default">
-                <svg viewBox="0 0 60 60" class="footer-logo-icon">
-                  <rect x="15" y="8" width="30" height="44" rx="3" fill="var(--footer-bg)"/>
-                  <path d="M22 18 L38 18 L38 24 L22 24 Z" fill="white"/>
-                  <path d="M18 28 L42 28 L42 48 L18 48 Z" fill="white"/>
-                  <ellipse cx="30" cy="38" rx="8" ry="10" fill="var(--footer-bg)"/>
-                </svg>
               </div>
             {%- endif -%}
             <h2 class="footer-store-name">{{ store_name }}</h2>
@@ -151,6 +169,20 @@
             {%- endif -%}
           </ul>
         </div>
+
+        {%- comment -%} Column 2b: Second Menu (if set) {%- endcomment -%}
+        {%- if second_menu != blank and linklists[second_menu].links.size > 0 -%}
+          <div class="footer-column footer-column--links">
+            <h3 class="footer-heading">{{ second_links_title }}</h3>
+            <ul class="footer-link-list">
+              {%- for link in linklists[second_menu].links -%}
+                <li>
+                  <a href="{{ link.url }}" class="footer-link">{{ link.title }}</a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
 
         <!-- Column 3: Contact Info -->
         <div class="footer-column footer-column--contact">
@@ -225,6 +257,61 @@
                 >
                   {{- telegram -}}
                 </a>
+              </li>
+            {%- endif -%}
+
+            {%- if whatsapp_contact != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                </div>
+                <a
+                  href="https://wa.me/{{ whatsapp_contact | remove: '+' | remove: ' ' }}"
+                  class="footer-contact-text"
+                  dir="ltr"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {{- whatsapp_contact -}}
+                </a>
+              </li>
+            {%- endif -%}
+
+            {%- if address != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
+                <span class="footer-contact-text">{{ address }}</span>
+              </li>
+            {%- endif -%}
+
+            {%- if working_hours != blank -%}
+              <li class="footer-contact-item">
+                <div class="footer-contact-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <span class="footer-contact-text">{{ working_hours }}</span>
               </li>
             {%- endif -%}
 
@@ -399,15 +486,25 @@
               {%- endif -%}
               <div class="footer-saudi-auth-content">
                 <div class="footer-saudi-auth-logo">
-                  <img
-                    src="{{ 'saudia_auth.png' | asset_url }}"
-                    alt="موثّق في منصة الأعمال"
-                    loading="lazy"
-                    width="48"
-                    height="48"
-                  >
+                  {%- if section.settings.maroof_image != blank -%}
+                    <img
+                      src="{{ section.settings.maroof_image | image_url: width: 96 }}"
+                      alt="{{ saudi_auth_text }}"
+                      loading="lazy"
+                      width="48"
+                      height="48"
+                    >
+                  {%- else -%}
+                    <img
+                      src="{{ 'saudia_auth.png' | asset_url }}"
+                      alt="{{ saudi_auth_text }}"
+                      loading="lazy"
+                      width="48"
+                      height="48"
+                    >
+                  {%- endif -%}
                 </div>
-                <span class="footer-saudi-auth-text">موثّق في منصة الأعمال</span>
+                <span class="footer-saudi-auth-text">{{ saudi_auth_text }}</span>
               </div>
               {%- if section.settings.saudi_auth_url != blank -%}
                 </a>
@@ -573,11 +670,20 @@
     <!-- Footer Bottom -->
     <div class="footer-bottom">
       <div class="footer-bottom-content">
-        <p class="footer-copyright">
-          {{ section.settings.copyright_text | default: 'صنع باتقان على' }} |
-          <a href="{{ shop.url }}">{{ shop.name }}</a>
-          {{ 'now' | date: '%Y' }}
-        </p>
+        {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+          <div class="footer-payment-icons">
+            {%- for type in shop.enabled_payment_types -%}
+              {{ type | payment_type_svg_tag: class: 'footer-payment-icon' }}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+        {%- if section.settings.show_copyright != false -%}
+          <p class="footer-copyright">
+            {{ section.settings.copyright_text | default: 'صنع باتقان على' }} |
+            <a href="{{ shop.url }}">{{ shop.name }}</a>
+            {{ 'now' | date: '%Y' }}
+          </p>
+        {%- endif -%}
       </div>
     </div>
   </div>
@@ -1047,18 +1153,18 @@
   .footer-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 48px 64px 32px;
+    padding: var(--footer-padding-top) 64px var(--footer-padding-bottom);
   }
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1.2fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 48px;
   }
 
   /* Footer Columns */
   .footer-column {
-    text-align: right;
+    text-align: start;
   }
 
   .footer-heading {
@@ -1078,8 +1184,8 @@
   }
 
   .footer-logo-box {
-    width: 70px;
-    height: 70px;
+    width: var(--footer-logo-width);
+    height: var(--footer-logo-width);
     background-color: #ffffff;
     border-radius: 12px;
     display: flex;
@@ -1140,7 +1246,14 @@
 
   .footer-link:hover {
     color: var(--footer-text);
+  }
+
+  [dir='rtl'] .footer-link:hover {
     transform: translateX(-4px);
+  }
+
+  [dir='ltr'] .footer-link:hover {
+    transform: translateX(4px);
   }
 
   /* Contact Column */
@@ -1253,7 +1366,7 @@
     border-radius: 12px;
     padding: 10px 16px;
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
     min-width: 155px;
@@ -1266,7 +1379,7 @@
   }
 
   .app-store-btn-text {
-    text-align: right;
+    text-align: start;
     color: #ffffff;
   }
 
@@ -1325,7 +1438,7 @@
 
   .footer-saudi-auth-content {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
     background: rgba(255, 255, 255, 0.08);
@@ -1464,7 +1577,7 @@
 
   .footer-newsletter-content {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 32px;
@@ -1486,7 +1599,7 @@
     padding: 14px 24px;
     font-size: var(--footer-body-desktop);
     color: #374151;
-    text-align: right;
+    text-align: start;
     outline: none;
     min-width: 280px;
     font-family: inherit;
@@ -1552,7 +1665,7 @@
   }
 
   .footer-newsletter-text {
-    text-align: right;
+    text-align: start;
   }
 
   .footer-newsletter-heading {
@@ -1589,6 +1702,27 @@
 
   .footer-copyright a:hover {
     color: var(--footer-text);
+  }
+
+  /* Payment Icons */
+  .footer-payment-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .footer-payment-icons svg {
+    width: 38px;
+    height: 24px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .footer-payment-icons svg:hover {
+    opacity: 1;
   }
 
   /* ================================
@@ -1700,7 +1834,7 @@
 
     .footer-column--links,
     .footer-column--contact {
-      text-align: right;
+      text-align: start;
     }
 
     .footer-column--app {
@@ -2680,13 +2814,23 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_logo.content"
     },
     {
       "type": "image_picker",
       "id": "logo",
       "label": "t:sections.footer.settings.logo.label",
       "info": "t:sections.footer.settings.logo.info"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "t:sections.footer.settings.logo_width.label",
+      "default": 70,
+      "min": 30,
+      "max": 150,
+      "step": 5,
+      "unit": "px"
     },
     {
       "type": "text",
@@ -2709,7 +2853,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_links.content"
     },
     {
       "type": "text",
@@ -2724,8 +2868,20 @@
       "info": "t:sections.footer.settings.footer_menu.info"
     },
     {
+      "type": "text",
+      "id": "second_links_title",
+      "label": "t:sections.footer.settings.second_links_title.label",
+      "default": "سياسات المتجر"
+    },
+    {
+      "type": "link_list",
+      "id": "second_menu",
+      "label": "t:sections.footer.settings.second_menu.label",
+      "info": "t:sections.footer.settings.second_menu.info"
+    },
+    {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_contact.content"
     },
     {
       "type": "text",
@@ -2756,10 +2912,28 @@
     },
     {
       "type": "text",
+      "id": "whatsapp_contact",
+      "label": "t:sections.footer.settings.whatsapp_contact.label",
+      "placeholder": "t:sections.footer.settings.whatsapp_contact.placeholder"
+    },
+    {
+      "type": "text",
       "id": "telegram",
       "label": "t:sections.footer.settings.telegram.label",
       "placeholder": "t:sections.footer.settings.telegram.placeholder",
       "default": "sallety"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "t:sections.footer.settings.address.label",
+      "placeholder": "t:sections.footer.settings.address.placeholder"
+    },
+    {
+      "type": "text",
+      "id": "working_hours",
+      "label": "t:sections.footer.settings.working_hours.label",
+      "placeholder": "t:sections.footer.settings.working_hours.placeholder"
     },
     {
       "type": "checkbox",
@@ -2770,7 +2944,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_newsletter.content"
     },
     {
       "type": "checkbox",
@@ -2798,7 +2972,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_app.content"
     },
     {
       "type": "checkbox",
@@ -2835,7 +3009,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_trust.content"
     },
     {
       "type": "checkbox",
@@ -2845,14 +3019,26 @@
       "info": "t:sections.footer.settings.show_saudi_auth.info"
     },
     {
+      "type": "image_picker",
+      "id": "maroof_image",
+      "label": "t:sections.footer.settings.maroof_image.label",
+      "info": "t:sections.footer.settings.maroof_image.info"
+    },
+    {
       "type": "url",
       "id": "saudi_auth_url",
       "label": "t:sections.footer.settings.saudi_auth_url.label",
       "info": "t:sections.footer.settings.saudi_auth_url.info"
     },
     {
+      "type": "text",
+      "id": "saudi_auth_text",
+      "label": "t:sections.footer.settings.saudi_auth_text.label",
+      "default": "موثّق في منصة الأعمال"
+    },
+    {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_localization.content"
     },
     {
       "type": "checkbox",
@@ -2863,7 +3049,13 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_bottom.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_copyright",
+      "label": "t:sections.footer.settings.show_copyright.label",
+      "default": true
     },
     {
       "type": "text",
@@ -2873,8 +3065,15 @@
       "info": "t:sections.footer.settings.copyright_text.info"
     },
     {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "t:sections.footer.settings.show_payment_icons.label",
+      "default": true,
+      "info": "t:sections.footer.settings.show_payment_icons.info"
+    },
+    {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_design.content"
     },
     {
       "type": "checkbox",
@@ -2889,8 +3088,28 @@
       "default": "#cbd5e1"
     },
     {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.footer.settings.padding_top.label",
+      "default": 48,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.footer.settings.padding_bottom.label",
+      "default": 32,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_typography_desktop.content"
     },
     {
       "type": "range",
@@ -2914,7 +3133,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_typography_tablet.content"
     },
     {
       "type": "range",
@@ -2938,7 +3157,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_typography_mobile.content"
     },
     {
       "type": "range",
@@ -2962,7 +3181,7 @@
     },
     {
       "type": "header",
-      "content": "t:sections.footer.settings.header.content"
+      "content": "t:sections.footer.settings.header_font_weight.content"
     },
     {
       "type": "select",

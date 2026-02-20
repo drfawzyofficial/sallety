@@ -1,16 +1,32 @@
 {% layout none %}
 {%- comment -%}
   Sallety Theme — Gift Card Template
-  Premium gift card display with RTL/LTR support, responsive design,
-  comprehensive customization, glassmorphism effects, and modern aesthetics.
+  Premium gift card display with color_scheme support, RTL/LTR,
+  responsive design, glassmorphism effects, and modern aesthetics.
+  All colors are driven by the theme's color scheme system.
 {%- endcomment -%}
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" dir="{{ settings.enable_rtl | default: true | ternary: 'rtl', 'ltr' }}">
+{%- liquid
+  assign rtl_langs = settings.rtl_languages | default: 'ar,he,fa,ur' | split: ','
+  assign current_lang = request.locale.iso_code | slice: 0, 2 | downcase
+  assign is_rtl_lang = false
+  for lang in rtl_langs
+    assign lang_trimmed = lang | strip | downcase
+    if current_lang == lang_trimmed
+      assign is_rtl_lang = true
+      break
+    endif
+  endfor
+  assign use_rtl = false
+  if settings.enable_rtl and is_rtl_lang
+    assign use_rtl = true
+  endif
+-%}
+<html lang="{{ request.locale.iso_code }}" dir="{% if use_rtl %}rtl{% else %}ltr{% endif %}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="{{ settings.color_primary }}">
     <meta name="robots" content="noindex, nofollow">
 
     {%- assign gift_card_value = gift_card.initial_value | money -%}
@@ -22,31 +38,69 @@
 
     {{ content_for_header }}
 
-    {%- comment -%} Google Fonts {%- endcomment -%}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    >
+    {%- comment -%} Load theme fonts {%- endcomment -%}
+    {%- if settings.font_source == 'google' -%}
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      {%- liquid
+        assign heading_font = settings.google_font_heading | default: 'Tajawal'
+        assign body_font = settings.google_font_body | default: 'Tajawal'
+        assign all_weights = '400;500;600;700;800;900'
+      -%}
+      <link
+        href="https://fonts.googleapis.com/css2?family={{ heading_font | replace: ' ', '+' }}:wght@{{ all_weights }}{% if heading_font != body_font %}&family={{ body_font | replace: ' ', '+' }}:wght@{{ all_weights }}{% endif %}&display=swap"
+        rel="stylesheet"
+      >
+    {%- endif -%}
+
+    {%- comment -%}
+      ── Color Scheme Setup ──
+      Since gift_card.liquid uses {% layout none %}, we read color schemes
+      directly from settings and generate CSS variables inline.
+    {%- endcomment -%}
 
     <style>
-      /* ===== CSS Variables ===== */
+      /* ===== Color Scheme Variables ===== */
+      {%- for scheme in settings.color_schemes -%}
+        {%- if forloop.first -%}
+          :root,
+        {%- endif -%}
+        .color-{{ scheme.id }} {
+          --color-background: {{ scheme.settings.background }};
+          --color-foreground: {{ scheme.settings.text }};
+          --color-text: {{ scheme.settings.text }};
+          --color-secondary-text: {{ scheme.settings.secondary_text }};
+          --color-primary: {{ scheme.settings.button }};
+          --color-accent: {{ scheme.settings.accent }};
+          --color-border: {{ scheme.settings.border }};
+          --color-button: {{ scheme.settings.button }};
+          --color-button-label: {{ scheme.settings.button_label }};
+          --color-card-background: {{ scheme.settings.card_background }};
+          --color-card-text: {{ scheme.settings.card_text }};
+          {%- if scheme.settings.background_gradient != blank -%}
+            --color-background-gradient: {{ scheme.settings.background_gradient }};
+          {%- else -%}
+            --color-background-gradient: {{ scheme.settings.background }};
+          {%- endif -%}
+        }
+      {%- endfor -%}
+
       :root {
-        --gc-primary: var(--color-scheme-1-accent, {{ settings.color_primary | default: '#6366f1' }});
-        --gc-primary-rgb: {{ settings.color_primary | color_to_rgb | remove: 'rgb(' | remove: ')' | default: '99, 102, 241' }};
-        --gc-bg-1: var(--color-scheme-1-bg, #0f0c29);
-        --gc-bg-2: var(--color-scheme-1-bg, #302b63);
-        --gc-bg-3: var(--color-scheme-1-bg, #24243e);
-        --gc-text: var(--color-scheme-1-text, #ffffff);
-        --gc-text-muted: rgba(255, 255, 255, 0.7);
-        --gc-glass-bg: rgba(255, 255, 255, 0.08);
-        --gc-glass-border: rgba(255, 255, 255, 0.15);
-        --gc-card-bg: rgba(255, 255, 255, 0.06);
-        --gc-success: #22c55e;
-        --gc-gold: #f59e0b;
+        /* Font families */
+        {%- if settings.font_source == 'google' -%}
+          --font-body-family: '{{ settings.google_font_body | default: 'Tajawal' }}', sans-serif;
+          --font-heading-family: '{{ settings.google_font_heading | default: 'Tajawal' }}', sans-serif;
+        {%- else -%}
+          --font-body-family: {{ settings.body_font.family }}, {{ settings.body_font.fallback_families }};
+          --font-heading-family: {{ settings.heading_font.family }}, {{ settings.heading_font.fallback_families }};
+        {%- endif -%}
+
+        /* Status colors */
+        --color-success: {{ settings.color_success | default: '#22c55e' }};
+        --color-error: {{ settings.color_error | default: '#dc3545' }};
+
+        /* Gift card specific */
         --gc-radius: 20px;
-        --gc-font-body: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
       }
 
       /* ===== Global Reset ===== */
@@ -57,9 +111,10 @@
       }
 
       body {
-        font-family: var(--gc-font-body);
+        font-family: var(--font-body-family);
         line-height: 1.6;
-        color: var(--gc-text);
+        color: var(--color-foreground);
+        background-color: var(--color-background);
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         overflow-x: hidden;
@@ -73,7 +128,7 @@
         justify-content: center;
         padding: 2rem 1rem;
         position: relative;
-        background: linear-gradient(135deg, var(--gc-bg-1) 0%, var(--gc-bg-2) 50%, var(--gc-bg-3) 100%);
+        background: var(--color-background-gradient, var(--color-background));
       }
 
       /* ===== Background Decorations ===== */
@@ -89,14 +144,14 @@
         position: absolute;
         border-radius: 50%;
         filter: blur(80px);
-        opacity: 0.15;
+        opacity: 0.12;
         animation: gc-float 20s ease-in-out infinite;
       }
 
       .gc-bg-shape--1 {
         width: min(500px, 60vw);
         height: min(500px, 60vw);
-        background: var(--gc-primary);
+        background: var(--color-accent);
         top: -15%;
         inset-inline-start: -10%;
         animation-delay: 0s;
@@ -105,7 +160,7 @@
       .gc-bg-shape--2 {
         width: min(400px, 50vw);
         height: min(400px, 50vw);
-        background: #ec4899;
+        background: var(--color-button);
         bottom: -10%;
         inset-inline-end: -10%;
         animation-delay: -7s;
@@ -114,11 +169,11 @@
       .gc-bg-shape--3 {
         width: min(300px, 40vw);
         height: min(300px, 40vw);
-        background: var(--gc-gold);
+        background: var(--color-secondary-text);
         top: 40%;
         inset-inline-end: 15%;
         animation-delay: -14s;
-        opacity: 0.08;
+        opacity: 0.06;
       }
 
       @keyframes gc-float {
@@ -134,8 +189,8 @@
         inset: 0;
         pointer-events: none;
         z-index: 0;
-        opacity: 0.03;
-        background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.5) 1px, transparent 0);
+        opacity: 0.04;
+        background-image: radial-gradient(circle at 1px 1px, var(--color-border) 1px, transparent 0);
         background-size: 40px 40px;
       }
 
@@ -175,7 +230,7 @@
       .gc-header__logo {
         max-width: 160px;
         height: auto;
-        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+        filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
         transition: transform 0.3s ease;
       }
 
@@ -187,25 +242,23 @@
         font-size: 1.75rem;
         font-weight: 800;
         letter-spacing: -0.02em;
-        color: var(--gc-text);
-        text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        color: var(--color-foreground);
+        font-family: var(--font-heading-family);
       }
 
       /* ===== Main Card ===== */
       .gc-card {
-        background: var(--gc-card-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--gc-glass-border);
+        background: var(--color-card-background);
+        border: 1px solid var(--color-border);
         border-radius: var(--gc-radius);
         overflow: hidden;
         box-shadow:
-          0 8px 32px rgba(0, 0, 0, 0.3),
-          0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+          0 8px 32px rgba(0, 0, 0, 0.08),
+          0 0 0 1px color-mix(in srgb, var(--color-border) 30%, transparent) inset;
         position: relative;
       }
 
-      /* Subtle top gradient line */
+      /* Accent top gradient line */
       .gc-card::before {
         content: '';
         position: absolute;
@@ -213,7 +266,7 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, var(--gc-primary), #ec4899, var(--gc-gold), var(--gc-primary));
+        background: linear-gradient(90deg, var(--color-accent), var(--color-button), var(--color-accent));
         background-size: 300% 100%;
         animation: gc-gradient-shift 6s linear infinite;
         z-index: 2;
@@ -244,7 +297,7 @@
       .gc-image__overlay {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.4) 100%);
+        background: linear-gradient(to bottom, transparent 50%, color-mix(in srgb, var(--color-card-background) 60%, transparent) 100%);
         pointer-events: none;
       }
 
@@ -262,30 +315,31 @@
         width: 72px;
         height: 72px;
         border-radius: 50%;
-        background: linear-gradient(135deg, rgba(var(--gc-primary-rgb), 0.2), rgba(236, 72, 153, 0.15));
-        border: 1px solid rgba(var(--gc-primary-rgb), 0.3);
-        color: var(--gc-primary);
+        background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-accent) 25%, transparent);
+        color: var(--color-accent);
         margin-bottom: 1.5rem;
         animation: gc-gift-pulse 3s ease-in-out infinite;
       }
 
       @keyframes gc-gift-pulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--gc-primary-rgb), 0.2); }
-        50% { transform: scale(1.05); box-shadow: 0 0 20px 5px rgba(var(--gc-primary-rgb), 0.1); }
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 15%, transparent); }
+        50% { transform: scale(1.05); box-shadow: 0 0 20px 5px color-mix(in srgb, var(--color-accent) 8%, transparent); }
       }
 
       /* Title */
       .gc-title {
         font-size: clamp(1.25rem, 3vw, 1.75rem);
         font-weight: 700;
-        color: var(--gc-text);
+        color: var(--color-card-text, var(--color-foreground));
         margin-bottom: 0.75rem;
         line-height: 1.3;
+        font-family: var(--font-heading-family);
       }
 
       .gc-subtitle {
         font-size: 0.9375rem;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         margin-bottom: 2rem;
       }
 
@@ -297,7 +351,7 @@
       .gc-balance__label {
         font-size: 0.8125rem;
         font-weight: 500;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.5rem;
@@ -306,17 +360,18 @@
       .gc-balance__amount {
         font-size: clamp(2.5rem, 8vw, 3.5rem);
         font-weight: 900;
-        background: linear-gradient(135deg, var(--gc-primary), #a78bfa, #ec4899);
+        background: linear-gradient(135deg, var(--color-accent), var(--color-button));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         line-height: 1.1;
         letter-spacing: -0.03em;
+        font-family: var(--font-heading-family);
       }
 
       .gc-balance__initial {
         font-size: 0.875rem;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         margin-top: 0.5rem;
       }
 
@@ -337,15 +392,15 @@
       }
 
       .gc-expiry--active {
-        background: rgba(34, 197, 94, 0.12);
-        border: 1px solid rgba(34, 197, 94, 0.25);
-        color: #86efac;
+        background: color-mix(in srgb, var(--color-success) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-success) 25%, transparent);
+        color: var(--color-success);
       }
 
       .gc-expiry--expired {
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.25);
-        color: #fca5a5;
+        background: color-mix(in srgb, var(--color-error) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+        color: var(--color-error);
       }
 
       .gc-expiry svg {
@@ -362,7 +417,7 @@
       .gc-code-section__label {
         font-size: 0.8125rem;
         font-weight: 500;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
@@ -372,8 +427,8 @@
         position: relative;
         display: flex;
         align-items: center;
-        background: var(--gc-glass-bg);
-        border: 1px solid var(--gc-glass-border);
+        background: color-mix(in srgb, var(--color-background) 80%, var(--color-border));
+        border: 1px solid var(--color-border);
         border-radius: 14px;
         padding: 1rem 1.25rem;
         gap: 0.75rem;
@@ -381,8 +436,8 @@
       }
 
       .gc-code-box:hover {
-        border-color: rgba(var(--gc-primary-rgb), 0.4);
-        box-shadow: 0 0 20px rgba(var(--gc-primary-rgb), 0.1);
+        border-color: var(--color-accent);
+        box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 10%, transparent);
       }
 
       .gc-code-box__value {
@@ -390,7 +445,7 @@
         font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
         font-size: clamp(1rem, 3vw, 1.25rem);
         font-weight: 600;
-        color: var(--gc-text);
+        color: var(--color-card-text, var(--color-foreground));
         letter-spacing: 0.15em;
         word-break: break-all;
         text-align: start;
@@ -405,21 +460,21 @@
         justify-content: center;
         gap: 0.5rem;
         padding: 0.625rem 1.25rem;
-        background: var(--gc-primary);
-        color: #fff;
+        background: var(--color-button);
+        color: var(--color-button-label);
         border: none;
         border-radius: 10px;
         font-size: 0.875rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.25s ease;
-        font-family: var(--gc-font-body);
+        font-family: var(--font-body-family);
         white-space: nowrap;
       }
 
       .gc-code-box__copy:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(var(--gc-primary-rgb), 0.4);
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--color-button) 30%, transparent);
       }
 
       .gc-code-box__copy:active {
@@ -432,7 +487,8 @@
       }
 
       .gc-code-box__copy--success {
-        background: var(--gc-success);
+        background: var(--color-success);
+        color: #fff;
       }
 
       /* ===== QR Code ===== */
@@ -443,7 +499,7 @@
       .gc-qr__label {
         font-size: 0.8125rem;
         font-weight: 500;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
@@ -454,7 +510,7 @@
         padding: 1rem;
         background: #ffffff;
         border-radius: 14px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
         transition: transform 0.3s ease;
       }
 
@@ -471,7 +527,7 @@
       /* ===== Divider ===== */
       .gc-divider {
         height: 1px;
-        background: linear-gradient(90deg, transparent 0%, var(--gc-glass-border) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, var(--color-border) 50%, transparent 100%);
         margin: 0 -2rem 2rem;
       }
 
@@ -496,7 +552,7 @@
         border-radius: 12px;
         cursor: pointer;
         transition: all 0.3s ease;
-        font-family: var(--gc-font-body);
+        font-family: var(--font-body-family);
         border: none;
         min-width: 160px;
       }
@@ -508,43 +564,43 @@
       }
 
       .gc-btn--primary {
-        background: var(--gc-primary);
-        color: #fff;
-        border: 2px solid var(--gc-primary);
+        background: var(--color-button);
+        color: var(--color-button-label);
+        border: 2px solid var(--color-button);
       }
 
       .gc-btn--primary:hover {
         background: transparent;
-        color: var(--gc-primary);
+        color: var(--color-button);
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(var(--gc-primary-rgb), 0.3);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--color-button) 25%, transparent);
       }
 
       .gc-btn--secondary {
         background: transparent;
-        color: var(--gc-text);
-        border: 2px solid var(--gc-glass-border);
+        color: var(--color-card-text, var(--color-foreground));
+        border: 2px solid var(--color-border);
       }
 
       .gc-btn--secondary:hover {
-        border-color: var(--gc-primary);
-        color: var(--gc-primary);
+        border-color: var(--color-accent);
+        color: var(--color-accent);
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--color-accent) 15%, transparent);
       }
 
       .gc-btn--print {
         background: transparent;
-        color: var(--gc-text-muted);
-        border: 1px solid var(--gc-glass-border);
+        color: var(--color-secondary-text);
+        border: 1px solid var(--color-border);
         font-size: 0.8125rem;
         padding: 0.625rem 1.25rem;
         min-width: auto;
       }
 
       .gc-btn--print:hover {
-        color: var(--gc-text);
-        border-color: rgba(255,255,255,0.3);
+        color: var(--color-foreground);
+        border-color: var(--color-accent);
       }
 
       /* Apple Wallet */
@@ -570,7 +626,7 @@
 
       .gc-footer__shop {
         font-size: 0.8125rem;
-        color: var(--gc-text-muted);
+        color: var(--color-secondary-text);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -578,14 +634,14 @@
       }
 
       .gc-footer__shop a {
-        color: var(--gc-text);
+        color: var(--color-card-text, var(--color-foreground));
         text-decoration: none;
         font-weight: 500;
         transition: color 0.3s ease;
       }
 
       .gc-footer__shop a:hover {
-        color: var(--gc-primary);
+        color: var(--color-accent);
       }
 
       /* ===== Confetti Canvas ===== */
@@ -602,7 +658,7 @@
         bottom: 2rem;
         left: 50%;
         transform: translateX(-50%) translateY(100px);
-        background: var(--gc-success);
+        background: var(--color-success);
         color: #fff;
         padding: 0.75rem 1.5rem;
         border-radius: 12px;
@@ -611,7 +667,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--color-success) 30%, transparent);
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         z-index: 100;
         pointer-events: none;
@@ -734,7 +790,6 @@
           background: #fff !important;
           box-shadow: none !important;
           border: 2px solid #e5e7eb !important;
-          backdrop-filter: none !important;
         }
 
         .gc-card::before {
@@ -747,11 +802,10 @@
         }
 
         .gc-balance__amount {
-          -webkit-text-fill-color: #6366f1 !important;
-          color: #6366f1 !important;
+          -webkit-text-fill-color: var(--color-accent) !important;
+          color: var(--color-accent) !important;
         }
 
-        .gc-text-muted,
         .gc-subtitle,
         .gc-balance__label,
         .gc-code-section__label,
@@ -775,9 +829,9 @@
 
         .gc-btn--primary,
         .gc-btn--secondary {
-          color: #6366f1 !important;
+          color: var(--color-button) !important;
           background: transparent !important;
-          border: 2px solid #6366f1 !important;
+          border: 2px solid var(--color-button) !important;
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
         }
@@ -808,7 +862,7 @@
     </style>
   </head>
 
-  <body>
+  <body class="color-scheme-1">
     <main class="gc-page" role="main">
       {%- comment -%} ── Background Decorations ── {%- endcomment -%}
       <div class="gc-bg-shapes" aria-hidden="true">
@@ -821,14 +875,14 @@
 
       <div class="gc-bg-decor" aria-hidden="true">
         <svg viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <circle cx="200" cy="150" r="100" stroke="rgba(255,255,255,0.04)" stroke-width="1.5" fill="none"/>
-          <circle cx="200" cy="150" r="60" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none"/>
-          <circle cx="1250" cy="600" r="120" stroke="rgba(255,255,255,0.03)" stroke-width="1.5" fill="none"/>
-          <circle cx="400" cy="80" r="4" fill="rgba(255,255,255,0.06)"/>
-          <circle cx="800" cy="700" r="3" fill="rgba(255,255,255,0.05)"/>
-          <circle cx="1100" cy="100" r="5" fill="rgba(255,255,255,0.04)"/>
-          <polygon points="600,200 640,140 680,200" stroke="rgba(255,255,255,0.04)" stroke-width="1" fill="none"/>
-          <rect x="1000" y="300" width="45" height="45" rx="4" stroke="rgba(255,255,255,0.03)" stroke-width="1" fill="none" transform="rotate(45 1022.5 322.5)"/>
+          <circle cx="200" cy="150" r="100" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.04"/>
+          <circle cx="200" cy="150" r="60" stroke="currentColor" stroke-width="1" fill="none" opacity="0.03"/>
+          <circle cx="1250" cy="600" r="120" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.03"/>
+          <circle cx="400" cy="80" r="4" fill="currentColor" opacity="0.06"/>
+          <circle cx="800" cy="700" r="3" fill="currentColor" opacity="0.05"/>
+          <circle cx="1100" cy="100" r="5" fill="currentColor" opacity="0.04"/>
+          <polygon points="600,200 640,140 680,200" stroke="currentColor" stroke-width="1" fill="none" opacity="0.04"/>
+          <rect x="1000" y="300" width="45" height="45" rx="4" stroke="currentColor" stroke-width="1" fill="none" transform="rotate(45 1022.5 322.5)" opacity="0.03"/>
         </svg>
       </div>
 
@@ -1155,6 +1209,12 @@
         if (!canvas) return;
         var ctx = canvas.getContext('2d');
 
+        /* Read color scheme colors from computed styles */
+        var computedStyle = getComputedStyle(document.body);
+        var accentColor = computedStyle.getPropertyValue('--color-accent').trim() || '#6366f1';
+        var buttonColor = computedStyle.getPropertyValue('--color-button').trim() || '#1a2744';
+        var successColor = computedStyle.getPropertyValue('--color-success').trim() || '#22c55e';
+
         function resize() {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
@@ -1163,7 +1223,8 @@
         window.addEventListener('resize', resize);
 
         var confetti = [];
-        var colors = ['#6366f1', '#ec4899', '#f59e0b', '#22c55e', '#3b82f6', '#a78bfa', '#f472b6'];
+        /* Use theme-aware confetti colors */
+        var colors = [accentColor, buttonColor, successColor, '#f59e0b', '#3b82f6', '#a78bfa', '#f472b6'];
         var shapes = ['circle', 'rect', 'triangle'];
 
         for (var i = 0; i < 80; i++) {

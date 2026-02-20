@@ -343,51 +343,53 @@
     margin: 0;
   }
 
-  .quick-add-modal__add-btn {
+  .quick-add-modal__unavailable {
+    text-align: center;
+    padding: 12px;
+    font-size: 0.875rem;
+    color: var(--color-error, #dc2626);
+    font-weight: 500;
+    display: none;
+  }
+
+  .quick-add-modal__footer button[type='submit'] {
     width: 100%;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: var(--color-primary, #1a2744);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+    height: 56px;
   }
 
-  .quick-add-modal__add-btn:hover {
+  .quick-add-modal__footer button[type='submit'] svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .quick-add-modal__footer button[type='submit']:hover:not(:disabled) {
     opacity: 0.9;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
   }
 
-  .quick-add-modal__add-btn:active {
-    transform: scale(0.98);
+  .quick-add-modal__footer button[type='submit']:active:not(:disabled) {
+    transform: translateY(0);
   }
 
-  .quick-add-modal__add-btn:disabled {
+  .quick-add-modal__footer button[type='submit']:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 
-  .quick-add-modal__add-btn.is-loading .quick-add-modal__btn-text {
-    display: none;
-  }
-  .quick-add-modal__add-btn.is-loading > svg {
-    display: none;
-  }
-  .quick-add-modal__add-btn .quick-add-modal__spinner {
-    display: none;
-  }
-  .quick-add-modal__add-btn.is-loading .quick-add-modal__spinner {
-    display: block;
+  .quick-add-modal__footer button[type='submit'].is-loading {
+    pointer-events: none;
   }
 
-  .quick-add-modal__spinner {
+  .quick-add-modal__footer button[type='submit'].is-loading svg,
+  .quick-add-modal__footer button[type='submit'].is-loading [data-add-to-cart-text] {
+    visibility: hidden;
+  }
+
+  .quick-add-modal__footer button[type='submit'].is-loading::after {
+    content: '';
+    position: absolute;
     width: 22px;
     height: 22px;
     border: 2.5px solid rgba(255, 255, 255, 0.3);
@@ -402,21 +404,17 @@
     }
   }
 
-  .quick-add-modal__unavailable {
-    text-align: center;
-    padding: 12px;
-    font-size: 0.875rem;
-    color: var(--color-error, #dc2626);
-    font-weight: 500;
-    display: none;
+  @media (max-width: 767px) {
+    .quick-add-modal__footer button[type='submit'] {
+      height: 48px;
+      font-size: 15px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .quick-add-modal__content,
     .quick-add-modal__option-btn,
-    .quick-add-modal__color-btn,
-    .quick-add-modal__add-btn,
-    .quick-add-modal__spinner {
+    .quick-add-modal__color-btn {
       animation: none;
       transition: none;
     }
@@ -526,25 +524,27 @@
             {{ 'products.product.unavailable' | t | default: 'هذا الخيار غير متوفر حالياً' }}
           </div>
 
-          <button type="button" class="quick-add-modal__add-btn" data-quick-add-submit>
+          <button
+            type="submit"
+            class="btn--primary btn--full"
+            data-quick-add-submit
+          >
             <svg
-              width="20"
-              height="20"
+              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="flex-shrink-0 pointer-events-none"
             >
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            <span class="quick-add-modal__btn-text">
+            <span data-add-to-cart-text>
               {{- 'products.product.add_to_cart' | t | default: 'إضافة للسلة' -}}
             </span>
-            <div class="quick-add-modal__spinner"></div>
           </button>
         </div>
       </div>

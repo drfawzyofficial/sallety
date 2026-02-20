@@ -11,15 +11,15 @@
 {%- endcomment -%}
 
 {%- capture section_dir -%}{%- render 'section-dir' -%}{%- endcapture -%}
-<div 
+<div
   class="cart-item group relative px-5 py-4 hover:bg-border/10 transition-colors duration-200"
   dir="{{ section_dir }}"
-  data-cart-item 
+  data-cart-item
   data-line="{{ line_index }}"
   data-variant-id="{{ item.variant_id }}"
   data-item-key="{{ item.key }}"
 >
-  <div class="flex gap-4 flex-row-reverse">
+  <div class="flex gap-4">
     <!-- Product Image -->
     <a href="{{ item.url }}" class="flex-shrink-0 relative">
       <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-border/30 ring-1 ring-border/50">
@@ -34,7 +34,17 @@
           >
         {%- else -%}
           <div class="w-full h-full flex items-center justify-center text-secondary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
               <circle cx="8.5" cy="8.5" r="1.5"></circle>
               <polyline points="21 15 16 10 5 21"></polyline>
@@ -42,7 +52,7 @@
           </div>
         {%- endif -%}
       </div>
-      
+
       <!-- Sale Badge -->
       {%- if item.original_line_price != item.final_line_price -%}
         <span class="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-error text-white text-[10px] font-bold flex items-center justify-center">
@@ -58,7 +68,10 @@
         {%- if item.vendor -%}
           <p class="text-[10px] uppercase tracking-wider text-secondary font-medium mb-0.5">{{ item.vendor }}</p>
         {%- endif -%}
-        <a href="{{ item.url }}" class="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-2">
+        <a
+          href="{{ item.url }}"
+          class="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-2"
+        >
           {{ item.product.title }}
         </a>
       </div>
@@ -66,7 +79,17 @@
       <!-- Variant Info -->
       {%- unless item.product.has_only_default_variant -%}
         <p class="text-xs text-secondary mb-2 flex items-center gap-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="9 11 12 14 22 4"></polyline>
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
           </svg>
@@ -84,20 +107,35 @@
       <!-- Price & Quantity Row -->
       <div class="mt-auto flex items-end justify-between gap-2">
         <!-- Quantity Selector -->
-        <div class="quantity-selector inline-flex items-center rounded-lg border border-border bg-background overflow-hidden" data-quantity-selector>
+        <div
+          class="quantity-selector inline-flex items-center rounded-lg border border-border bg-background overflow-hidden"
+          data-quantity-selector
+        >
           <button
             type="button"
             class="w-8 h-8 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             data-quantity-minus
             data-line="{{ line_index }}"
             aria-label="{{ 'products.product.quantity' | t }} {{ 'general.minus' | t }}"
-            {% if item.quantity <= 1 %}disabled{% endif %}
+            {% if item.quantity <= 1 %}
+              disabled
+            {% endif %}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
           </button>
-          
+
           <input
             type="number"
             class="w-10 h-8 text-center text-sm font-medium bg-transparent border-x border-border text-foreground focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -113,7 +151,7 @@
             {% endif %}
             aria-label="{{ 'products.product.quantity' | t }}"
           >
-          
+
           <button
             type="button"
             class="w-8 h-8 flex items-center justify-center text-secondary hover:text-foreground hover:bg-border/50 transition-all"
@@ -121,7 +159,17 @@
             data-line="{{ line_index }}"
             aria-label="{{ 'products.product.quantity' | t }} {{ 'general.plus' | t }}"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
@@ -129,12 +177,18 @@
         </div>
 
         <!-- Price -->
-        <div class="text-left" data-item-price-wrapper>
+        <div class="text-end" data-item-price-wrapper>
           {%- if item.original_line_price != item.final_line_price -%}
-            <span class="block text-sm font-bold text-error" data-item-final-price>{{ item.final_line_price | money }}</span>
-            <span class="block text-xs text-secondary line-through" data-item-original-price>{{ item.original_line_price | money }}</span>
+            <span class="block text-sm font-bold text-error" data-item-final-price>
+              {{- item.final_line_price | money -}}
+            </span>
+            <span class="block text-xs text-secondary line-through" data-item-original-price>
+              {{- item.original_line_price | money -}}
+            </span>
           {%- else -%}
-            <span class="block text-sm font-bold text-foreground" data-item-final-price>{{ item.final_line_price | money }}</span>
+            <span class="block text-sm font-bold text-foreground" data-item-final-price>
+              {{- item.final_line_price | money -}}
+            </span>
           {%- endif -%}
           <span class="text-[10px] text-secondary {% if item.quantity <= 1 %}hidden{% endif %}" data-item-unit-price>
             {{ item.original_price | money }} × <span data-item-quantity-display>{{ item.quantity }}</span>
@@ -146,12 +200,23 @@
     <!-- Remove Button -->
     <button
       type="button"
-      class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center rounded-full bg-border/30 text-secondary hover:text-error hover:bg-error/10 transition-all duration-200"
+      class="absolute top-3 w-8 h-8 flex items-center justify-center rounded-full bg-border/30 text-secondary hover:text-error hover:bg-error/10 transition-all duration-200"
+      style="inset-inline-end: 0.75rem;"
       data-cart-remove="{{ line_index }}"
       aria-label="{{ 'cart.general.remove_title' | t: title: item.title }}"
       title="{{ 'cart.general.remove' | t }}"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="3 6 5 6 21 6"></polyline>
         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
       </svg>
@@ -167,7 +232,9 @@
             <span class="inline-flex items-center gap-1 text-xs text-secondary bg-border/30 rounded-full px-2 py-1">
               <span class="font-medium">{{ property.first }}:</span>
               {%- if property.last contains '/uploads/' -%}
-                <a href="{{ property.last }}" class="text-primary hover:underline" target="_blank">{{ 'cart.general.view_file' | t | default: 'عرض الملف' }}</a>
+                <a href="{{ property.last }}" class="text-primary hover:underline" target="_blank">
+                  {{- 'cart.general.view_file' | t | default: 'عرض الملف' -}}
+                </a>
               {%- else -%}
                 {{ property.last }}
               {%- endif -%}
@@ -183,7 +250,17 @@
     <div class="mt-2">
       {%- for discount in item.line_level_discount_allocations -%}
         <span class="inline-flex items-center gap-1 text-xs text-success bg-success/10 rounded-full px-2 py-1">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
             <line x1="7" y1="7" x2="7.01" y2="7"></line>
           </svg>

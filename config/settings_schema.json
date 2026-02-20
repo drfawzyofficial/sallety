@@ -2,7 +2,7 @@
   {
     "name": "theme_info",
     "theme_name": "Sallety",
-    "theme_version": "1.0.0",
+    "theme_version": "2.0.0",
     "theme_author": "Matgark",
     "theme_documentation_url": "https://sallety-theme.dev/docs",
     "theme_support_url": "https://sallety-theme.dev/support"
@@ -1321,12 +1321,6 @@
         "default": false
       },
       {
-        "type": "checkbox",
-        "id": "show_rating",
-        "label": "t:settings_schema.products.settings.show_rating.label",
-        "default": true
-      },
-      {
         "type": "header",
         "content": "t:settings_schema.products.settings.badges.header"
       },
@@ -2019,94 +2013,6 @@
         "id": "enable_recently_viewed",
         "label": "t:settings_schema.features.settings.enable_recently_viewed.label",
         "default": true
-      },
-      {
-        "type": "header",
-        "content": "نافذة تسجيل الدخول"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_bg",
-        "label": "لون خلفية النافذة",
-        "default": "#ffffff"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_title_color",
-        "label": "لون العنوان",
-        "default": "#1a2744"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_text_color",
-        "label": "لون النصوص",
-        "default": "#374151"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_input_border",
-        "label": "لون حدود الحقول",
-        "default": "#e5e7eb"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_input_focus",
-        "label": "لون التركيز على الحقول",
-        "default": "#1a2744"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_btn_bg",
-        "label": "لون خلفية الزر",
-        "default": "#1a2744"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_btn_text",
-        "label": "لون نص الزر",
-        "default": "#ffffff"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_error_color",
-        "label": "لون رسائل الخطأ",
-        "default": "#dc2626"
-      },
-      {
-        "type": "color",
-        "id": "login_modal_close_bg",
-        "label": "لون زر الإغلاق",
-        "default": "#b91c1c"
-      },
-      {
-        "type": "text",
-        "id": "login_modal_title",
-        "label": "عنوان النافذة",
-        "default": "تسجيل الدخول"
-      },
-      {
-        "type": "text",
-        "id": "login_modal_btn_label",
-        "label": "نص زر الدخول",
-        "default": "دخول"
-      },
-      {
-        "type": "text",
-        "id": "login_modal_loading_text",
-        "label": "نص التحميل",
-        "default": "جاري التسجيل..."
-      },
-      {
-        "type": "text",
-        "id": "login_modal_error_text",
-        "label": "رسالة الخطأ الافتراضية",
-        "default": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
-      },
-      {
-        "type": "url",
-        "id": "login_modal_redirect",
-        "label": "صفحة التحويل بعد الدخول",
-        "info": "اتركه فارغاً للتحويل إلى صفحة الحساب"
       }
     ]
   }

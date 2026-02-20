@@ -1754,8 +1754,11 @@ input:checked+.facets__color-circle {
 }
 
 .product-card__atc-btn svg {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   pointer-events: none;
+  vertical-align: middle;
 }
 
 /* Loading state for product card add-to-cart button */
